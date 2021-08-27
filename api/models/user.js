@@ -1,7 +1,13 @@
 const con = require("../boot/db.js");
-const logSqlError = require("../utils");
+const { logSqlError, isAdmin } = require("../utils");
 
 const User = {};
+
+function addAdminAttr(err, user, next) {
+  if (user) user.is_admin = isAdmin(user);
+
+  next(err, user);
+}
 
 User.findOrCreate = (googleUser, done) => {
   const userEmail = googleUser.email;
@@ -33,14 +39,14 @@ User.findOrCreate = (googleUser, done) => {
           if (err) return logSqlError(err);
 
           console.log("Created new user", results[0]);
-          return done(null, results[0]);
+          return addAdminAttr(null, results[0], done);
         });
       });
     }
 
     // Return existing db user
     else {
-      return done(null, results[0]);
+      return addAdminAttr(null, results[0], done);
     }
   });
 };

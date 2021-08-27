@@ -63,6 +63,7 @@ export default function NavBar() {
 
         dispatch({
           type: "LOGIN",
+          isAdmin: res.is_admin,
           user: {
             email: res.email,
             firstName: res.first_name,

@@ -1,13 +1,12 @@
-function isLoggedIn(req, res, next) {
-  req.user ? next() : res.sendStatus(401);
+const adminList = process.env["ADMINS"].split(",");
+
+function isLoggedIn(req, res, next, checkAdmin = false) {
+  const user = req.user;
+  user && (!checkAdmin || isAdmin(req.user)) ? next() : res.sendStatus(401);
 }
 
-function isAdmin(req, res, next) {
-  adminList = ["aukey2@illinois.edu"];
-
-  if (req.user && adminList.include(req.user.email)) next();
-
-  res.sendStatus(401);
+function isAdmin(user) {
+  return user && adminList.includes(user.email);
 }
 
 function logSqlError(err) {

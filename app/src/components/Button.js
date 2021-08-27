@@ -1,5 +1,3 @@
-import { useContext } from "react";
-import { Context } from "../Store";
 import { useLocation } from "react-router-dom";
 
 import { Button as MuiButton } from "@material-ui/core";
@@ -24,45 +22,27 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Button(props) {
-  const { navId, href } = props;
+  const { href } = props;
   const classes = useStyles();
-  const [state, dispatch] = useContext(Context);
   const location = useLocation();
 
-  function isClicked(location, href, state, navId) {
-    if (href == undefined) {
-      return false;
-    }
+  function isClicked(location, href) {
+    if (href === undefined) return false;
 
-    const searchUrlPref = "/search";
-    // const entityUrlPref = "/entity";
     const currPath = location.pathname;
+    if (href.length == 1) return currPath === href;
 
-    if (href == currPath) {
-      if (href == searchUrlPref) {
-        return navId == state.entityTypeIdx;
-      }
-      return true;
-    } else if (
-      href == searchUrlPref &&
-      currPath.substring(0, searchUrlPref.length) == searchUrlPref
-    ) {
-      return navId == state.entityTypeIdx;
-    }
-    return false;
+    return currPath.includes(href);
   }
 
   const InnerButton = () => (
     <MuiButton
       classes={{
-        /*root: isClicked(location, href, state, navId)
-          ? classes.clickedContainer
-          : classes.unclickedContainer,*/
         label: classes.label,
       }}
       onClick={props.onClick}
       className={
-        isClicked(location, href, state, navId)
+        isClicked(location, href)
           ? props.clickedClassName
           : props.unclickedClassName
       }

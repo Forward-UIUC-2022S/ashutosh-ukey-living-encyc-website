@@ -2,7 +2,7 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth2").Strategy;
 const User = require("../models/user");
 
-const logSqlError = require("../utils");
+const { logSqlError } = require("../utils");
 
 passport.use(
   new GoogleStrategy(

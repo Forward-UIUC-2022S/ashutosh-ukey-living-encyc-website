@@ -3,6 +3,7 @@ import Reducer from "./Reducer";
 
 const initialState = {
   isLoggedIn: false,
+  isAdmin: false,
   user: {},
   isLoading: false,
 };

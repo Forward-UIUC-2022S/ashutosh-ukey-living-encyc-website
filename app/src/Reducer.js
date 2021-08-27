@@ -4,6 +4,7 @@ const Reducer = (state, action) => {
       return {
         ...state,
         isLoggedIn: true,
+        isAdmin: action.isAdmin,
         user: action.user,
       };
     default:

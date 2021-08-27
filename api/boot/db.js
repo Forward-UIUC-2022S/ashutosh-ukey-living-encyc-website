@@ -1,5 +1,5 @@
 const mysql = require("mysql2");
-const logSqlError = require("../utils");
+const { logSqlError } = require("../utils");
 
 const con = mysql.createConnection({
   host: "localhost",

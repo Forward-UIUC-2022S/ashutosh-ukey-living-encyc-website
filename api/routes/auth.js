@@ -1,6 +1,6 @@
 const express = require("express");
 const passport = require("passport");
-const isLoggedIn = require("../utils").isLoggedIn;
+const { isLoggedIn } = require("../utils");
 
 const router = express.Router();
 
@@ -14,7 +14,7 @@ router.get(
   "/callback",
   passport.authenticate("google", {
     failureRedirect: process.env["CLIENT_HOME_PAGE_URL"],
-    successRedirect: process.env["CLIENT_HOME_PAGE_URL"],
+    successRedirect: `${process.env["CLIENT_HOME_PAGE_URL"]}verify`,
   })
 );
 

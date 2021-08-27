@@ -83,7 +83,7 @@ const useStyles = makeStyles((theme) => ({
   sideButtonUnclicked: {
     ...sideButtonStyle,
   },
-  uploadContainer: {
+  adminContainer: {
     display: "flex",
     width: "100%",
     // height: 240,

@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { Context } from "../Store";
 
 import {
   BrowserRouter as Router,
@@ -10,7 +11,9 @@ import {
 } from "react-router-dom";
 
 import { Box, Paper, TextField, Typography } from "@material-ui/core";
+
 import Button from "../components/Button";
+import PrivateRoute from "../components/PrivateRoute";
 import Table from "../components/PreselectTable";
 
 import useStyles from "./VerifyStyles";
@@ -30,11 +33,14 @@ function Topic() {
 }
 
 function SideMenu() {
+  const [state, _] = useContext(Context);
+  const { isAdmin } = state;
+
   const { url } = useRouteMatch();
   const classes = useStyles();
 
   const sideMenuOpts = [
-    { name: "Upload New", href: `${url}/upload` },
+    { name: "Admin", href: `${url}/admin`, requireAdmin: true },
     { name: "Relevance", href: `${url}/relevance` },
     { name: "Generated Info", href: `${url}/generated` },
     { name: "Settings", href: `${url}/settings` },
@@ -42,16 +48,19 @@ function SideMenu() {
 
   return (
     <Box className={classes.sideContainer}>
-      {sideMenuOpts.map((opt, idx) => (
-        <Button
-          key={idx}
-          clickedClassName={classes.sideButtonClicked}
-          unclickedClassName={classes.sideButtonUnclicked}
-          size="small"
-          name={opt.name}
-          href={opt.href}
-        />
-      ))}
+      {sideMenuOpts.map(
+        (opt, idx) =>
+          (!opt.requireAdmin || isAdmin) && (
+            <Button
+              key={idx}
+              clickedClassName={classes.sideButtonClicked}
+              unclickedClassName={classes.sideButtonUnclicked}
+              size="small"
+              name={opt.name}
+              href={opt.href}
+            />
+          )
+      )}
     </Box>
   );
 }
@@ -64,7 +73,11 @@ function Verify() {
     <Box className={classes.container}>
       <SideMenu />
       <Switch>
-        <Route path={`${path}/upload`} component={UploadSection} />
+        <PrivateRoute
+          path={`${path}/admin`}
+          component={AdminSection}
+          requireAdmin={true}
+        />
         <Route exact path={`${path}/relevance`} component={PreselectSection} />
         <Route
           path={`${path}/relevance/:keywordId`}
@@ -75,7 +88,7 @@ function Verify() {
   );
 }
 
-function UploadSection() {
+function AdminSection() {
   const classes = useStyles();
   const [file, setFile] = useState();
   const [fileContent, setFileContent] = useState("");
@@ -112,24 +125,29 @@ function UploadSection() {
   }
 
   return (
-    <div className={classes.uploadContainer}>
-      <Typography variant="h4">CSV Keywords File</Typography>
-
+    <div className={classes.adminContainer}>
       <div>
-        <input
-          className={classes.fileInput}
-          type="file"
-          onChange={onFileChange}
-        />
-        <Button
-          unclickedClassName={classes.uploadButton}
-          size="small"
-          name="Upload"
-          onClick={onFileUpload}
-        />
-      </div>
+        <Typography variant="h4">Upload Keywords</Typography>
 
-      {fileContent.length > 0 && fileContent}
+        <div>
+          <input
+            className={classes.fileInput}
+            type="file"
+            onChange={onFileChange}
+          />
+          <Button
+            unclickedClassName={classes.uploadButton}
+            size="small"
+            name="Upload"
+            onClick={onFileUpload}
+          />
+        </div>
+
+        {fileContent.length > 0 && fileContent}
+      </div>
+      <div>
+        <Typography variant="h4">Assign to Labelers</Typography>
+      </div>
     </div>
   );
 }
