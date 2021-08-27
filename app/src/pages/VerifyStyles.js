@@ -13,6 +13,19 @@ const verifyButtonStyles = {
   borderRadius: 10,
 };
 const useStyles = makeStyles((theme) => ({
+  fileInput: {
+    marginTop: 40,
+    marginBottom: 15,
+  },
+  uploadButton: {
+    ...verifyButtonStyles,
+    maxWidth: 180,
+    height: 35,
+    backgroundColor: theme.palette.pendingYellow.main,
+    "&:hover": {
+      background: theme.palette.pendingYellow.main,
+    },
+  },
   continueButton: {
     ...verifyButtonStyles,
     maxWidth: 280,
@@ -69,6 +82,14 @@ const useStyles = makeStyles((theme) => ({
   },
   sideButtonUnclicked: {
     ...sideButtonStyle,
+  },
+  uploadContainer: {
+    display: "flex",
+    width: "100%",
+    // height: 240,
+    flexDirection: "column",
+    // justifyContent: "space-between",
+    padding: 40,
   },
   preselectContainer: {
     display: "flex",

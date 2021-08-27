@@ -1,6 +1,11 @@
-import React from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import Store from "./Store";
+import React, { useContext, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from "react-router-dom";
+import { Context } from "./Store";
 
 import NavBar from "./components/NavBar";
 
@@ -8,20 +13,42 @@ import HomePage from "./pages/Home";
 import VerifyPage from "./pages/Verify";
 
 export default function App() {
+  const [_, dispatch] = useContext(Context);
+
   return (
-    <Store>
+    <React.Fragment>
       <Router>
         <NavBar />
 
         <Switch>
-          <Route path="/verify">
-            <VerifyPage />
-          </Route>
-          <Route path="/">
-            <HomePage />
-          </Route>
+          <PrivateRoute path="/verify" component={VerifyPage} />
+          <Route path="/" component={HomePage} />
         </Switch>
       </Router>
-    </Store>
+    </React.Fragment>
+  );
+}
+
+function PrivateRoute({ component: Component, ...rest }) {
+  const [state, _] = useContext(Context);
+
+  const { isLoggedIn } = state;
+
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        isLoggedIn ? (
+          <Component {...props} />
+        ) : (
+          <Redirect
+            to={{
+              pathname: "/",
+              state: { from: props.location, redirect: true },
+            }}
+          />
+        )
+      }
+    />
   );
 }

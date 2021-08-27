@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     height: 400,
     marginTop: 50,
-    marginBottom: 150,
+    marginBottom: 100,
   },
   searchFieldContainer: {
     background: theme.palette.inputGray.main,

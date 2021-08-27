@@ -2,11 +2,8 @@ import React, { createContext, useReducer } from "react";
 import Reducer from "./Reducer";
 
 const initialState = {
-  entityTypeIdx: 0,
-  selectedKeywords: [],
-  selectedFields: [],
-  compareResults: [],
-  rankResults: [],
+  isLoggedIn: false,
+  user: {},
   isLoading: false,
 };
 

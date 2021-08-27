@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+
 import {
   BrowserRouter as Router,
   Switch,
@@ -41,8 +42,9 @@ function SideMenu() {
 
   return (
     <Box className={classes.sideContainer}>
-      {sideMenuOpts.map((opt) => (
+      {sideMenuOpts.map((opt, idx) => (
         <Button
+          key={idx}
           clickedClassName={classes.sideButtonClicked}
           unclickedClassName={classes.sideButtonUnclicked}
           size="small"
@@ -62,19 +64,79 @@ function Verify() {
     <Box className={classes.container}>
       <SideMenu />
       <Switch>
-        <Route exact path={`${path}/relevance`}>
-          <PreselectSection />
-        </Route>
-        <Route path={`${path}/relevance/:keywordId`}>
-          <VerifyKeywordDomain />
-        </Route>
+        <Route path={`${path}/upload`} component={UploadSection} />
+        <Route exact path={`${path}/relevance`} component={PreselectSection} />
+        <Route
+          path={`${path}/relevance/:keywordId`}
+          component={VerifyKeywordDomain}
+        />
       </Switch>
     </Box>
   );
 }
 
+function UploadSection() {
+  const classes = useStyles();
+  const [file, setFile] = useState();
+  const [fileContent, setFileContent] = useState("");
+
+  function onFileChange(event) {
+    const newFile = event.target.files[0];
+    setFile(newFile);
+
+    const reader = new FileReader();
+
+    // Read in file's content
+    reader.onload = function (e) {
+      setFileContent(reader.result);
+    };
+    reader.readAsText(newFile);
+  }
+
+  // On file upload (click the upload button)
+  function onFileUpload() {
+    if (!file) return;
+
+    const reqBody = {
+      name: file.name,
+      data: fileContent,
+    };
+
+    fetch("/label/upload", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(reqBody),
+    });
+  }
+
+  return (
+    <div className={classes.uploadContainer}>
+      <Typography variant="h4">CSV Keywords File</Typography>
+
+      <div>
+        <input
+          className={classes.fileInput}
+          type="file"
+          onChange={onFileChange}
+        />
+        <Button
+          unclickedClassName={classes.uploadButton}
+          size="small"
+          name="Upload"
+          onClick={onFileUpload}
+        />
+      </div>
+
+      {fileContent.length > 0 && fileContent}
+    </div>
+  );
+}
+
 function PreselectSection() {
   const classes = useStyles();
+  const { path } = useRouteMatch();
 
   const [query, setQuery] = useState("");
   const [searchSuggestions, setSearchSuggestions] = useState([]);
@@ -86,6 +148,7 @@ function PreselectSection() {
         unclickedClassName={classes.continueButton}
         size="small"
         name="Continue to verify"
+        href={`${path}/relevance/5`}
       />
     </Box>
   );
