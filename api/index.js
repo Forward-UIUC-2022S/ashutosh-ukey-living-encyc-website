@@ -6,6 +6,7 @@ const session = require("express-session");
 const passport = require("passport");
 
 const authRouter = require("./routes/auth");
+const keywordRouter = require("./routes/keyword");
 const keywordVerifyRouter = require("./routes/keywordVerify");
 
 // Execute setup files
@@ -39,6 +40,7 @@ const server = app.listen(port, () => {
 
 // Declare app routes
 app.use("/label", keywordVerifyRouter);
+app.use("/keyword", keywordRouter);
 app.use("/auth", authRouter);
 
 // Gracefully exit server

@@ -29,11 +29,20 @@ con.connect((err) => {
     CREATE TABLE IF NOT EXISTS keyword_label(
       keyword_id INT NOT NULL,
       user_id INT NOT NULL,
-      status INT DEFAULT 0,
+
+      status ENUM(
+        'pending',
+        'irrelevant',
+        'pending-auto',
+        'incorrect-auto',
+        'verified'
+      ) DEFAULT 'pending',
+
       create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       update_time TIMESTAMP DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-      PRIMARY KEY (keyword_id, user_id),
-      FOREIGN KEY (keyword_id) REFERENCES keyword(keyword_id),
+      PRIMARY KEY (user_id, keyword_id),
+      INDEX (status),
+      FOREIGN KEY (keyword_id) REFERENCES keyword(id),
       FOREIGN KEY (user_id) REFERENCES user(id)
     )
   `;

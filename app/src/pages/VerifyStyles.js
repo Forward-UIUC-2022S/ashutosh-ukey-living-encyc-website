@@ -1,5 +1,14 @@
 import { makeStyles } from "@material-ui/core/styles";
 
+function staticButtonColorStyle(color) {
+  return {
+    backgroundColor: color,
+    "&:hover": {
+      background: color,
+    },
+  };
+}
+
 const sideButtonStyle = {
   width: 250,
   padding: "8px 0px",
@@ -12,73 +21,64 @@ const verifyButtonStyles = {
   border: "2px solid",
   borderRadius: 10,
 };
+const verifyAllButtonStyles = {
+  ...verifyButtonStyles,
+  marginRight: 20,
+  maxWidth: 220,
+};
+
 const useStyles = makeStyles((theme) => ({
   fileInput: {
     marginTop: 40,
     marginBottom: 15,
   },
+  disabledButton: {
+    ...verifyAllButtonStyles,
+    ...staticButtonColorStyle(theme.palette.backGray.main),
+    pointerEvents: "none",
+  },
   uploadButton: {
     ...verifyButtonStyles,
+    ...staticButtonColorStyle(theme.palette.pendingYellow.main),
     maxWidth: 180,
     height: 35,
-    backgroundColor: theme.palette.pendingYellow.main,
-    "&:hover": {
-      background: theme.palette.pendingYellow.main,
-    },
   },
   continueButton: {
-    ...verifyButtonStyles,
-    maxWidth: 280,
-    backgroundColor: theme.palette.pendingYellow.main,
-    "&:hover": {
-      background: theme.palette.pendingYellow.main,
-    },
+    ...verifyAllButtonStyles,
+    ...staticButtonColorStyle(theme.palette.pendingYellow.main),
+  },
+  allCorrectButton: {
+    ...verifyAllButtonStyles,
+    ...staticButtonColorStyle(theme.palette.verifyGreen.main),
+  },
+  allIncorrectButton: {
+    ...verifyAllButtonStyles,
+    ...staticButtonColorStyle(theme.palette.verifyRed.main),
   },
   correctButton: {
     ...verifyButtonStyles,
-    backgroundColor: theme.palette.verifyGreen.main,
-    "&:hover": {
-      background: theme.palette.verifyGreen.main,
-    },
+    ...staticButtonColorStyle(theme.palette.verifyGreen.main),
   },
   incorrectButton: {
     ...verifyButtonStyles,
-    backgroundColor: theme.palette.verifyRed.main,
-    "&:hover": {
-      background: theme.palette.verifyRed.main,
-    },
+    ...staticButtonColorStyle(theme.palette.verifyRed.main),
   },
   classifyContainer: {
-    marginTop: 80,
+    marginTop: 60,
     display: "flex",
     justifyContent: "space-between",
     width: "60%",
   },
   verifyContainer: {
+    marginTop: 40,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     width: "100%",
   },
-  keywordDomainCard: {
-    backgroundColor: theme.palette.backGray.main,
-    width: "40%",
-    height: "30%",
-    maxWidth: 500,
-    marginTop: 80,
-    border: "6px solid",
-    borderColor: theme.palette.pendingYellow.main,
-    borderRadius: 20,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
   sideButtonClicked: {
     ...sideButtonStyle,
-    background: theme.palette.backGray.dark,
-    "&:hover": {
-      background: theme.palette.backGray.dark,
-    },
+    ...staticButtonColorStyle(theme.palette.backGray.dark),
   },
   sideButtonUnclicked: {
     ...sideButtonStyle,

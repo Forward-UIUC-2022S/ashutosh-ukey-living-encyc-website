@@ -5,6 +5,7 @@ const initialState = {
   isLoggedIn: false,
   isAdmin: false,
   user: {},
+  selectedKeywordIds: [],
   isLoading: false,
 };
 

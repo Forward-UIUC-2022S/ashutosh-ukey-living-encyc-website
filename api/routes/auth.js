@@ -25,9 +25,4 @@ router.get("/logout", (req, res) => {
 
 router.get("/verify", isLoggedIn, (req, res) => res.send(req.user));
 
-// Default exports
 module.exports = router;
-
-// // Named exports
-// const exports = module.exports;
-// exports.isLoggedIn = isLoggedIn;

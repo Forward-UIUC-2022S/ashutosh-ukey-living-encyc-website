@@ -3,37 +3,88 @@ import { Context } from "../Store";
 
 import {
   BrowserRouter as Router,
+  Redirect,
   Switch,
   Route,
   Link,
   useParams,
   useRouteMatch,
+  useLocation,
 } from "react-router-dom";
 
+import AdminSection from "./Admin";
+
 import { Box, Paper, TextField, Typography } from "@material-ui/core";
+import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 
 import Button from "../components/Button";
+import SkipBanner from "../components/SkipBanner";
+import KeywordCard from "../components/KeywordCard";
 import PrivateRoute from "../components/PrivateRoute";
-import Table from "../components/PreselectTable";
+import PreselectTable from "../components/PreselectTable";
 
 import useStyles from "./VerifyStyles";
 
-function Topic() {
-  // The <Route> that rendered this component has a
-  // path of `/topics/:topicId`. The `:topicId` portion
-  // of the URL indicates a placeholder that we can
-  // get from `useParams()`.
-  let { topicId } = useParams();
+function IndividualRoute(props) {
+  const { component: Component, ...rest } = props;
+  const [state, _] = useContext(Context);
+
+  const { selectedKeywordIds } = state;
+  const allowAccess = selectedKeywordIds.length > 0;
 
   return (
-    <div>
-      <h3>{topicId}</h3>
-    </div>
+    <Route
+      {...rest}
+      render={(props) =>
+        allowAccess ? (
+          <Component {...props} />
+        ) : (
+          <Redirect
+            to={{
+              pathname: props.location.pathname.replace("/individual", ""),
+              state: { from: props.location },
+            }}
+          />
+        )
+      }
+    />
+  );
+}
+
+function Verify() {
+  const { path } = useRouteMatch();
+  const classes = useStyles();
+
+  return (
+    <Box className={classes.container}>
+      <SideMenu />
+      <Switch>
+        <PrivateRoute
+          path={`${path}/admin`}
+          component={AdminSection}
+          requireAdmin={true}
+        />
+        <Route
+          exact
+          path={`${path}/relevance`}
+          component={TableVerifySection}
+        />
+        <IndividualRoute
+          path={`${path}/relevance/individual`}
+          component={IndividualRelevanceSection}
+        />
+        <Route exact path={`${path}/generated`} component={PreselectSection} />
+        <IndividualRoute
+          path={`${path}/generated/individual`}
+          component={IndividualGeneratedSection}
+        />
+      </Switch>
+    </Box>
   );
 }
 
 function SideMenu() {
-  const [state, _] = useContext(Context);
+  const [state, dispatch] = useContext(Context);
   const { isAdmin } = state;
 
   const { url } = useRouteMatch();
@@ -65,132 +116,169 @@ function SideMenu() {
   );
 }
 
-function Verify() {
-  const { path } = useRouteMatch();
-  const classes = useStyles();
-
-  return (
-    <Box className={classes.container}>
-      <SideMenu />
-      <Switch>
-        <PrivateRoute
-          path={`${path}/admin`}
-          component={AdminSection}
-          requireAdmin={true}
-        />
-        <Route exact path={`${path}/relevance`} component={PreselectSection} />
-        <Route
-          path={`${path}/relevance/:keywordId`}
-          component={VerifyKeywordDomain}
-        />
-      </Switch>
-    </Box>
-  );
-}
-
-function AdminSection() {
-  const classes = useStyles();
-  const [file, setFile] = useState();
-  const [fileContent, setFileContent] = useState("");
-
-  function onFileChange(event) {
-    const newFile = event.target.files[0];
-    setFile(newFile);
-
-    const reader = new FileReader();
-
-    // Read in file's content
-    reader.onload = function (e) {
-      setFileContent(reader.result);
-    };
-    reader.readAsText(newFile);
-  }
-
-  // On file upload (click the upload button)
-  function onFileUpload() {
-    if (!file) return;
-
-    const reqBody = {
-      name: file.name,
-      data: fileContent,
-    };
-
-    fetch("/label/upload", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(reqBody),
-    });
-  }
-
-  return (
-    <div className={classes.adminContainer}>
-      <div>
-        <Typography variant="h4">Upload Keywords</Typography>
-
-        <div>
-          <input
-            className={classes.fileInput}
-            type="file"
-            onChange={onFileChange}
-          />
-          <Button
-            unclickedClassName={classes.uploadButton}
-            size="small"
-            name="Upload"
-            onClick={onFileUpload}
-          />
-        </div>
-
-        {fileContent.length > 0 && fileContent}
-      </div>
-      <div>
-        <Typography variant="h4">Assign to Labelers</Typography>
-      </div>
-    </div>
-  );
-}
-
 function PreselectSection() {
   const classes = useStyles();
   const { path } = useRouteMatch();
+  const [state, _] = useContext(Context);
 
   const [query, setQuery] = useState("");
   const [searchSuggestions, setSearchSuggestions] = useState([]);
 
+  const enableButtons = state.selectedKeywordIds?.length > 0;
+
   return (
     <Box className={classes.preselectContainer}>
-      <Table />
-      <Button
-        unclickedClassName={classes.continueButton}
-        size="small"
-        name="Continue to verify"
-        href={`${path}/relevance/5`}
-      />
+      <PreselectTable displayStatus="pending-auto" />
+      <div>
+        <Button
+          unclickedClassName={
+            enableButtons ? classes.continueButton : classes.disabledButton
+          }
+          size="small"
+          name="Verify Individually"
+          href={enableButtons ? `${path}/individual` : undefined}
+        />
+      </div>
     </Box>
   );
 }
 
-function VerifyKeywordDomain() {
-  let { keywordId } = useParams();
+async function markSelected(selectedKeywordIds, status) {
+  const labelUrl = "/label?status=" + status;
+
+  let res = await fetch(labelUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(selectedKeywordIds),
+  });
+  res = await res.json();
+
+  console.log("Label return request: ", res);
+  if (res.numAffected !== selectedKeywordIds.length)
+    console.log("Warning: failed to label all keywords");
+
+  return res;
+}
+
+function TableVerifySection() {
   const classes = useStyles();
+  const { path } = useRouteMatch();
+  const [state, dispatch] = useContext(Context);
+
+  const { selectedKeywordIds } = state;
+
+  const [query, setQuery] = useState("");
+  const [refresh, setRefresh] = useState(false);
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+
+  const enableButtons = selectedKeywordIds?.length > 0;
+
+  async function markAndRefresh(status) {
+    const res = await markSelected(selectedKeywordIds, status);
+
+    if (res.numAffected > 0) setRefresh(!refresh);
+  }
+
+  return (
+    <Box className={classes.preselectContainer}>
+      <PreselectTable refresh={refresh} displayStatus="pending" />
+      <div>
+        <Button
+          name="Mark Relevant"
+          onClick={() => markAndRefresh("pending-auto")}
+          unclickedClassName={
+            enableButtons ? classes.allCorrectButton : classes.disabledButton
+          }
+          size="small"
+        />
+        <Button
+          name="Mark Irrelevant"
+          onClick={() => markAndRefresh("irrelevant")}
+          unclickedClassName={
+            enableButtons ? classes.allIncorrectButton : classes.disabledButton
+          }
+          size="small"
+        />
+        <Button
+          unclickedClassName={
+            enableButtons ? classes.continueButton : classes.disabledButton
+          }
+          size="small"
+          name="Verify Individually"
+          href={enableButtons ? `${path}/individual` : undefined}
+        />
+      </div>
+    </Box>
+  );
+}
+
+function IndividualRelevanceSection() {
+  // let { keywordId } = useParams();
+  const classes = useStyles();
+  const [state, dispatch] = useContext(Context);
+
+  const { selectedKeywordIds } = state;
+  const currKeywordId = selectedKeywordIds[0];
+
+  async function markAndContinue(status) {
+    const res = await markSelected([currKeywordId], status);
+
+    if (res.numAffected === 1) dispatch({ type: "POP_SELECTED_KEYWORDS" });
+  }
 
   return (
     <Box className={classes.verifyContainer}>
-      <Box className={classes.keywordDomainCard}>
-        <h3>Keyword id: {keywordId}</h3>
-      </Box>
+      <SkipBanner />
+      <KeywordCard keywordId={currKeywordId} />
       <Box className={classes.classifyContainer}>
         <Button
-          unclickedClassName={classes.correctButton}
-          size="small"
-          name="Relevant"
-        />
-        <Button
+          name="Irrelevant"
+          onClick={() => markAndContinue("irrelevant")}
           unclickedClassName={classes.incorrectButton}
           size="small"
-          name="Irrelevant"
+        />
+        <Button
+          name="Relevant"
+          onClick={() => markAndContinue("pending-auto")}
+          unclickedClassName={classes.correctButton}
+          size="small"
+        />
+      </Box>
+    </Box>
+  );
+}
+
+function IndividualGeneratedSection() {
+  const classes = useStyles();
+  const [state, dispatch] = useContext(Context);
+
+  const { selectedKeywordIds } = state;
+  const currKeywordId = selectedKeywordIds[0];
+
+  async function markAndContinue(status) {
+    const res = await markSelected([currKeywordId], status);
+
+    if (res.numAffected === 1) dispatch({ type: "POP_SELECTED_KEYWORDS" });
+  }
+
+  return (
+    <Box className={classes.verifyContainer}>
+      <SkipBanner />
+      <KeywordCard keywordId={currKeywordId} />
+      <Box className={classes.classifyContainer}>
+        <Button
+          name="Incorrect"
+          onClick={() => markAndContinue("incorrect-auto")}
+          unclickedClassName={classes.incorrectButton}
+          size="small"
+        />
+        <Button
+          name="Correct"
+          onClick={() => markAndContinue("verified")}
+          unclickedClassName={classes.correctButton}
+          size="small"
         />
       </Box>
     </Box>

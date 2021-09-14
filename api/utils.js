@@ -1,6 +1,14 @@
 const adminList = process.env["ADMINS"].split(",");
 
-function isLoggedIn(req, res, next, checkAdmin = false) {
+function isLoggedIn(req, res, next) {
+  isLoggedInHelper(req, res, next, false);
+}
+
+function isLoggedInAdmin(req, res, next) {
+  isLoggedInHelper(req, res, next, true);
+}
+
+function isLoggedInHelper(req, res, next, checkAdmin) {
   const user = req.user;
   user && (!checkAdmin || isAdmin(req.user)) ? next() : res.sendStatus(401);
 }
@@ -15,4 +23,5 @@ function logSqlError(err) {
 
 exports.logSqlError = logSqlError;
 exports.isLoggedIn = isLoggedIn;
+exports.isLoggedInAdmin = isLoggedInAdmin;
 exports.isAdmin = isAdmin;
