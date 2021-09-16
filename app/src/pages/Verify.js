@@ -128,7 +128,7 @@ function PreselectSection() {
 
   return (
     <Box className={classes.preselectContainer}>
-      <PreselectTable displayStatus="pending-auto" />
+      <PreselectTable displayStatus="pending-info" />
       <div>
         <Button
           unclickedClassName={
@@ -143,8 +143,8 @@ function PreselectSection() {
   );
 }
 
-async function markSelected(selectedKeywordIds, status) {
-  const labelUrl = "/label?status=" + status;
+async function markSelected(selectedKeywordIds, curStatus, label) {
+  const labelUrl = `/label?fromStatus=${curStatus}&label=${label}`;
 
   let res = await fetch(labelUrl, {
     method: "PUT",
@@ -175,19 +175,21 @@ function TableVerifySection() {
 
   const enableButtons = selectedKeywordIds?.length > 0;
 
-  async function markAndRefresh(status) {
-    const res = await markSelected(selectedKeywordIds, status);
+  const curStatus = "pending-domain";
+  async function markAndRefresh(label) {
+    const res = await markSelected(selectedKeywordIds, curStatus, label);
 
     if (res.numAffected > 0) setRefresh(!refresh);
   }
 
+  
   return (
     <Box className={classes.preselectContainer}>
-      <PreselectTable refresh={refresh} displayStatus="pending" />
+      <PreselectTable refresh={refresh} displayStatus={curStatus} />
       <div>
         <Button
           name="Mark Relevant"
-          onClick={() => markAndRefresh("pending-auto")}
+          onClick={() => markAndRefresh("good")}
           unclickedClassName={
             enableButtons ? classes.allCorrectButton : classes.disabledButton
           }
@@ -195,7 +197,7 @@ function TableVerifySection() {
         />
         <Button
           name="Mark Irrelevant"
-          onClick={() => markAndRefresh("irrelevant")}
+          onClick={() => markAndRefresh("bad")}
           unclickedClassName={
             enableButtons ? classes.allIncorrectButton : classes.disabledButton
           }
@@ -222,8 +224,9 @@ function IndividualRelevanceSection() {
   const { selectedKeywordIds } = state;
   const currKeywordId = selectedKeywordIds[0];
 
-  async function markAndContinue(status) {
-    const res = await markSelected([currKeywordId], status);
+  async function markAndContinue(label) {
+    const curStatus = "pending-domain";
+    const res = await markSelected([currKeywordId], curStatus, label);
 
     if (res.numAffected === 1) dispatch({ type: "POP_SELECTED_KEYWORDS" });
   }
@@ -235,13 +238,13 @@ function IndividualRelevanceSection() {
       <Box className={classes.classifyContainer}>
         <Button
           name="Irrelevant"
-          onClick={() => markAndContinue("irrelevant")}
+          onClick={() => markAndContinue("bad")}
           unclickedClassName={classes.incorrectButton}
           size="small"
         />
         <Button
           name="Relevant"
-          onClick={() => markAndContinue("pending-auto")}
+          onClick={() => markAndContinue("good")}
           unclickedClassName={classes.correctButton}
           size="small"
         />
@@ -257,8 +260,9 @@ function IndividualGeneratedSection() {
   const { selectedKeywordIds } = state;
   const currKeywordId = selectedKeywordIds[0];
 
-  async function markAndContinue(status) {
-    const res = await markSelected([currKeywordId], status);
+  async function markAndContinue(label) {
+    const curStatus = "pending-info";
+    const res = await markSelected([currKeywordId], curStatus, label);
 
     if (res.numAffected === 1) dispatch({ type: "POP_SELECTED_KEYWORDS" });
   }
@@ -270,13 +274,13 @@ function IndividualGeneratedSection() {
       <Box className={classes.classifyContainer}>
         <Button
           name="Incorrect"
-          onClick={() => markAndContinue("incorrect-auto")}
+          onClick={() => markAndContinue("bad")}
           unclickedClassName={classes.incorrectButton}
           size="small"
         />
         <Button
           name="Correct"
-          onClick={() => markAndContinue("verified")}
+          onClick={() => markAndContinue("good")}
           unclickedClassName={classes.correctButton}
           size="small"
         />

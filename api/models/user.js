@@ -1,104 +1,138 @@
-const con = require("../boot/db.js");
-const { logSqlError, isAdmin } = require("../utils");
+const assert = require("assert");
+
+const conAsync = require("../boot/db.js");
+const Keyword = require("./keyword.js");
+
+const { isAdmin } = require("../utils");
 
 const User = {};
 
-function addAdminAttr(err, user, next) {
+function addAdminAttr(user) {
   if (user) user.is_admin = isAdmin(user);
 
-  next(err, user);
+  return user;
 }
 
-User.label = (userId, keywordIds, newStatus, done) => {
-  const numKeywords = keywordIds.length;
+User.getUnlabeled = async (userId, queryStr, status) => {
+  const con = await conAsync;
 
-  // Constructing query template
-  let whereTemplate = "(";
-  for (let i = 0; i < numKeywords - 1; i++) {
-    whereTemplate += "?,";
-  }
-  whereTemplate += "?)";
-
-  const updateKeywordStatus =
-    `
-    UPDATE keyword_label
-
-    SET status=?
-
-    WHERE user_id=? AND keyword_id IN
-  ` + whereTemplate;
-
-  // Ordering query args
-  const queryArgs = [newStatus, userId];
-  for (let i = 0; i < numKeywords; i++) {
-    queryArgs.push(keywordIds[i]);
-  }
-  con.query(updateKeywordStatus, queryArgs, done);
-};
-
-User.getAssigned = (userId, queryStr, status, done) => {
-  // Constructing query
-  let findUserKeyword = `
+  let findKeywords = `
     SELECT id, name
 
-    FROM keyword_label
-    JOIN keyword ON id=keyword_id
+    FROM keyword
+    LEFT JOIN 
+      ( 
+        SELECT * 
+        FROM keyword_label 
+        WHERE user_id = ?
+      ) AS user_keyword_lables
+    ON id = keyword_id
 
-    WHERE status=? AND user_id=?
+    WHERE status=?
+      AND keyword_id IS NULL
   `;
-  if (status === "pending-auto")
-    findUserKeyword += " AND definition IS NOT NULL";
+  const queryArgs = [userId, status];
 
-  const queryArgs = [status, userId];
   if (queryStr) {
-    findUserKeyword += " AND name LIKE ?";
+    findKeywords += " AND name LIKE ?";
     queryArgs.push("%" + queryStr.toLowerCase() + "%");
   }
-  findUserKeyword += " LIMIT 300";
+  findKeywords += " LIMIT 300";
 
-  con.query(findUserKeyword, queryArgs, done);
+  const [keywords] = await con.query(findKeywords, queryArgs);
+  return keywords;
 };
 
-User.findOrCreate = (googleUser, done) => {
+User.label = async (userId, keywordIds, label, fromStatus) => {
+  // Only allow labeling keywords with pending status
+  assert(["pending-domain", "pending-info"].includes(fromStatus));
+
+  const con = await conAsync;
+
+  let numAffected = 0;
+
+  async function labelHelper(keywordId) {
+    if (!(await Keyword.checkStableStatus(keywordId, fromStatus))) return;
+
+    // Check to make sure user has not already labeled keyword
+    const getPrevLabel = `
+      SELECT COUNT(*) AS count 
+      FROM keyword_label 
+
+      WHERE keyword_id = ?
+        AND user_id = ?
+    `;
+    let [rows] = await con.query(getPrevLabel, [keywordId, userId]);
+    assert(rows[0].count === 0);
+
+    const result = await Keyword.label(keywordId, label, fromStatus);
+
+    // Log user's label for current keyword
+    if (result?.todo === "add-label") {
+      const insertUserLabel = `
+          INSERT INTO keyword_label 
+            (keyword_id, user_id)
+          VALUES 
+            (?, ?)
+        `;
+      con.query(insertUserLabel, [keywordId, userId]);
+    }
+
+    if (!result?.error) numAffected += 1;
+  }
+
+  // Update db labels in parallel
+  // NOTE: possible to reformat by using SQL JOIN, but negligible difference
+  await Promise.all(keywordIds.map(labelHelper));
+
+  if (numAffected > 0) {
+    const updateUserLabelCount = `
+    UPDATE user
+    SET num_labeled=num_labeled+${numAffected}
+  
+    WHERE id=?
+  `;
+    con.query(updateUserLabelCount, [userId]);
+  }
+
+  console.log(`Succesfully labeled ${numAffected} keywords`);
+  return numAffected;
+};
+
+User.findOrCreate = async (googleUser) => {
+  const con = await conAsync;
   const userEmail = googleUser.email;
 
   const findUserByEmail = `SELECT * FROM user WHERE email=?`;
-  con.query(findUserByEmail, [userEmail], (err, results) => {
-    if (err) return logSqlError(err);
+  const [users] = await con.query(findUserByEmail, [userEmail]);
 
-    // Insert new user into db
-    if (results.length == 0) {
-      const insertUser = `
+  // Insert new user into db
+  if (users.length == 0) {
+    const insertUser = `
           INSERT INTO user (email, first_name, last_name)
           VALUES (?, ?, ?)
         `;
-      let userInfo = [
-        googleUser.email,
-        googleUser.given_name,
-        googleUser.family_name,
-      ];
+    let userInfo = [
+      googleUser.email,
+      googleUser.given_name,
+      googleUser.family_name,
+    ];
+    const [result] = await con.query(insertUser, userInfo);
+    const dbUserId = result.insertId;
 
-      con.query(insertUser, userInfo, (err, results) => {
-        if (err) logSqlError(err);
-        const dbUserId = results.insertId;
+    const findUserById = `
+      SELECT * FROM user WHERE id=?
+    `;
+    let [rows] = await con.query(findUserById, [dbUserId]);
+    const newUser = rows[0];
 
-        const findUserById = `
-            SELECT * FROM user WHERE id=?
-          `;
-        con.query(findUserById, [dbUserId], (err, results) => {
-          if (err) return logSqlError(err);
+    return addAdminAttr(newUser);
+  }
 
-          console.log("Created new user", results[0]);
-          return addAdminAttr(null, results[0], done);
-        });
-      });
-    }
-
-    // Return existing db user
-    else {
-      return addAdminAttr(null, results[0], done);
-    }
-  });
+  // Return existing db user
+  else {
+    return addAdminAttr(users[0]);
+  }
 };
 
 module.exports = User;

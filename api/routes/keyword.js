@@ -4,12 +4,9 @@ const { logSqlError } = require("../utils");
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  Keyword.get(req.query.id, (err, keywords) => {
-    if (err) return logSqlError(err);
-
-    res.send(keywords[0]);
-  });
+router.get("/", async (req, res) => {
+  const keyword = await Keyword.get(req.query.id);
+  res.send(keyword);
 });
 
 module.exports = router;

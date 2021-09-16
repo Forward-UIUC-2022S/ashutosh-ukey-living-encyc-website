@@ -1,69 +1,44 @@
-const mysql = require("mysql2");
+const mysql = require("mysql2/promise");
+const bluebird = require("bluebird");
+
 const { logSqlError } = require("../utils");
 
-const con = mysql.createConnection({
+const conAsync = mysql.createConnection({
   host: "localhost",
   user: process.env["MYSQL_USER"],
   password: process.env["MYSQL_PASS"],
   database: process.env["MYSQL_DB"],
+  Promise: bluebird,
 });
 
-con.connect((err) => {
-  if (err) return logSqlError(err);
-
+async function createTables() {
+  const con = await conAsync;
   const createUser = `
     CREATE TABLE IF NOT EXISTS user(
       id INT NOT NULL AUTO_INCREMENT,
+      
       email VARCHAR(255) NOT NULL,
       first_name VARCHAR(255),
       last_name VARCHAR(255),
+
       PRIMARY KEY (id)
     )
   `;
-
-  con.query(createUser, (err, results, fields) => {
-    if (err) return logSqlError(err);
-  });
+  con.query(createUser);
 
   const createKeywordLabel = `
     CREATE TABLE IF NOT EXISTS keyword_label(
       keyword_id INT NOT NULL,
       user_id INT NOT NULL,
 
-      status ENUM(
-        'pending',
-        'irrelevant',
-        'pending-auto',
-        'incorrect-auto',
-        'verified'
-      ) DEFAULT 'pending',
-
       create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      update_time TIMESTAMP DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
       PRIMARY KEY (user_id, keyword_id),
-      INDEX (status),
       FOREIGN KEY (keyword_id) REFERENCES keyword(id),
       FOREIGN KEY (user_id) REFERENCES user(id)
     )
   `;
+  con.query(createKeywordLabel);
+}
+createTables();
 
-  con.query(createKeywordLabel, (err, results, fields) => {
-    if (err) return logSqlError(err);
-  });
-});
-
-module.exports = con;
-/*
-let testSql = `
-  SELECT *
-
-  FROM FoS
-  LIMIT 5
-`;
-
-connection.query(testSql, (error, results, fields) => {
-  if (error) return console.log(error.message);
-
-  console.log(results[0].FoS_name);
-});
-*/
+module.exports = conAsync;

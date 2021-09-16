@@ -12,10 +12,9 @@ passport.use(
       callbackURL: `http://localhost:${process.env["PORT"]}/auth/callback`,
       passReqToCallback: true,
     },
-    function (req, accessToken, refreshToken, profile, done) {
-      User.findOrCreate(profile, (err, user) => {
-        done(err, user);
-      });
+    async function (req, accessToken, refreshToken, profile, done) {
+      const user = await User.findOrCreate(profile);
+      done(null, user);
     }
   )
 );

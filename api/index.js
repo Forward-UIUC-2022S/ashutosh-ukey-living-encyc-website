@@ -10,7 +10,7 @@ const keywordRouter = require("./routes/keyword");
 const keywordVerifyRouter = require("./routes/keywordVerify");
 
 // Execute setup files
-const con = require("./boot/db");
+const conAsync = require("./boot/db");
 require("./boot/auth");
 const app = express();
 
@@ -44,7 +44,9 @@ app.use("/keyword", keywordRouter);
 app.use("/auth", authRouter);
 
 // Gracefully exit server
-function cleanup() {
+async function cleanup() {
+  const con = await conAsync;
+
   con.end();
   server.close();
 }
