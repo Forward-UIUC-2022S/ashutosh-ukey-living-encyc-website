@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Button(props) {
-  const { href } = props;
+  const { href, labelStyleName } = props;
   const classes = useStyles();
   const location = useLocation();
 
@@ -38,7 +38,7 @@ export default function Button(props) {
   const InnerButton = () => (
     <MuiButton
       classes={{
-        label: classes.label,
+        label: `${classes.label} ${labelStyleName ?? ""}`,
       }}
       onClick={props.onClick}
       className={

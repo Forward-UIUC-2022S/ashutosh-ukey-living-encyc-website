@@ -182,36 +182,46 @@ function TableVerifySection() {
     if (res.numAffected > 0) setRefresh(!refresh);
   }
 
-  
+  const LabelButtons = () => (
+    <div>
+      <Button
+        name="Mark Relevant"
+        onClick={() => markAndRefresh("good")}
+        unclickedClassName={
+          enableButtons ? classes.allCorrectButton : classes.disabledButton
+        }
+        labelStyleName={classes.buttonText}
+        size="small"
+      />
+      <Button
+        name="Mark Irrelevant"
+        onClick={() => markAndRefresh("bad")}
+        unclickedClassName={
+          enableButtons ? classes.allIncorrectButton : classes.disabledButton
+        }
+        labelStyleName={classes.buttonText}
+        size="small"
+      />
+      {/*
+    <Button
+      unclickedClassName={
+        enableButtons ? classes.continueButton : classes.disabledButton
+      }
+      size="small"
+      name="Verify Individually"
+      href={enableButtons ? `${path}/individual` : undefined}
+    /> 
+    */}
+    </div>
+  );
+
   return (
     <Box className={classes.preselectContainer}>
-      <PreselectTable refresh={refresh} displayStatus={curStatus} />
-      <div>
-        <Button
-          name="Mark Relevant"
-          onClick={() => markAndRefresh("good")}
-          unclickedClassName={
-            enableButtons ? classes.allCorrectButton : classes.disabledButton
-          }
-          size="small"
-        />
-        <Button
-          name="Mark Irrelevant"
-          onClick={() => markAndRefresh("bad")}
-          unclickedClassName={
-            enableButtons ? classes.allIncorrectButton : classes.disabledButton
-          }
-          size="small"
-        />
-        <Button
-          unclickedClassName={
-            enableButtons ? classes.continueButton : classes.disabledButton
-          }
-          size="small"
-          name="Verify Individually"
-          href={enableButtons ? `${path}/individual` : undefined}
-        />
-      </div>
+      <PreselectTable
+        refresh={refresh}
+        displayStatus={curStatus}
+        ButtonsComponent={LabelButtons}
+      />
     </Box>
   );
 }

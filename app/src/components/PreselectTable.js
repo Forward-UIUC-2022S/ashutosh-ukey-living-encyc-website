@@ -11,8 +11,8 @@ const useStyles = makeStyles((theme) => ({
   tableHead: {
     background: theme.palette.pendingYellow.main,
     width: "100%",
-    marginTop: 53,
-    height: 55,
+    marginTop: 107,
+    height: 39,
     position: "absolute",
   },
   tableContainer: {
@@ -20,8 +20,11 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     height: 600,
-    marginTop: 50,
     marginBottom: 100,
+  },
+  searchFieldInput: {
+    background: theme.palette.inputGray.main,
+    height: 5,
   },
   searchFieldContainer: {
     background: theme.palette.inputGray.main,
@@ -52,7 +55,7 @@ function createData(name, calories, fat, carbs, protein) {
 export default function PreselectTable(props) {
   const classes = useStyles();
   const [state, dispatch] = useContext(Context);
-  const { refresh, displayStatus } = props;
+  const { refresh, displayStatus, ButtonsComponent } = props;
 
   const { selectedKeywordIds } = state;
 
@@ -85,9 +88,13 @@ export default function PreselectTable(props) {
   return (
     <div>
       <Autocomplete
+        classes={{
+          root: classes.searchFieldContainer,
+          input: classes.searchFieldInput,
+        }}
         freeSolo
-        className={classes.searchFieldContainer}
         options={searchSuggestions.map((option) => option.name)}
+        // className={classes.searchFieldContainer}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -99,16 +106,27 @@ export default function PreselectTable(props) {
         )}
       />
       <Box className={classes.tableContainer}>
-        <Typography style={{ marginBottom: 20 }} variant="h5">
-          Select Keywords
-        </Typography>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            marginTop: 50,
+            marginBottom: 20,
+          }}
+        >
+          <Typography style={{ marginRight: 50 }} variant="h5">
+            Select Keywords
+          </Typography>
+          <ButtonsComponent />
+        </div>
         {/* Below element colors table head row */}
-        <div className={classes.tableHead}></div>
+        {<div className={classes.tableHead}></div>}
         <DataGrid
           rows={keywordOpts}
           columns={columns}
           selectionModel={selectedKeywordIds}
           onSelectionModelChange={onKeywordsSelect}
+          density="compact"
           checkboxSelection
           disableSelectionOnClick
         />

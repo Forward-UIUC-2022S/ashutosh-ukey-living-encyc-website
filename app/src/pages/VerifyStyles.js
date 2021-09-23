@@ -15,19 +15,21 @@ const sideButtonStyle = {
 };
 
 const verifyButtonStyles = {
-  width: "25%",
-  padding: 8,
-  maxWidth: 220,
+  padding: 0,
+  maxWidth: 200,
   border: "2px solid",
   borderRadius: 10,
 };
 const verifyAllButtonStyles = {
   ...verifyButtonStyles,
   marginRight: 20,
-  maxWidth: 220,
+  // maxWidth: 220,
 };
 
 const useStyles = makeStyles((theme) => ({
+  buttonText: {
+    fontSize: 14,
+  },
   fileInput: {
     marginTop: 40,
     marginBottom: 15,
