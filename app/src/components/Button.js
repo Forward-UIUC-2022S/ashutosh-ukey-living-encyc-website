@@ -8,7 +8,7 @@ const useStyles = makeStyles((theme) => ({
   label: {
     textTransform: "capitalize",
     padding: "4px 26px",
-    fontSize: 18,
+    fontSize: 16,
   },
   unclickedContainer: {
     background: theme.palette.primary.main,

@@ -12,7 +12,7 @@ router.post("/upload", isLoggedInAdmin, (req, res) => {
 
 // router.get("/pending", async (req, res) => {
 router.get("/pending", isLoggedIn, async (req, res) => {
-  console.log(req.query);
+  // console.log(req.query);
 
   const keywords = await User.getUnlabeled(
     req.user.id,

@@ -10,7 +10,7 @@ function staticButtonColorStyle(color) {
 }
 
 const sideButtonStyle = {
-  width: 250,
+  width: 220,
   padding: "8px 0px",
 };
 
@@ -95,16 +95,17 @@ const useStyles = makeStyles((theme) => ({
   },
   preselectContainer: {
     display: "flex",
-    flexDirection: "column",
-    width: "100%",
-    padding: 50,
+    flexDirection: "row",
+    // width: "100%",
+    flex: 2,
+    // paddingTop: 30,
+    paddingLeft: 20,
   },
   sideContainer: {
     background: theme.palette.backGray.main,
     display: "flex",
     flexDirection: "column",
     paddingTop: 30,
-    maxWidth: 300,
     height: 800,
   },
   container: {

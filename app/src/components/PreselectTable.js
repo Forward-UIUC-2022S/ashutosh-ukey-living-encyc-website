@@ -8,6 +8,16 @@ import { DataGrid } from "@material-ui/data-grid";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
+  container: {
+    flex: 3.5,
+    marginTop: 30,
+  },
+  tableTitleSection: {
+    display: "flex",
+    flexDirection: "row",
+    marginTop: 50,
+    marginBottom: 20,
+  },
   tableHead: {
     background: theme.palette.pendingYellow.main,
     width: "100%",
@@ -86,7 +96,7 @@ export default function PreselectTable(props) {
   }
 
   return (
-    <div>
+    <div className={classes.container}>
       <Autocomplete
         classes={{
           root: classes.searchFieldContainer,
@@ -106,14 +116,7 @@ export default function PreselectTable(props) {
         )}
       />
       <Box className={classes.tableContainer}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            marginTop: 50,
-            marginBottom: 20,
-          }}
-        >
+        <div className={classes.tableTitleSection}>
           <Typography style={{ marginRight: 50 }} variant="h5">
             Select Keywords
           </Typography>

@@ -1,36 +1,42 @@
 import { useEffect, useState } from "react";
 
-import { Box, Typography } from "@material-ui/core";
+import TransparentButton from "./TransparentButton";
+
+import { Box, Typography, Icon } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
+  googleIcon: {
+    marginLeft: 12,
+    height: 20,
+    width: 20,
+  },
   container: {
     backgroundColor: theme.palette.backGray.main,
-    width: "40%",
-    height: "30%",
-    maxWidth: 500,
-    border: "6px solid",
+    maxWidth: 280,
+    border: "9px solid",
     borderColor: theme.palette.pendingYellow.main,
-    borderRadius: 20,
-    display: "flex",
+    flex: 1,
     flexDirection: "column",
-    padding: 20,
-    justifyContent: "space-around",
+    padding: "25px 15px",
+    marginLeft: 10,
+  },
+  titleContainer: {
+    display: "flex",
   },
   titleText: {
-    fontSize: 18,
+    fontSize: 16,
   },
   infoContainer: {
     display: "flex",
     flexDirection: "column",
-    marginLeft: 20,
     height: "100%",
     marginTop: 10,
   },
   infoText: { fontSize: 14, marginTop: 10 },
 }));
 
-export default function KeywordCard(props) {
+export default function KeywordPane(props) {
   const classes = useStyles();
   const { keywordId } = props;
 
@@ -52,13 +58,28 @@ export default function KeywordCard(props) {
     getKeywordInfo();
   }, [keywordId]);
 
+  const googleSearchQuery = encodeURIComponent(keyword?.name);
+  const googleSearchUrl = "http://www.google.com/search?q=" + googleSearchQuery;
+
   return (
     <Box className={classes.container}>
       {keyword?.name && (
-        <Typography className={classes.titleText}>
-          <u>{keyword.name}</u>
-        </Typography>
+        <div className={classes.titleContainer}>
+          <Typography className={classes.titleText}>
+            {
+              // <u>{keyword.name}</u>
+            }
+            {keyword.name}
+          </Typography>
+          <TransparentButton href={googleSearchUrl} target="_blank">
+            <img
+              className={classes.googleIcon}
+              src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
+            />
+          </TransparentButton>
+        </div>
       )}
+
       <div className={classes.infoContainer}>
         {keyword?.id && (
           <Typography className={classes.infoText}>

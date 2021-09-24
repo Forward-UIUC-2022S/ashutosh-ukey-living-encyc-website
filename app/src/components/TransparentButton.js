@@ -1,6 +1,8 @@
+import Link from "@material-ui/core/Link";
+
 export default function TransparentButton(props) {
   return (
-    <div
+    <Link
       style={{
         color: "inherit",
         "&:hover": {
@@ -12,6 +14,6 @@ export default function TransparentButton(props) {
       {...props}
     >
       {props.children}
-    </div>
+    </Link>
   );
 }

@@ -8,11 +8,13 @@ Keyword.get = async (keywordId, done) => {
   const con = await conAsync;
 
   let findKeyword = `
-    SELECT id, name, definition
+    SELECT keyword.id, name, content
 
     FROM keyword
+    LEFT JOIN definition
+      ON definition.id = definition_id
 
-    WHERE id=?
+    WHERE keyword.id=?
     LIMIT 1
   `;
 

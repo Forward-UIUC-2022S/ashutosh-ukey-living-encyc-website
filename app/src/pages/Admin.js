@@ -59,7 +59,7 @@ export default function Admin() {
             onClick={onFileUpload}
           />
         </div>
-        <Typography style={{ marginTop: 20 }}>Sample script: </Typography>
+        {/* <Typography style={{ marginTop: 20 }}>Sample script: </Typography> */}
         {/*fileContent.length > 0 && fileContent*/}
       </div>
     </div>

@@ -15,11 +15,10 @@ import {
 import AdminSection from "./Admin";
 
 import { Box, Paper, TextField, Typography } from "@material-ui/core";
-import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 
 import Button from "../components/Button";
 import SkipBanner from "../components/SkipBanner";
-import KeywordCard from "../components/KeywordCard";
+import KeywordPane from "../components/KeywordPane";
 import PrivateRoute from "../components/PrivateRoute";
 import PreselectTable from "../components/PreselectTable";
 
@@ -168,6 +167,7 @@ function TableVerifySection() {
   const [state, dispatch] = useContext(Context);
 
   const { selectedKeywordIds } = state;
+  const lastKeywordId = selectedKeywordIds[selectedKeywordIds.length - 1];
 
   const [query, setQuery] = useState("");
   const [refresh, setRefresh] = useState(false);
@@ -202,16 +202,6 @@ function TableVerifySection() {
         labelStyleName={classes.buttonText}
         size="small"
       />
-      {/*
-    <Button
-      unclickedClassName={
-        enableButtons ? classes.continueButton : classes.disabledButton
-      }
-      size="small"
-      name="Verify Individually"
-      href={enableButtons ? `${path}/individual` : undefined}
-    /> 
-    */}
     </div>
   );
 
@@ -222,6 +212,7 @@ function TableVerifySection() {
         displayStatus={curStatus}
         ButtonsComponent={LabelButtons}
       />
+      {lastKeywordId && <KeywordPane keywordId={lastKeywordId} />}
     </Box>
   );
 }
@@ -244,7 +235,7 @@ function IndividualRelevanceSection() {
   return (
     <Box className={classes.verifyContainer}>
       <SkipBanner />
-      <KeywordCard keywordId={currKeywordId} />
+      <KeywordPane keywordId={currKeywordId} />
       <Box className={classes.classifyContainer}>
         <Button
           name="Irrelevant"
@@ -280,7 +271,7 @@ function IndividualGeneratedSection() {
   return (
     <Box className={classes.verifyContainer}>
       <SkipBanner />
-      <KeywordCard keywordId={currKeywordId} />
+      <KeywordPane keywordId={currKeywordId} />
       <Box className={classes.classifyContainer}>
         <Button
           name="Incorrect"
