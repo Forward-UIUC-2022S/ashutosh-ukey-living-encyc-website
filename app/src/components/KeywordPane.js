@@ -1,3 +1,5 @@
+// TODO: Add tooltips for each keyword category
+import parse from "html-react-parser";
 import { useEffect, useState } from "react";
 
 import TransparentButton from "./TransparentButton";
@@ -7,13 +9,17 @@ import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
   googleIcon: {
-    height: 24,
-    marginLeft: 13,
-    marginTop: 3,
+    height: 22,
+    marginLeft: 10,
+    marginTop: 2,
   },
   wikiIcon: {
     marginRight: 12,
     height: 40,
+  },
+  arxivIcon: {
+    marginRight: 12,
+    height: 50,
   },
   wikiTitleContainer: {
     display: "flex",
@@ -42,6 +48,7 @@ const useStyles = makeStyles((theme) => ({
   },
   titleContainer: {
     display: "flex",
+    marginBottom: -14,
   },
   titleText: {
     fontSize: 18,
@@ -51,8 +58,7 @@ const useStyles = makeStyles((theme) => ({
   infoContainer: {
     display: "flex",
     flexDirection: "column",
-    height: "100%",
-    marginTop: 20,
+    marginTop: 32,
   },
   infoTitle: {
     fontSize: 14,
@@ -95,40 +101,82 @@ export default function KeywordPane(props) {
           />
         </TransparentButton>
       </div>
-      <div className={classes.infoContainer}>
-        <TransparentButton href={keyword.wiki.mainUrl} target="_blank">
-          <div className={classes.wikiTitleContainer}>
-            <img
-              className={classes.wikiIcon}
-              src="https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg"
-            />
+      {keyword.wiki && (
+        <div className={classes.infoContainer}>
+          <TransparentButton href={keyword.wiki.mainUrl} target="_blank">
+            <div className={classes.wikiTitleContainer}>
+              <img
+                className={classes.wikiIcon}
+                src="https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg"
+              />
 
-            <Typography className={classes.infoTitle}>
-              <b>Wikipedia</b>{" "}
-              {keyword.wiki.search ? "(search results)" : "(article)"}
-            </Typography>
+              <Typography className={classes.infoTitle}>
+                <b>Wikipedia</b>
+                {keyword.wiki.search ? " (search results)" : " (article)"}
+              </Typography>
+            </div>
+          </TransparentButton>
+
+          <div className={classes.wikiSummaryContainer}>
+            {keyword.wiki.summary && (
+              <Typography className={classes.wikiSummaryText}>
+                {keyword.wiki.summary}
+              </Typography>
+            )}
+            {keyword.wiki.search && (
+              <ul>
+                {keyword.wiki.search.map((res) => (
+                  <li
+                    style={{
+                      fontSize: 12,
+                      marginLeft: -8,
+                    }}
+                  >
+                    <TransparentButton href={res.url} target="_blank">
+                      {res.title}
+                    </TransparentButton>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-        </TransparentButton>
+          {keyword.sentences?.length > 0 && (
+            <div className={classes.infoContainer}>
+              <div className={classes.wikiTitleContainer}>
+                <img
+                  className={classes.arxivIcon}
+                  src="https://storage.scolary.com/storage/file/public/992eb78c-f028-4463-a080-877254c9ec2b.svg"
+                />
 
-        <div className={classes.wikiSummaryContainer}>
-          {keyword.wiki.summary && (
-            <Typography className={classes.wikiSummaryText}>
-              {keyword.wiki.summary}
-            </Typography>
-          )}
-          {keyword.wiki.search && (
-            <ul>
-              {keyword.wiki.search.map((res) => (
-                <li>
-                  <TransparentButton href={res.url} target="_blank">
-                    {res.title}
-                  </TransparentButton>
-                </li>
-              ))}
-            </ul>
+                <Typography className={classes.infoTitle}>
+                  <b>Example usage</b>
+                </Typography>
+              </div>
+
+              <div className={classes.wikiSummaryContainer}>
+                <ul>
+                  {keyword.sentences.map((elem) => (
+                    <li
+                      style={{
+                        fontSize: 12,
+                        marginLeft: -8,
+                      }}
+                    >
+                      <TransparentButton
+                        linkUnderline="none"
+                        href={elem.paper_url}
+                        target="_blank"
+                      >
+                        "{parse(elem.sentence)}"
+                      </TransparentButton>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           )}
         </div>
-      </div>
+      )}
 
       {keyword.definition && (
         <Typography className={classes.infoText}>

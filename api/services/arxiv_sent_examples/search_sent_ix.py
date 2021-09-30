@@ -3,9 +3,23 @@ import json
 
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser
+from whoosh import highlight
 
 paper_url_template = "https://arxiv.org/abs/{paper_id}"
 res_file = "sentences.json"
+
+class MarkFormatter(highlight.Formatter):
+    """Encloses matched terms in <mark> HTML tag."""
+
+    def format_token(self, text, token, replace=False):
+        # Use the get_text function to get the text corresponding to the
+        # token
+        tokentext = highlight.get_text(text, token, replace)
+
+        # Return the text as you want it to appear in the highlighted
+        # string
+        return "<mark>%s</mark>" % tokentext
+
 
 def get_sentences(cmd_lin_inp):
     inps = cmd_lin_inp.split()
@@ -16,14 +30,20 @@ def get_sentences(cmd_lin_inp):
     with ix.searcher() as searcher:
         query = QueryParser("sentence", ix.schema).parse(keyword)
         results = searcher.search(query)
+
+        # Configuration for whoosh highlighting
+        results.formatter = MarkFormatter()
+        results.fragmenter.surround = 500
         
         num_results = min(num_requested, len(results))
         res_json = []
 
         for i in range(num_results):
             paper_url = paper_url_template.format(paper_id=results[i]['paper_id'])
+            formatted_sentence = results[i].highlights("sentence")
+
             kw_dict = {
-                'sentence': results[i]['sentence'],
+                'sentence': formatted_sentence,
                 'paper_url': paper_url
             }
             res_json.append(kw_dict)
