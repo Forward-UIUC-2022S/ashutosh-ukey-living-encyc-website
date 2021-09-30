@@ -14,11 +14,11 @@ const NUM_WIKI_RESULTS = 15;
 const NUM_EX_SENTS = 9;
 
 async function addExampleSents(keyword) {
-  let progam_cmd_inp = keyword.name.replace(" ", "+");
-  progam_cmd_inp += " " + NUM_EX_SENTS;
+  let program_cmd_inp = keyword.name.replace(/ /g, "+");
+  program_cmd_inp += " " + NUM_EX_SENTS;
 
   // Query python program for sentences
-  await streamWrite(whooshProc.stdin, progam_cmd_inp + "\n");
+  await streamWrite(whooshProc.stdin, program_cmd_inp + "\n");
 
   // Read from program's stdout
   let out_ln = await whooshProcBuf.next();
