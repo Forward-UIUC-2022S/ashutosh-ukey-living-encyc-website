@@ -1,3 +1,9 @@
+# Whoosh index 
+**/arxiv_sentences_ix/
+
+# Python virtual environment
+**/env/
+
 # Logs
 logs
 *.log

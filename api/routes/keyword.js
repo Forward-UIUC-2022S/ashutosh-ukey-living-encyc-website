@@ -2,12 +2,33 @@ const express = require("express");
 const Keyword = require("../models/keyword");
 const wiki = require("wikijs").default();
 
+const { streamWrite } = require("@rauschma/stringio");
+
+const { proc: whooshProc } = require("../boot/whoosh");
+
+const whooshProcBuf = require("../boot/whoosh").outBuf();
+
 const router = express.Router();
 
 const NUM_WIKI_RESULTS = 15;
+const NUM_EX_SENTS = 9;
 
-router.get("/", async (req, res) => {
-  const keyword = await Keyword.get(req.query.id);
+async function addExampleSents(keyword) {
+  let progam_cmd_inp = keyword.name.replace(" ", "+");
+  progam_cmd_inp += " " + NUM_EX_SENTS;
+
+  // Query python program for sentences
+  await streamWrite(whooshProc.stdin, progam_cmd_inp + "\n");
+
+  // Read from program's stdout
+  let out_ln = await whooshProcBuf.next();
+  out_ln = out_ln.value;
+
+  const sentences = JSON.parse(out_ln);
+  keyword.sentences = sentences;
+}
+
+async function addWikiInfo(keyword) {
   keyword.wiki = {};
 
   try {
@@ -26,7 +47,7 @@ router.get("/", async (req, res) => {
       console.log(e.message);
     } else return console.error(e);
 
-    // Fetch search results
+    // Fetch wikipedia search results
     const wikiSearch = await wiki.search(keyword.name, NUM_WIKI_RESULTS, true);
     let wikiSearchResults = wikiSearch.results;
 
@@ -42,7 +63,12 @@ router.get("/", async (req, res) => {
     keyword.wiki.mainUrl = "https://en.wikipedia.org/?search=" + searchQuery;
     keyword.wiki.search = wikiSearchResults;
   }
+}
 
+router.get("/", async (req, res) => {
+  const keyword = await Keyword.get(req.query.id);
+
+  await Promise.all([addWikiInfo(keyword), addExampleSents(keyword)]);
   res.send(keyword);
 });
 
