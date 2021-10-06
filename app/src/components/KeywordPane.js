@@ -10,17 +10,21 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import { makeStyles } from "@material-ui/core/styles";
 
 const loadingComponentProps = {
-  size: 72,
+  size: 70,
   thickness: 2.5,
 };
 
 const useStyles = makeStyles((theme) => ({
+  infoListItem: {
+    fontSize: 12,
+    marginLeft: -8,
+  },
   loadingContainer: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     height: "100%",
-    paddingTop: 65,
+    paddingTop: 34,
   },
   googleIcon: {
     height: 22,
@@ -152,12 +156,7 @@ export default function KeywordPane(props) {
             {keyword.wiki.search && (
               <ul>
                 {keyword.wiki.search.map((res) => (
-                  <li
-                    style={{
-                      fontSize: 12,
-                      marginLeft: -8,
-                    }}
-                  >
+                  <li className={classes.infoListItem}>
                     <TransparentButton href={res.url} target="_blank">
                       {res.title}
                     </TransparentButton>
@@ -182,12 +181,7 @@ export default function KeywordPane(props) {
               <div className={classes.wikiSummaryContainer}>
                 <ul>
                   {keyword.sentences.map((elem) => (
-                    <li
-                      style={{
-                        fontSize: 12,
-                        marginLeft: -8,
-                      }}
-                    >
+                    <li className={classes.infoListItem}>
                       <TransparentButton
                         linkUnderline="none"
                         href={elem.paper_url}
