@@ -10,6 +10,7 @@ const keywordRouter = require("./routes/keyword");
 const keywordVerifyRouter = require("./routes/keywordVerify");
 
 // Execute setup files
+const { proc: whooshProc } = require("./boot/whoosh");
 const conAsync = require("./boot/db");
 require("./boot/auth");
 const app = express();
@@ -49,6 +50,8 @@ async function cleanup() {
 
   con.end();
   server.close();
+
+  whooshProc.kill("SIGINT");
 }
 
 process.on("exit", cleanup);

@@ -5,9 +5,23 @@ import { useEffect, useState } from "react";
 import TransparentButton from "./TransparentButton";
 
 import { Box, Typography, Icon } from "@material-ui/core";
+import CircularProgress from "@material-ui/core/CircularProgress";
+
 import { makeStyles } from "@material-ui/core/styles";
 
+const loadingComponentProps = {
+  size: 72,
+  thickness: 2.5,
+};
+
 const useStyles = makeStyles((theme) => ({
+  loadingContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    height: "100%",
+    paddingTop: 65,
+  },
   googleIcon: {
     height: 22,
     marginLeft: 10,
@@ -70,25 +84,37 @@ export default function KeywordPane(props) {
   const { keywordId } = props;
 
   const [keyword, setKeyword] = useState();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function getKeywordInfo() {
       if (keywordId) {
+        setLoading(true);
+
         const keywordInfoUrl = "/keyword?id=" + keywordId;
         let res = await fetch(keywordInfoUrl, {
           method: "GET",
         });
         res = await res.json();
+
         setKeyword(res);
-        console.log("Keyword info: ", res);
+        setLoading(false);
       }
     }
-
     getKeywordInfo();
   }, [keywordId]);
 
   const googleSearchQuery = encodeURIComponent(keyword?.name);
   const googleSearchUrl = "http://www.google.com/search?q=" + googleSearchQuery;
+
+  if (loading)
+    return (
+      <Box className={classes.container}>
+        <div className={classes.loadingContainer}>
+          <CircularProgress {...loadingComponentProps} />
+        </div>
+      </Box>
+    );
 
   return !keyword ? null : (
     <Box className={classes.container}>
