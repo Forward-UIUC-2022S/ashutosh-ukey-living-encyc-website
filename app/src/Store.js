@@ -6,6 +6,7 @@ const initialState = {
   isAdmin: false,
   user: {},
   selectedKeywordIds: [],
+  searchKeywords: [],
   isLoading: false,
 };
 

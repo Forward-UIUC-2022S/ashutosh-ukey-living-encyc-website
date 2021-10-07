@@ -72,4 +72,9 @@ router.get("/", async (req, res) => {
   res.send(keyword);
 });
 
+router.get("/search", async (req, res) => {
+  const keywords = await Keyword.search(req.query.query);
+  res.send(keywords);
+});
+
 module.exports = router;

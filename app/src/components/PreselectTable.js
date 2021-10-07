@@ -1,11 +1,13 @@
 import { useState, useEffect, useContext } from "react";
 import { Context } from "../Store";
 
-import { Box, Paper, TextField, Typography } from "@material-ui/core";
+import AdvancedSearch from "./AdvancedSearch";
+
+import { Box, TextField, Typography } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { DataGrid } from "@material-ui/data-grid";
 
-import { makeStyles, withStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -16,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "row",
     marginTop: 50,
-    marginBottom: 20,
+    marginBottom: 24,
   },
   tableHead: {
     background: theme.palette.pendingYellow.main,
@@ -52,15 +54,6 @@ const columns = [
     editable: false,
   },
 ];
-
-const rows = [
-  { id: 2, keyword: "data mining" },
-  { id: 3, keyword: "artificial intelligence" },
-];
-
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
 
 export default function PreselectTable(props) {
   const classes = useStyles();
@@ -104,7 +97,6 @@ export default function PreselectTable(props) {
         }}
         freeSolo
         options={searchSuggestions.map((option) => option.name)}
-        // className={classes.searchFieldContainer}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -115,12 +107,13 @@ export default function PreselectTable(props) {
           />
         )}
       />
+      <AdvancedSearch />
       <Box className={classes.tableContainer}>
         <div className={classes.tableTitleSection}>
           <Typography style={{ marginRight: 50 }} variant="h5">
             Select Keywords
           </Typography>
-          <ButtonsComponent />
+          {ButtonsComponent ? <ButtonsComponent /> : null}
         </div>
         {/* Below element colors table head row */}
         {<div className={classes.tableHead}></div>}

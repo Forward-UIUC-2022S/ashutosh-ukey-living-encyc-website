@@ -23,6 +23,9 @@ const theme = createMuiTheme({
     pendingYellow: {
       main: "#DFC19F",
     },
+    warning: {
+      main: "#DFC19F",
+    },
     verifyGreen: {
       main: "#9CCCB8",
     },

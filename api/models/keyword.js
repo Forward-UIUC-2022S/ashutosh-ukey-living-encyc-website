@@ -1,10 +1,11 @@
 const MIN_SAME_LABELS = 2;
+const MAX_SEARCH_RESULTS = 20;
 
 const conAsync = require("../boot/db.js");
 
 const Keyword = {};
 
-Keyword.get = async (keywordId, done) => {
+Keyword.get = async (keywordId) => {
   const con = await conAsync;
 
   let findKeyword = `
@@ -20,6 +21,32 @@ Keyword.get = async (keywordId, done) => {
 
   const [rows, _] = await con.query(findKeyword, [keywordId]);
   return rows[0];
+};
+
+Keyword.search = async (query) => {
+  const con = await conAsync;
+
+  let sqlWhereClause = "";
+  const sqlParams = [];
+
+  if (query?.length > 0) {
+    sqlWhereClause = `WHERE name LIKE ?`;
+
+    const sqlSearchPattern = `%${query.toLowerCase()}%`;
+    sqlParams.push(sqlSearchPattern);
+  }
+
+  let searchKeywords = `
+    SELECT keyword.id, name
+    FROM keyword
+
+    ${sqlWhereClause}
+
+    LIMIT ${MAX_SEARCH_RESULTS}
+  `;
+
+  const [rows, _] = await con.query(searchKeywords, sqlParams);
+  return rows;
 };
 
 // Handle race condition between multiple labelers

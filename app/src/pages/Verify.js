@@ -3,13 +3,9 @@ import { Context } from "../Store";
 
 import {
   BrowserRouter as Router,
-  Redirect,
   Switch,
   Route,
-  Link,
-  useParams,
   useRouteMatch,
-  useLocation,
 } from "react-router-dom";
 
 import AdminSection from "./Admin";
@@ -17,38 +13,11 @@ import AdminSection from "./Admin";
 import { Box, Paper, TextField, Typography } from "@material-ui/core";
 
 import Button from "../components/Button";
-import SkipBanner from "../components/SkipBanner";
 import KeywordPane from "../components/KeywordPane";
 import PrivateRoute from "../components/PrivateRoute";
 import PreselectTable from "../components/PreselectTable";
 
 import useStyles from "./VerifyStyles";
-
-function IndividualRoute(props) {
-  const { component: Component, ...rest } = props;
-  const [state, _] = useContext(Context);
-
-  const { selectedKeywordIds } = state;
-  const allowAccess = selectedKeywordIds.length > 0;
-
-  return (
-    <Route
-      {...rest}
-      render={(props) =>
-        allowAccess ? (
-          <Component {...props} />
-        ) : (
-          <Redirect
-            to={{
-              pathname: props.location.pathname.replace("/individual", ""),
-              state: { from: props.location },
-            }}
-          />
-        )
-      }
-    />
-  );
-}
 
 function Verify() {
   const { path } = useRouteMatch();
@@ -58,24 +27,11 @@ function Verify() {
     <Box className={classes.container}>
       <SideMenu />
       <Switch>
+        <Route path={`${path}/relevance`} component={DomainVerifySection} />
         <PrivateRoute
           path={`${path}/admin`}
           component={AdminSection}
           requireAdmin={true}
-        />
-        <Route
-          exact
-          path={`${path}/relevance`}
-          component={TableVerifySection}
-        />
-        <IndividualRoute
-          path={`${path}/relevance/individual`}
-          component={IndividualRelevanceSection}
-        />
-        <Route exact path={`${path}/generated`} component={PreselectSection} />
-        <IndividualRoute
-          path={`${path}/generated/individual`}
-          component={IndividualGeneratedSection}
         />
       </Switch>
     </Box>
@@ -91,8 +47,9 @@ function SideMenu() {
 
   const sideMenuOpts = [
     { name: "Admin", href: `${url}/admin`, requireAdmin: true },
-    { name: "Relevance", href: `${url}/relevance` },
-    { name: "Generated Info", href: `${url}/generated` },
+    { name: "Domain Relevance", href: `${url}/relevance` },
+    { name: "Generated Definitions", href: `${url}/definition` },
+    { name: "Tutorials & Surveys", href: `${url}/learn` },
     { name: "Settings", href: `${url}/settings` },
   ];
 
@@ -111,33 +68,6 @@ function SideMenu() {
             />
           )
       )}
-    </Box>
-  );
-}
-
-function PreselectSection() {
-  const classes = useStyles();
-  const { path } = useRouteMatch();
-  const [state, _] = useContext(Context);
-
-  const [query, setQuery] = useState("");
-  const [searchSuggestions, setSearchSuggestions] = useState([]);
-
-  const enableButtons = state.selectedKeywordIds?.length > 0;
-
-  return (
-    <Box className={classes.preselectContainer}>
-      <PreselectTable displayStatus="pending-info" />
-      <div>
-        <Button
-          unclickedClassName={
-            enableButtons ? classes.continueButton : classes.disabledButton
-          }
-          size="small"
-          name="Verify Individually"
-          href={enableButtons ? `${path}/individual` : undefined}
-        />
-      </div>
     </Box>
   );
 }
@@ -161,7 +91,7 @@ async function markSelected(selectedKeywordIds, curStatus, label) {
   return res;
 }
 
-function TableVerifySection() {
+function DomainVerifySection() {
   const classes = useStyles();
   const { path } = useRouteMatch();
   const [state, dispatch] = useContext(Context);
@@ -183,7 +113,11 @@ function TableVerifySection() {
   }
 
   const LabelButtons = () => (
-    <div>
+    <div
+      style={{
+        marginBottom: -3,
+      }}
+    >
       <Button
         name="Mark Relevant"
         onClick={() => markAndRefresh("good")}
@@ -213,79 +147,6 @@ function TableVerifySection() {
         ButtonsComponent={LabelButtons}
       />
       {lastKeywordId && <KeywordPane keywordId={lastKeywordId} />}
-    </Box>
-  );
-}
-
-function IndividualRelevanceSection() {
-  // let { keywordId } = useParams();
-  const classes = useStyles();
-  const [state, dispatch] = useContext(Context);
-
-  const { selectedKeywordIds } = state;
-  const currKeywordId = selectedKeywordIds[0];
-
-  async function markAndContinue(label) {
-    const curStatus = "pending-domain";
-    const res = await markSelected([currKeywordId], curStatus, label);
-
-    if (res.numAffected === 1) dispatch({ type: "POP_SELECTED_KEYWORDS" });
-  }
-
-  return (
-    <Box className={classes.verifyContainer}>
-      <SkipBanner />
-      <KeywordPane keywordId={currKeywordId} />
-      <Box className={classes.classifyContainer}>
-        <Button
-          name="Irrelevant"
-          onClick={() => markAndContinue("bad")}
-          unclickedClassName={classes.incorrectButton}
-          size="small"
-        />
-        <Button
-          name="Relevant"
-          onClick={() => markAndContinue("good")}
-          unclickedClassName={classes.correctButton}
-          size="small"
-        />
-      </Box>
-    </Box>
-  );
-}
-
-function IndividualGeneratedSection() {
-  const classes = useStyles();
-  const [state, dispatch] = useContext(Context);
-
-  const { selectedKeywordIds } = state;
-  const currKeywordId = selectedKeywordIds[0];
-
-  async function markAndContinue(label) {
-    const curStatus = "pending-info";
-    const res = await markSelected([currKeywordId], curStatus, label);
-
-    if (res.numAffected === 1) dispatch({ type: "POP_SELECTED_KEYWORDS" });
-  }
-
-  return (
-    <Box className={classes.verifyContainer}>
-      <SkipBanner />
-      <KeywordPane keywordId={currKeywordId} />
-      <Box className={classes.classifyContainer}>
-        <Button
-          name="Incorrect"
-          onClick={() => markAndContinue("bad")}
-          unclickedClassName={classes.incorrectButton}
-          size="small"
-        />
-        <Button
-          name="Correct"
-          onClick={() => markAndContinue("good")}
-          unclickedClassName={classes.correctButton}
-          size="small"
-        />
-      </Box>
     </Box>
   );
 }

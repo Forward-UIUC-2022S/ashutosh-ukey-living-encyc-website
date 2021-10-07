@@ -18,6 +18,27 @@ const Reducer = (state, action) => {
         isAdmin: action.isAdmin,
         user: action.user,
       };
+    case "REMOVE_SEARCH_KEYWORD": {
+      let newSearchKeywords = state.searchKeywords.filter(
+        (keyword) => keyword.id !== action.keywordId
+      );
+      return {
+        ...state,
+        searchKeywords: newSearchKeywords,
+      };
+    }
+    case "ADD_SEARCH_KEYWORD": {
+      for (let keyword of state.searchKeywords) {
+        if (keyword.id === action.keyword.id) return state;
+      }
+      let newSearchKeywords = [...state.searchKeywords];
+      newSearchKeywords.push(action.keyword);
+
+      return {
+        ...state,
+        searchKeywords: newSearchKeywords,
+      };
+    }
     case "UPDATE_SELECTED_KEYWORDS":
       let timeSortedIds = action.keywordIds;
 
@@ -39,14 +60,6 @@ const Reducer = (state, action) => {
       return {
         ...state,
         selectedKeywordIds: timeSortedIds,
-      };
-    case "POP_SELECTED_KEYWORDS":
-      let currSelectedIds = state.selectedKeywordIds;
-
-      return {
-        ...state,
-        selectedKeywordIds:
-          currSelectedIds.length === 1 ? [] : currSelectedIds.slice(1),
       };
     default:
       return state;

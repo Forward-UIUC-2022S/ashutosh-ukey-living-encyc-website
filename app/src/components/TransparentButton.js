@@ -5,11 +5,11 @@ export default function TransparentButton(props) {
     <Link
       style={{
         color: "inherit",
-        textDecoration: props.linkUnderline,
         "&:hover": {
           cursor: "pointer",
         },
         cursor: "pointer",
+        textDecoration: props.linkUnderline,
         ...props.style,
       }}
       rel="noopener"
