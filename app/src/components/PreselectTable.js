@@ -12,18 +12,18 @@ import { makeStyles } from "@material-ui/core/styles";
 const useStyles = makeStyles((theme) => ({
   container: {
     flex: 3.5,
-    marginTop: 30,
+    marginTop: 20,
   },
   tableTitleSection: {
     display: "flex",
     flexDirection: "row",
-    marginTop: 50,
+    marginTop: 30,
     marginBottom: 24,
   },
   tableHead: {
     background: theme.palette.pendingYellow.main,
     width: "100%",
-    marginTop: 107,
+    marginTop: 87,
     height: 39,
     position: "absolute",
   },

@@ -54,7 +54,6 @@ const useStyles = makeStyles((theme) => ({
   },
   container: {
     backgroundColor: theme.palette.backGray.main,
-    maxWidth: 280,
     border: "9px solid",
     borderColor: theme.palette.pendingYellow.main,
     flex: 1,
@@ -196,12 +195,6 @@ export default function KeywordPane(props) {
             </div>
           )}
         </div>
-      )}
-
-      {keyword.definition && (
-        <Typography className={classes.infoText}>
-          <b>Definition:</b> {keyword.definition}
-        </Typography>
       )}
     </Box>
   );
