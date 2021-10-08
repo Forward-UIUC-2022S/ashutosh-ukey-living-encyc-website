@@ -24,7 +24,6 @@ const useStyles = makeStyles((theme) => ({
     padding: "0px 10px",
   },
   subsectionRoot: {
-    width: "80%",
     alignItems: "center",
     marginTop: 14,
   },
@@ -34,15 +33,11 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: 16,
   },
   leftContainer: {
-    width: "40%",
+    flex: 1,
   },
   rightContainer: {
-    // display: "flex",
-    // flexDirection: "column",
-    // alignItems: "flex-start",
-    width: "40%",
     flex: 1,
-    marginLeft: 50,
+    marginLeft: "4%",
   },
   searchTitleRoot: {
     display: "flex",
@@ -71,7 +66,6 @@ const useStyles = makeStyles((theme) => ({
   },
   container: {
     display: "flex",
-    flexBasis: "50%",
     marginTop: 2,
     border: "1px solid",
     padding: "16px 25px",
