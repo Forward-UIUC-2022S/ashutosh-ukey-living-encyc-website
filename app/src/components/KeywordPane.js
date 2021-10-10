@@ -53,6 +53,7 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 4,
   },
   container: {
+    maxWidth: 280,
     backgroundColor: theme.palette.backGray.main,
     border: "9px solid",
     borderColor: theme.palette.pendingYellow.main,

@@ -1,0 +1,19 @@
+[
+  { "symbol": "ADJ", "full": "adjective" },
+  { "symbol": "ADP", "full": "adposition" },
+  { "symbol": "ADV", "full": "adverb" },
+  { "symbol": "AUX", "full": "auxiliary verb" },
+  { "symbol": "CONJ", "full": "coordinating conjunction" },
+  { "symbol": "DET", "full": "determiner" },
+  { "symbol": "INTJ", "full": "interjection" },
+  { "symbol": "NOUN", "full": "noun" },
+  { "symbol": "NUM", "full": "numeral" },
+  { "symbol": "PART", "full": "particle" },
+  { "symbol": "PRON", "full": "pronoun" },
+  { "symbol": "PROPN", "full": "proper noun" },
+  { "symbol": "PUNCT", "full": "punctuation" },
+  { "symbol": "SCONJ", "full": "subordinating conjunction" },
+  { "symbol": "SYM", "full": "symbol" },
+  { "symbol": "VERB", "full": "verb" },
+  { "symbol": "X", "full": "other" }
+]

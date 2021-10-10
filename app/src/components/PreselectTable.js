@@ -14,7 +14,10 @@ const useStyles = makeStyles((theme) => ({
     flex: 3.5,
     marginTop: 20,
   },
-  tableTitleSection: {
+  tableTitleText: {
+    marginRight: 35,
+  },
+  tableTitleContainer: {
     display: "flex",
     flexDirection: "row",
     marginTop: 30,
@@ -109,8 +112,8 @@ export default function PreselectTable(props) {
       />
       <AdvancedSearch />
       <Box className={classes.tableContainer}>
-        <div className={classes.tableTitleSection}>
-          <Typography style={{ marginRight: 50 }} variant="h5">
+        <div className={classes.tableTitleContainer}>
+          <Typography className={classes.tableTitleText} variant="h5">
             Select Keywords
           </Typography>
           {ButtonsComponent ? <ButtonsComponent /> : null}

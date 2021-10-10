@@ -1,10 +1,13 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { Context } from "../Store";
+
+import posTags from "../static/POS-tags.json";
 
 import KeywordChip from "./KeywordChip";
 import TransparentButton from "./TransparentButton";
 
 import Slider from "@mui/material/Slider";
+import IconButton from "@mui/material/IconButton";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { Typography, TextField } from "@material-ui/core";
 
@@ -16,6 +19,22 @@ import { makeStyles } from "@material-ui/core/styles";
 const dropdownIconSize = 30;
 
 const useStyles = makeStyles((theme) => ({
+  posChipsContainer: {
+    marginTop: 5,
+  },
+  posText: {
+    fontSize: 10,
+  },
+  posChip: {
+    display: "inline-block",
+    alignSelf: "flex-end",
+    border: "2px solid",
+    borderRadius: 16,
+    padding: "1px 8px",
+    paddingRight: 6,
+    marginRight: 5,
+    marginBottom: 5,
+  },
   substrTextContainer: {
     width: "40ch",
     backgroundColor: theme.palette.inputGray.main,
@@ -24,7 +43,6 @@ const useStyles = makeStyles((theme) => ({
     padding: "0px 10px",
   },
   subsectionRoot: {
-    alignItems: "center",
     marginTop: 14,
   },
   keywordGrid: {
@@ -34,6 +52,9 @@ const useStyles = makeStyles((theme) => ({
   },
   leftContainer: {
     flex: 1,
+  },
+  lengthSelectContainer: {
+    marginTop: 4,
   },
   rightContainer: {
     flex: 1,
@@ -69,7 +90,6 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 2,
     border: "1px solid",
     padding: "16px 25px",
-    paddingBottom: 5,
   },
   root: {
     marginTop: 12,
@@ -79,11 +99,14 @@ const useStyles = makeStyles((theme) => ({
 
 export default function AdvancedSearch(props) {
   const classes = useStyles();
+  const posInputRef = useRef();
+
   const [state, dispatch] = useContext(Context);
   const { searchKeywords } = state;
 
   const [expanded, setExpanded] = useState(false);
 
+  const [posPattern, setPosPattern] = useState("");
   const [searchText, setSearchText] = useState("");
   const [clearToggle, setClearToggle] = useState(false);
   const [searchOpts, setSearchOpts] = useState([]);
@@ -107,6 +130,20 @@ export default function AdvancedSearch(props) {
 
     searchKeywords();
   }, [searchText]);
+
+  function handlePosClick(tag) {
+    const cursorPos = posInputRef?.current.selectionStart;
+
+    const newPosPattern =
+      posPattern.substring(0, cursorPos) +
+      `<${tag}>` +
+      posPattern.substring(cursorPos);
+    setPosPattern(newPosPattern);
+
+    posInputRef.current?.focus();
+    // const newPos = cursorPos + tag.length;
+    // posInputRef.current?.setSelectionRange(newPos, newPos);
+  }
 
   function handleKeywordAdd(keyword) {
     if (keyword) {
@@ -172,17 +209,17 @@ export default function AdvancedSearch(props) {
           </div>
 
           <div className={classes.rightContainer}>
-            <div className={classes.subsectionRoot}>
+            <div className={classes.lengthSelectContainer}>
               <Typography className={classes.subsectionTitleText}>
                 <b>Keyword length:</b>
               </Typography>
               <Slider
                 size="small"
-                getAriaLabel={() => "Length range"}
+                // getAriaLabel={() => "Length range"}
                 value={lengthRange}
                 onChange={(_, newValue) => setLengthRange(newValue)}
                 valueLabelDisplay="auto"
-                getAriaValueText={(value) => `${value} chars`}
+                // getAriaValueText={(value) => `${value} chars`}
               />
             </div>
             <div className={classes.subsectionRoot}>
@@ -199,32 +236,27 @@ export default function AdvancedSearch(props) {
                 <b>POS pattern:</b>
               </Typography>
               <TextField
+                onChange={(e) => setPosPattern(e.target.value)}
+                value={posPattern}
+                inputRef={posInputRef}
                 InputProps={{ classes: { input: classes.substrTextContainer } }}
                 variant="outlined"
               />
             </div>
-            <div
-              style={
-                {
-                  // width: "100%",
-                  // dislay: "flex",
-                }
-              }
-            >
-              <div
-                style={{
-                  display: "inline-block",
-                  alignSelf: "flex-end",
-                  border: "2px solid",
-                  borderRadius: 16,
-                  padding: "1px 8px",
-                  paddingRight: 6,
-                  marginRight: 5,
-                  marginBottom: 5,
-                }}
-              >
-                <Typography className={classes.text}>{"<NOUN>"}</Typography>
-              </div>
+
+            <div className={classes.posChipsContainer}>
+              {posTags.map((e) => (
+                <IconButton
+                  style={{ padding: 0 }}
+                  onClick={() => handlePosClick(e.symbol)}
+                >
+                  <div className={classes.posChip}>
+                    <Typography className={classes.posText}>
+                      {"<" + e.symbol + ">"}
+                    </Typography>
+                  </div>
+                </IconButton>
+              ))}
             </div>
           </div>
         </div>

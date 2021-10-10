@@ -113,11 +113,7 @@ function DomainVerifySection() {
   }
 
   const LabelButtons = () => (
-    <div
-      style={{
-        marginBottom: -3,
-      }}
-    >
+    <div className={classes.markButtonsContainer}>
       <Button
         name="Mark Relevant"
         onClick={() => markAndRefresh("good")}
@@ -132,6 +128,15 @@ function DomainVerifySection() {
         onClick={() => markAndRefresh("bad")}
         unclickedClassName={
           enableButtons ? classes.allIncorrectButton : classes.disabledButton
+        }
+        labelStyleName={classes.buttonText}
+        size="small"
+      />
+      <Button
+        name="Find Similar"
+        onClick={() => console.log("Ayyy")}
+        unclickedClassName={
+          enableButtons ? classes.findSimilarButton : classes.disabledButton
         }
         labelStyleName={classes.buttonText}
         size="small"

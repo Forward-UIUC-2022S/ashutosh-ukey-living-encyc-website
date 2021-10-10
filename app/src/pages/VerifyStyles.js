@@ -22,13 +22,18 @@ const verifyButtonStyles = {
 };
 const verifyAllButtonStyles = {
   ...verifyButtonStyles,
-  marginRight: 20,
-  // maxWidth: 220,
+  marginRight: 10,
 };
 
 const useStyles = makeStyles((theme) => ({
+  markButtonsContainer: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: -3,
+  },
   buttonText: {
     fontSize: 14,
+    padding: "2px 18px",
   },
   fileInput: {
     marginTop: 40,
@@ -45,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: 180,
     height: 35,
   },
-  continueButton: {
+  findSimilarButton: {
     ...verifyAllButtonStyles,
     ...staticButtonColorStyle(theme.palette.pendingYellow.main),
   },
