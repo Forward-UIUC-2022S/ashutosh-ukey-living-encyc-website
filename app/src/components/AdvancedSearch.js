@@ -20,7 +20,7 @@ const dropdownIconSize = 30;
 
 const useStyles = makeStyles((theme) => ({
   posChipsContainer: {
-    marginTop: 5,
+    marginTop: 8,
   },
   posText: {
     fontSize: 10,
@@ -71,7 +71,7 @@ const useStyles = makeStyles((theme) => ({
     height: 34,
   },
   subsectionTitleText: {
-    width: 180,
+    width: 160,
     fontSize: 14,
   },
   searchText: {
@@ -102,9 +102,9 @@ export default function AdvancedSearch(props) {
   const posInputRef = useRef();
 
   const [state, dispatch] = useContext(Context);
-  const { searchKeywords } = state;
+  const { searchKeywords, expandAdvSearch } = state;
 
-  const [expanded, setExpanded] = useState(false);
+  // const [expanded, setExpanded] = useState(false);
 
   const [posPattern, setPosPattern] = useState("");
   const [searchText, setSearchText] = useState("");
@@ -160,18 +160,18 @@ export default function AdvancedSearch(props) {
   return (
     <div className={classes.root}>
       <TransparentButton
-        onClick={() => setExpanded(!expanded)}
+        onClick={() => dispatch({ type: "TOGGLE_ADV_SEARCH" })}
         className={classes.titleButton}
         linkUnderline="none"
       >
         <Typography>Advanced Search</Typography>
-        {expanded ? (
+        {expandAdvSearch ? (
           <ArrowDropUpIcon {...iconProps} />
         ) : (
           <ArrowDropDownIcon {...iconProps} />
         )}
       </TransparentButton>
-      {expanded && (
+      {expandAdvSearch && (
         <div className={classes.container}>
           <div className={classes.leftContainer}>
             <div className={classes.searchTitleRoot}>

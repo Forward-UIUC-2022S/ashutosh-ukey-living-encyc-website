@@ -5,9 +5,10 @@ const initialState = {
   isLoggedIn: false,
   isAdmin: false,
   user: {},
-  selectedKeywordIds: [],
+  selectedKeywords: [],
   searchKeywords: [],
   isLoading: false,
+  expandAdvSearch: false,
 };
 
 const Store = ({ children }) => {

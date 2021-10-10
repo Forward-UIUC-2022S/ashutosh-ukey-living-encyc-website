@@ -11,6 +11,11 @@ function setDifference(arr1, arr2) {
 
 const Reducer = (state, action) => {
   switch (action.type) {
+    case "TOGGLE_ADV_SEARCH":
+      return {
+        ...state,
+        expandAdvSearch: !state.expandAdvSearch,
+      };
     case "LOGIN":
       return {
         ...state,
@@ -27,6 +32,24 @@ const Reducer = (state, action) => {
         searchKeywords: newSearchKeywords,
       };
     }
+    case "ADD_SELECTED_TO_SEARCH":
+      let addSearchKeywords = setDifference(
+        state.selectedKeywords,
+        state.searchKeywords
+      );
+      if (addSearchKeywords.size === 0)
+        return { ...state, expandAdvSearch: true };
+      console.log("supp");
+
+      let newSearchKeywords = [...state.searchKeywords];
+
+      for (let kwd of addSearchKeywords.values()) newSearchKeywords.push(kwd);
+
+      return {
+        ...state,
+        expandAdvSearch: true,
+        searchKeywords: newSearchKeywords,
+      };
     case "ADD_SEARCH_KEYWORD": {
       for (let keyword of state.searchKeywords) {
         if (keyword.id === action.keyword.id) return state;
@@ -40,26 +63,26 @@ const Reducer = (state, action) => {
       };
     }
     case "UPDATE_SELECTED_KEYWORDS":
-      let timeSortedIds = action.keywordIds;
+      let timeSortedKwds = action.keywords;
 
       // If selecting a new keyword
-      if (action.keywordIds.length > state.selectedKeywordIds.length) {
+      if (action.keywords.length > state.selectedKeywords.length) {
         // Get newly added item using set difference
-        let lastAddedId = setDifference(
-          action.keywordIds,
-          state.selectedKeywordIds
+        let lastAddedKwd = setDifference(
+          action.keywords,
+          state.selectedKeywords
         );
-        lastAddedId = lastAddedId.values().next().value;
+        lastAddedKwd = lastAddedKwd.values().next().value;
 
         // Create copy and append at the end (maintains add order)
         // Needed because DataGrid library sorts by value, not time
-        timeSortedIds = [...state.selectedKeywordIds];
-        timeSortedIds.push(lastAddedId);
+        timeSortedKwds = [...state.selectedKeywords];
+        timeSortedKwds.push(lastAddedKwd);
       }
 
       return {
         ...state,
-        selectedKeywordIds: timeSortedIds,
+        selectedKeywords: timeSortedKwds,
       };
     default:
       return state;

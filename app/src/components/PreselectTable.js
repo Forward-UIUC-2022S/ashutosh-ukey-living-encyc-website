@@ -63,11 +63,12 @@ export default function PreselectTable(props) {
   const [state, dispatch] = useContext(Context);
   const { refresh, displayStatus, ButtonsComponent } = props;
 
-  const { selectedKeywordIds } = state;
+  const selectedKeywordIds = state.selectedKeywords.map((e) => e.id);
 
   const [query, setQuery] = useState("");
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [keywordOpts, setKeywordOpts] = useState([]);
+  const [keywordsIndex, setKeywordsIndex] = useState({});
 
   useEffect(() => {
     async function getOpts() {
@@ -79,15 +80,23 @@ export default function PreselectTable(props) {
       res = await res.json();
 
       setKeywordOpts(res);
+
+      const newIndex = {};
+      for (let kwd of res) {
+        newIndex[kwd.id] = kwd;
+      }
+      setKeywordsIndex(newIndex);
     }
 
     getOpts();
   }, [query, refresh]);
 
   function onKeywordsSelect(newSelectionModel) {
+    const keywordIds = newSelectionModel;
+    const keywords = keywordIds.map((id) => keywordsIndex[id]);
     dispatch({
       type: "UPDATE_SELECTED_KEYWORDS",
-      keywordIds: newSelectionModel,
+      keywords: keywords,
     });
   }
 

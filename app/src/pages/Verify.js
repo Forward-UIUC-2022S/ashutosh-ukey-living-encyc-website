@@ -93,10 +93,10 @@ async function markSelected(selectedKeywordIds, curStatus, label) {
 
 function DomainVerifySection() {
   const classes = useStyles();
-  const { path } = useRouteMatch();
+  // const { path } = useRouteMatch();
   const [state, dispatch] = useContext(Context);
 
-  const { selectedKeywordIds } = state;
+  const selectedKeywordIds = state.selectedKeywords.map((kwd) => kwd.id);
   const lastKeywordId = selectedKeywordIds[selectedKeywordIds.length - 1];
 
   const [query, setQuery] = useState("");
@@ -134,7 +134,7 @@ function DomainVerifySection() {
       />
       <Button
         name="Find Similar"
-        onClick={() => console.log("Ayyy")}
+        onClick={() => dispatch({ type: "ADD_SELECTED_TO_SEARCH" })}
         unclickedClassName={
           enableButtons ? classes.findSimilarButton : classes.disabledButton
         }
