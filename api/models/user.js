@@ -13,7 +13,7 @@ function addAdminAttr(user) {
   return user;
 }
 
-User.getUnlabeled = async (userId, queryStr, status) => {
+User.getUnlabeled = async (userId, status, searchOpts) => {
   const con = await conAsync;
 
   let findKeywords = `
@@ -33,9 +33,19 @@ User.getUnlabeled = async (userId, queryStr, status) => {
   `;
   const queryArgs = [userId, status];
 
-  if (queryStr) {
+  if (searchOpts.lengthRange[0]) {
+    findKeywords += ` AND CHAR_LENGTH(name) BETWEEN ? AND ? `;
+
+    queryArgs.push(searchOpts.lengthRange[0]);
+    queryArgs.push(searchOpts.lengthRange[1]);
+  }
+  if (searchOpts.posPattern) {
+    findKeywords += " AND pos = ? ";
+    queryArgs.push(searchOpts.posPattern);
+  }
+  if (searchOpts.nameQuery) {
     findKeywords += " AND name LIKE ?";
-    queryArgs.push("%" + queryStr.toLowerCase() + "%");
+    queryArgs.push("%" + searchOpts.nameQuery.toLowerCase() + "%");
   }
   findKeywords += " LIMIT 300";
 

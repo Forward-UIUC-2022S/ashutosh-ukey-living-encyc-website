@@ -70,6 +70,15 @@ router.get("/", async (req, res) => {
 
   await Promise.all([addWikiInfo(keyword), addExampleSents(keyword)]);
   res.send(keyword);
+  console.log("GET /keyword", req.query);
+});
+
+router.get("/common-attrs", async (req, res) => {
+  const idsArray = req.query.ids.split(",");
+  const commonAttrs = await Keyword.getSimilarAttrs(idsArray);
+
+  res.send(commonAttrs);
+  console.log("GET /keyword/common-attrs", req.query);
 });
 
 router.get("/search", async (req, res) => {

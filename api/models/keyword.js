@@ -1,9 +1,64 @@
 const MIN_SAME_LABELS = 2;
 const MAX_SEARCH_RESULTS = 20;
 
+const { findCommonSubstr } = require("../utils");
 const conAsync = require("../boot/db.js");
 
 const Keyword = {};
+
+Keyword.getSimilarAttrs = async (keywordIds) => {
+  if (keywordIds.length === 0) return {};
+  const con = await conAsync;
+
+  let getKeywordInfo = `
+    SELECT id, name, pos
+
+    FROM keyword
+    WHERE id IN (?)
+  `;
+
+  const [rows, _] = await con.query(getKeywordInfo, [keywordIds]);
+
+  // Find common POS pattern
+  let commonPosPattern = rows[0].pos;
+  for (let i = 1; i < rows.length; i++) {
+    const curPosPattern = rows[i].pos;
+
+    if (curPosPattern !== commonPosPattern) {
+      commonPosPattern = null;
+      break;
+    }
+  }
+
+  // Find common substring
+  let commonSubstr = rows[0].name;
+  for (let i = 1; i < rows.length; i++) {
+    commonSubstr = findCommonSubstr(commonSubstr, rows[i].name);
+
+    if (commonSubstr.length < 3) {
+      commonSubstr = null;
+      break;
+    }
+  }
+  commonSubstr = commonSubstr?.trim();
+
+  // Calculate length range
+  let minLength = rows[0].name.length;
+  let maxLength = minLength;
+
+  for (let i = 1; i < rows.length; i++) {
+    const curLength = rows[1].name.length;
+
+    if (curLength < minLength) minLength = curLength;
+    if (curLength > maxLength) maxLength = curLength;
+  }
+
+  return {
+    nameQuery: commonSubstr,
+    posPattern: commonPosPattern,
+    lengthRange: [minLength, maxLength],
+  };
+};
 
 Keyword.get = async (keywordId) => {
   const con = await conAsync;
@@ -30,7 +85,7 @@ Keyword.search = async (query) => {
   const sqlParams = [];
 
   if (query?.length > 0) {
-    sqlWhereClause = `WHERE name LIKE ?`;
+    sqlWhereClause = `WHERE name LIKE ? ORDER BY LENGTH(name)`;
 
     const sqlSearchPattern = `%${query.toLowerCase()}%`;
     sqlParams.push(sqlSearchPattern);

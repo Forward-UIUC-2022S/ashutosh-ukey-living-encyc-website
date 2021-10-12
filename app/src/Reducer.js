@@ -32,6 +32,50 @@ const Reducer = (state, action) => {
         searchKeywords: newSearchKeywords,
       };
     }
+    case "UPDATE_ADV_SEARCH_OPTS":
+      return {
+        ...state,
+        advSearchOpts: action.value,
+      };
+    case "CLEAR_ADV_SEARCH_OPTS":
+      return {
+        ...state,
+        advSearchOpts: { lengthRange: [0, 100] },
+      };
+    case "UPDATE_ADV_SEARCH_POS":
+      if (state.advSearchOpts.posPattern === action.value) return state;
+
+      return {
+        ...state,
+        advSearchOpts: {
+          ...state.advSearchOpts,
+          posPattern: action.value,
+        },
+      };
+    case "UPDATE_LABEL_SEARCH_QUERY":
+      if (state.advSearchOpts.nameQuery === action.value) return state;
+
+      return {
+        ...state,
+        advSearchOpts: {
+          ...state.advSearchOpts,
+          nameQuery: action.value,
+        },
+      };
+    case "UPDATE_ADV_SEARCH_LRANGE":
+      if (
+        action.value?.[0] === state.advSearchOpts.lengthRange?.[0] &&
+        action.value?.[1] === state.advSearchOpts.lengthRange?.[1]
+      )
+        return state;
+
+      return {
+        ...state,
+        advSearchOpts: {
+          ...state.advSearchOpts,
+          lengthRange: action.value,
+        },
+      };
     case "ADD_SELECTED_TO_SEARCH":
       let addSearchKeywords = setDifference(
         state.selectedKeywords,
@@ -39,7 +83,6 @@ const Reducer = (state, action) => {
       );
       if (addSearchKeywords.size === 0)
         return { ...state, expandAdvSearch: true };
-      console.log("supp");
 
       let newSearchKeywords = [...state.searchKeywords];
 

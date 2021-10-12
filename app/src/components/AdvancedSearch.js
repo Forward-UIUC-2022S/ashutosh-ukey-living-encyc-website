@@ -11,14 +11,26 @@ import IconButton from "@mui/material/IconButton";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { Typography, TextField } from "@material-ui/core";
 
+import ClearIcon from "@mui/icons-material/DoNotDisturbAlt";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 
 import { makeStyles } from "@material-ui/core/styles";
 
+const FETCH_DELAY = 6;
+const POS_DELAY = 3;
+const LENGTH_DELAY = 4;
+const KWQ_DELAY = 3;
+
 const dropdownIconSize = 30;
+const clearIconSize = 21;
 
 const useStyles = makeStyles((theme) => ({
+  topBanner: { display: "flex", justifyContent: "space-between" },
+  clearButtonText: {
+    color: "black",
+    marginLeft: 3,
+  },
   posChipsContainer: {
     marginTop: 8,
   },
@@ -83,7 +95,7 @@ const useStyles = makeStyles((theme) => ({
   titleButton: {
     display: "flex",
     alignItems: "center",
-    color: "black",
+    padding: 0,
   },
   container: {
     display: "flex",
@@ -104,21 +116,89 @@ export default function AdvancedSearch(props) {
   const [state, dispatch] = useContext(Context);
   const { searchKeywords, expandAdvSearch } = state;
 
-  // const [expanded, setExpanded] = useState(false);
+  const [caReqController, setCaReqController] = useState();
+  const [fetchTimer, setFetchTimer] = useState();
 
+  const [lengthTimer, setLengthTimer] = useState();
+  const [posTimer, setPosTimer] = useState();
+  const [kwqTimer, setKwqTimer] = useState();
+
+  const [lengthRange, setLengthRange] = useState([0, 100]);
+  const [keywordQuery, setKeywordQuery] = useState("");
   const [posPattern, setPosPattern] = useState("");
+
   const [searchText, setSearchText] = useState("");
   const [clearToggle, setClearToggle] = useState(false);
   const [searchOpts, setSearchOpts] = useState([]);
 
-  const [lengthRange, setLengthRange] = useState([0, 100]);
+  const iconProps = (iconSize) => ({
+    sx: { fontSize: iconSize },
+  });
 
-  const iconProps = {
-    sx: { fontSize: dropdownIconSize },
-  };
+  function cancelCaRequest() {
+    clearTimeout(fetchTimer);
+    caReqController?.abort();
+  }
+
+  function handleOptsClear() {
+    setLengthRange([0, 100]);
+    setKeywordQuery("");
+    setPosPattern("");
+    dispatch({ type: "CLEAR_ADV_SEARCH_OPTS" });
+  }
+
+  function createUpdateWithTimeBuffer(
+    curTimer,
+    updateTimer,
+    actionType,
+    timeDelay
+  ) {
+    return (newValue) => {
+      clearTimeout(curTimer);
+      const timer = setTimeout(() => {
+        dispatch({
+          type: actionType,
+          value: newValue,
+        });
+      }, timeDelay * 1000);
+      updateTimer(timer);
+    };
+  }
+
+  const updatePosWithDelay = createUpdateWithTimeBuffer(
+    posTimer,
+    setPosTimer,
+    "UPDATE_ADV_SEARCH_POS",
+    POS_DELAY
+  );
+  const updateKwqWithDelay = createUpdateWithTimeBuffer(
+    kwqTimer,
+    setKwqTimer,
+    "UPDATE_LABEL_SEARCH_QUERY",
+    KWQ_DELAY
+  );
+  const updateLengthWithDelay = createUpdateWithTimeBuffer(
+    lengthTimer,
+    setLengthTimer,
+    "UPDATE_ADV_SEARCH_LRANGE",
+    LENGTH_DELAY
+  );
 
   useEffect(() => {
-    async function searchKeywords() {
+    console.log("Pos effect triggered");
+    updatePosWithDelay(posPattern);
+  }, [posPattern]);
+  useEffect(() => {
+    console.log("Kwq effect triggered");
+    updateKwqWithDelay(keywordQuery);
+  }, [keywordQuery]);
+  useEffect(() => {
+    console.log("Length effect triggered");
+    updateLengthWithDelay(lengthRange);
+  }, [lengthRange]);
+
+  useEffect(() => {
+    async function getKeywordOpts() {
       const searchKeywordsUrl = `/keyword/search/?query=${searchText}`;
       let res = await fetch(searchKeywordsUrl, {
         method: "GET",
@@ -128,8 +208,46 @@ export default function AdvancedSearch(props) {
       setSearchOpts(res);
     }
 
-    searchKeywords();
+    // Don't get common attrs until user is done typing
+    if (searchText.length > 0) cancelCaRequest();
+    getKeywordOpts();
   }, [searchText]);
+
+  useEffect(() => {
+    async function getCommonAttrs(controller) {
+      if (searchKeywords.length > 0) {
+        let keywordsIdsUri = searchKeywords.map((e) => e.id).join(",");
+        const searchKeywordsUrl = `/keyword/common-attrs/?ids=${keywordsIdsUri}`;
+        let res = await fetch(searchKeywordsUrl, {
+          signal: controller.signal,
+          method: "GET",
+        });
+        res = await res.json();
+
+        if (res.nameQuery) setKeywordQuery(res.nameQuery);
+        if (res.posPattern) setPosPattern(res.posPattern);
+        if (res.lengthRange) setLengthRange(res.lengthRange);
+
+        dispatch({
+          type: "UPDATE_ADV_SEARCH_OPTS",
+          value: res,
+        });
+      }
+    }
+
+    // Make request with some time buffer for input changes
+    cancelCaRequest();
+    const controller = new AbortController();
+    const timer = setTimeout(
+      () => getCommonAttrs(controller),
+      FETCH_DELAY * 1000
+    );
+
+    setCaReqController(controller);
+    setFetchTimer(timer);
+
+    return () => cancelCaRequest();
+  }, [searchKeywords]);
 
   function handlePosClick(tag) {
     const cursorPos = posInputRef?.current.selectionStart;
@@ -138,6 +256,7 @@ export default function AdvancedSearch(props) {
       posPattern.substring(0, cursorPos) +
       `<${tag}>` +
       posPattern.substring(cursorPos);
+
     setPosPattern(newPosPattern);
 
     posInputRef.current?.focus();
@@ -159,18 +278,30 @@ export default function AdvancedSearch(props) {
 
   return (
     <div className={classes.root}>
-      <TransparentButton
-        onClick={() => dispatch({ type: "TOGGLE_ADV_SEARCH" })}
-        className={classes.titleButton}
-        linkUnderline="none"
-      >
-        <Typography>Advanced Search</Typography>
-        {expandAdvSearch ? (
-          <ArrowDropUpIcon {...iconProps} />
-        ) : (
-          <ArrowDropDownIcon {...iconProps} />
+      <div className={classes.topBanner}>
+        <TransparentButton
+          onClick={() => dispatch({ type: "TOGGLE_ADV_SEARCH" })}
+          className={classes.titleButton}
+          linkUnderline="none"
+        >
+          <Typography>Advanced Search</Typography>
+          {expandAdvSearch ? (
+            <ArrowDropUpIcon {...iconProps(dropdownIconSize)} />
+          ) : (
+            <ArrowDropDownIcon {...iconProps(dropdownIconSize)} />
+          )}
+        </TransparentButton>
+
+        {expandAdvSearch && (
+          <IconButton
+            onClick={handleOptsClear}
+            classes={{ root: classes.titleButton }}
+          >
+            <ClearIcon {...iconProps(clearIconSize)} />
+            <Typography className={classes.clearButtonText}>Clear</Typography>
+          </IconButton>
         )}
-      </TransparentButton>
+      </div>
       {expandAdvSearch && (
         <div className={classes.container}>
           <div className={classes.leftContainer}>
@@ -219,6 +350,7 @@ export default function AdvancedSearch(props) {
                 value={lengthRange}
                 onChange={(_, newValue) => setLengthRange(newValue)}
                 valueLabelDisplay="auto"
+                max={100}
                 // getAriaValueText={(value) => `${value} chars`}
               />
             </div>
@@ -228,6 +360,8 @@ export default function AdvancedSearch(props) {
               </Typography>
               <TextField
                 InputProps={{ classes: { input: classes.substrTextContainer } }}
+                onChange={(e) => setKeywordQuery(e.target.value)}
+                value={keywordQuery}
                 variant="outlined"
               />
             </div>
@@ -245,8 +379,9 @@ export default function AdvancedSearch(props) {
             </div>
 
             <div className={classes.posChipsContainer}>
-              {posTags.map((e) => (
+              {posTags.map((e, idx) => (
                 <IconButton
+                  key={idx}
                   style={{ padding: 0 }}
                   onClick={() => handlePosClick(e.symbol)}
                 >

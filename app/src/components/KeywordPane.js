@@ -155,8 +155,8 @@ export default function KeywordPane(props) {
             )}
             {keyword.wiki.search && (
               <ul>
-                {keyword.wiki.search.map((res) => (
-                  <li className={classes.infoListItem}>
+                {keyword.wiki.search.map((res, idx) => (
+                  <li key={idx} className={classes.infoListItem}>
                     <TransparentButton href={res.url} target="_blank">
                       {res.title}
                     </TransparentButton>
@@ -180,8 +180,8 @@ export default function KeywordPane(props) {
 
               <div className={classes.wikiSummaryContainer}>
                 <ul>
-                  {keyword.sentences.map((elem) => (
-                    <li className={classes.infoListItem}>
+                  {keyword.sentences.map((elem, idx) => (
+                    <li key={idx} className={classes.infoListItem}>
                       <TransparentButton
                         linkUnderline="none"
                         href={elem.paper_url}

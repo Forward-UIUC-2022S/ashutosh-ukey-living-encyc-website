@@ -9,6 +9,8 @@ import { DataGrid } from "@material-ui/data-grid";
 
 import { makeStyles } from "@material-ui/core/styles";
 
+const FETCH_DELAY = 5;
+
 const useStyles = makeStyles((theme) => ({
   container: {
     flex: 3.5,
@@ -63,22 +65,28 @@ export default function PreselectTable(props) {
   const [state, dispatch] = useContext(Context);
   const { refresh, displayStatus, ButtonsComponent } = props;
 
+  const { advSearchOpts } = state;
   const selectedKeywordIds = state.selectedKeywords.map((e) => e.id);
 
   const [query, setQuery] = useState("");
-  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [searchTimer, setSearchTimer] = useState();
   const [keywordOpts, setKeywordOpts] = useState([]);
   const [keywordsIndex, setKeywordsIndex] = useState({});
 
   useEffect(() => {
     async function getOpts() {
       let getOptsUrl = "/label/pending?status=" + displayStatus;
+      const { nameQuery, posPattern, lengthRange } = advSearchOpts;
 
-      if (query) getOptsUrl += "&query=" + query;
+      if (nameQuery?.length > 0) getOptsUrl += "&nameQuery=" + nameQuery;
+      if (posPattern?.length > 0) getOptsUrl += "&posPattern=" + posPattern;
+      if (typeof lengthRange?.[0] === "number")
+        getOptsUrl += "&minLegth=" + lengthRange[0];
+      if (typeof lengthRange?.[1] === "number")
+        getOptsUrl += "&maxLegth=" + lengthRange[1];
 
       let res = await fetch(getOptsUrl);
       res = await res.json();
-
       setKeywordOpts(res);
 
       const newIndex = {};
@@ -87,9 +95,22 @@ export default function PreselectTable(props) {
       }
       setKeywordsIndex(newIndex);
     }
-
     getOpts();
-  }, [query, refresh]);
+  }, [advSearchOpts, refresh]);
+
+  useEffect(() => {
+    function updateStoreQuery() {
+      dispatch({
+        type: "UPDATE_LABEL_SEARCH_QUERY",
+        value: query,
+      });
+    }
+
+    // Add delay before making request
+    clearTimeout(searchTimer);
+    const timer = setTimeout(updateStoreQuery, FETCH_DELAY * 1000);
+    setSearchTimer(timer);
+  }, [query]);
 
   function onKeywordsSelect(newSelectionModel) {
     const keywordIds = newSelectionModel;
@@ -108,7 +129,8 @@ export default function PreselectTable(props) {
           input: classes.searchFieldInput,
         }}
         freeSolo
-        options={searchSuggestions.map((option) => option.name)}
+        options={[]}
+        // options={searchSuggestions.map((option) => option.name)}
         renderInput={(params) => (
           <TextField
             {...params}
