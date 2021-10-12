@@ -35,7 +35,6 @@ const Reducer = (state, action) => {
     case "UPDATE_ADV_SEARCH_OPTS":
       return {
         ...state,
-        selectedKeywords: [],
         advSearchOpts: action.value,
       };
     case "CLEAR_ADV_SEARCH_OPTS":

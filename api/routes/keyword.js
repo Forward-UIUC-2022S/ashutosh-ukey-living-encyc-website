@@ -13,6 +13,10 @@ const router = express.Router();
 const NUM_WIKI_RESULTS = 15;
 const NUM_EX_SENTS = 9;
 
+function checkAbort(hasAborted) {
+  if (hasAborted) throw { type: "clientAbort" };
+}
+
 async function addExampleSents(keyword) {
   let program_cmd_inp = keyword.name.replace(/ /g, "+");
   program_cmd_inp += " " + NUM_EX_SENTS;
@@ -66,11 +70,24 @@ async function addWikiInfo(keyword) {
 }
 
 router.get("/", async (req, res) => {
+  let hasAborted = false;
+  req.on("close", function (err) {
+    hasAborted = true;
+    res.end();
+  });
+
   const keyword = await Keyword.get(req.query.id);
 
   await Promise.all([addWikiInfo(keyword), addExampleSents(keyword)]);
-  res.send(keyword);
-  console.log("GET /keyword", req.query);
+
+  try {
+    checkAbort(hasAborted);
+    res.send(keyword);
+    console.log("GET /keyword", req.query);
+  } catch (error) {
+    if (error?.type === "clientAbort") console.log("ABORT /keyword", req.query);
+    else throw error;
+  }
 });
 
 router.get("/common-attrs", async (req, res) => {
