@@ -35,11 +35,13 @@ const Reducer = (state, action) => {
     case "UPDATE_ADV_SEARCH_OPTS":
       return {
         ...state,
+        selectedKeywords: [],
         advSearchOpts: action.value,
       };
     case "CLEAR_ADV_SEARCH_OPTS":
       return {
         ...state,
+        selectedKeywords: [],
         advSearchOpts: { lengthRange: [0, 100] },
       };
     case "UPDATE_ADV_SEARCH_POS":
@@ -57,6 +59,7 @@ const Reducer = (state, action) => {
 
       return {
         ...state,
+        selectedKeywords: [],
         advSearchOpts: {
           ...state.advSearchOpts,
           nameQuery: action.value,

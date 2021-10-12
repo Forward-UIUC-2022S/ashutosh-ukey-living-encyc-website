@@ -93,15 +93,12 @@ async function markSelected(selectedKeywordIds, curStatus, label) {
 
 function DomainVerifySection() {
   const classes = useStyles();
-  // const { path } = useRouteMatch();
   const [state, dispatch] = useContext(Context);
 
   const selectedKeywordIds = state.selectedKeywords.map((kwd) => kwd.id);
   const lastKeywordId = selectedKeywordIds[selectedKeywordIds.length - 1];
 
-  const [query, setQuery] = useState("");
   const [refresh, setRefresh] = useState(false);
-  const [searchSuggestions, setSearchSuggestions] = useState([]);
 
   const enableButtons = selectedKeywordIds?.length > 0;
 
