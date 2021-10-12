@@ -87,17 +87,20 @@ export default function KeywordPane(props) {
   const classes = useStyles();
   const { keywordId } = props;
 
+  const [infoReqController, setInfoReqController] = useState();
+
   const [keyword, setKeyword] = useState();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    async function getKeywordInfo() {
+    async function getKeywordInfo(controller) {
       if (keywordId) {
         setLoading(true);
 
         const keywordInfoUrl = "/keyword?id=" + keywordId;
         let res = await fetch(keywordInfoUrl, {
           method: "GET",
+          signal: controller.signal,
         });
         res = await res.json();
 
@@ -105,7 +108,14 @@ export default function KeywordPane(props) {
         setLoading(false);
       }
     }
-    getKeywordInfo();
+
+    // Delete previous info request when clicking on a new keyword
+    infoReqController?.abort();
+    const controller = new AbortController();
+    getKeywordInfo(controller);
+    setInfoReqController(controller);
+
+    return () => infoReqController?.abort();
   }, [keywordId]);
 
   const googleSearchQuery = encodeURIComponent(keyword?.name);
