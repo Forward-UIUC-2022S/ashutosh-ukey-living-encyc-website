@@ -33,6 +33,9 @@ const useStyles = makeStyles((theme) => ({
   groupRow: {
     backgroundColor: theme.palette.inputGray.main,
   },
+  innerRow: {
+    // backgroundColor: theme.palette.inputGray.main,
+  },
   tableCellButton: {
     "&:hover": {
       cursor: "pointer",
@@ -89,7 +92,11 @@ function Row(props) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+        <TableCell
+          className={classes.innerRow}
+          style={{ paddingBottom: 0, paddingTop: 0 }}
+          colSpan={6}
+        >
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
               <Table size="small" aria-label="purchases">
