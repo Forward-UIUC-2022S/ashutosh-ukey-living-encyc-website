@@ -95,9 +95,10 @@ function DomainVerifySection() {
   const classes = useStyles();
   const [state, dispatch] = useContext(Context);
 
+  const { keywordIdInfoPane } = state;
   const selectedKeywordIds = Object.keys(state.selectedKeywords);
-  const lastKeywordId = selectedKeywordIds[selectedKeywordIds.length - 1];
-  console.log(lastKeywordId);
+  // const lastKeywordId = selectedKeywordIds[selectedKeywordIds.length - 1];
+  // console.log("Last added keyword id: ", lastKeywordId);
 
   const [refresh, setRefresh] = useState(false);
 
@@ -149,7 +150,7 @@ function DomainVerifySection() {
         displayStatus={curStatus}
         ButtonsComponent={LabelButtons}
       />
-      {lastKeywordId && <KeywordPane keywordId={lastKeywordId} />}
+      <KeywordPane />
     </Box>
   );
 }

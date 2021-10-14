@@ -7,6 +7,7 @@ const initialState = {
   user: {},
 
   keywordIdInfoPane: null,
+  expandedRowId: null,
   selectedKeywords: {},
   searchKeywords: [],
 

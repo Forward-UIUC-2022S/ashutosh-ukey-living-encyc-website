@@ -1,6 +1,7 @@
 // TODO: Add tooltips for each keyword category
 import parse from "html-react-parser";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { Context } from "../Store";
 
 import TransparentButton from "./TransparentButton";
 
@@ -85,7 +86,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function KeywordPane(props) {
   const classes = useStyles();
-  const { keywordId } = props;
+  const [state, dispatch] = useContext(Context);
+  const { keywordIdInfoPane: keywordId } = state;
 
   const [infoReqController, setInfoReqController] = useState();
 

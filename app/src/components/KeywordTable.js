@@ -50,20 +50,36 @@ function Row(props) {
   const { row: group } = props;
 
   const [state, dispatch] = useContext(Context);
-  const { selectedKeywords } = state;
+  const { selectedKeywords, expandedRowId } = state;
 
   const [open, setOpen] = useState(false);
   const [rowChecked, setRowChecked] = useState(false);
-  const [checkedKeywordIds, setCheckedKeywordIds] = useState([]);
+
+  useEffect(() => {
+    if (expandedRowId !== group.id) setOpen(false);
+  }, [expandedRowId]);
+
+  useEffect(() => {
+    const checkSelectedReducer = (previousValue, currentValue) =>
+      previousValue || currentValue in selectedKeywords;
+    let keywordSelected = group.keywords
+      .map((e) => e.id)
+      .reduce(checkSelectedReducer, false);
+
+    if (!keywordSelected) setRowChecked(false);
+  }, [selectedKeywords]);
 
   function toggleCollapse() {
-    setOpen(!open);
+    const newOpen = !open;
+    setOpen(newOpen);
+    if (newOpen) dispatch({ type: "SET_EXPANDED_ROW", rowId: group.id });
   }
 
   function handleRowCheck(checked) {
     setRowChecked(checked);
 
     if (checked) {
+      setOpen(true);
       dispatch({ type: "ADD_KEYWORDS_SELECTED", keywords: group.keywords });
     } else {
       setOpen(false);

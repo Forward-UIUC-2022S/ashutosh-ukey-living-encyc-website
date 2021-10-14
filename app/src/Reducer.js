@@ -115,6 +115,7 @@ const Reducer = (state, action) => {
       }
       return {
         ...state,
+        keywordIdInfoPane: action.keywords[0].id,
         selectedKeywords: newSelectedKeywords,
       };
     }
@@ -130,7 +131,11 @@ const Reducer = (state, action) => {
         selectedKeywords: newSelectedKeywords,
       };
     }
-
+    case "SET_EXPANDED_ROW":
+      return {
+        ...state,
+        expandedRowId: action.rowId,
+      };
     case "UPDATE_SELECTED_KEYWORDS":
       let timeSortedKwds = action.keywords;
 
