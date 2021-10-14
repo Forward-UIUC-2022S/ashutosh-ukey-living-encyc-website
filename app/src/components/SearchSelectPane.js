@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { Context } from "../Store";
 
+import KeywordTable from "./KeywordTable";
 import AdvancedSearch from "./AdvancedSearch";
 
 import { Box, TextField, Typography } from "@material-ui/core";
@@ -26,6 +27,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: 24,
   },
   tableHead: {
+    display: "none",
     background: theme.palette.pendingYellow.main,
     width: "100%",
     marginTop: 87,
@@ -60,7 +62,7 @@ const columns = [
   },
 ];
 
-export default function PreselectTable(props) {
+export default function SearchSelectPane(props) {
   const classes = useStyles();
   const [state, dispatch] = useContext(Context);
   const { refresh, displayStatus, ButtonsComponent } = props;
@@ -130,7 +132,6 @@ export default function PreselectTable(props) {
         }}
         freeSolo
         options={[]}
-        // options={searchSuggestions.map((option) => option.name)}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -151,15 +152,18 @@ export default function PreselectTable(props) {
         </div>
         {/* Below element colors table head row */}
         {<div className={classes.tableHead}></div>}
-        <DataGrid
-          rows={keywordOpts}
-          columns={columns}
-          selectionModel={selectedKeywordIds}
-          onSelectionModelChange={onKeywordsSelect}
-          density="compact"
-          checkboxSelection
-          disableSelectionOnClick
-        />
+        {<KeywordTable dataRows={keywordOpts} />}
+        {/*
+          <DataGrid
+            rows={keywordOpts}
+            columns={columns}
+            selectionModel={selectedKeywordIds}
+            onSelectionModelChange={onKeywordsSelect}
+            density="compact"
+            checkboxSelection
+            disableSelectionOnClick
+          />
+        */}
       </Box>
     </div>
   );

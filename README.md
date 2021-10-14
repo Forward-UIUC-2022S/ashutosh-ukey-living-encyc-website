@@ -4,7 +4,7 @@ Combining an existing keyword-labeling tool and keyword dictionary website. The 
 
 ## Development Notes
 
-- Tag POS when user uploads (no need to make it a continous seperate process)
+- Tag POS and stem when user uploads (no need to make it a continous seperate process)
 - Group by stems when labeling => Make id 'stem', concatenate all
   real names of keywords and store in indexed 'name' field
 - Include git submodule of definition generating cron job in api/services?

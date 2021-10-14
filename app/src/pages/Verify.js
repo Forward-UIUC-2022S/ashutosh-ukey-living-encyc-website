@@ -15,7 +15,7 @@ import { Box, Paper, TextField, Typography } from "@material-ui/core";
 import Button from "../components/Button";
 import KeywordPane from "../components/KeywordPane";
 import PrivateRoute from "../components/PrivateRoute";
-import PreselectTable from "../components/PreselectTable";
+import SearchSelectPane from "../components/SearchSelectPane";
 
 import useStyles from "./VerifyStyles";
 
@@ -143,7 +143,7 @@ function DomainVerifySection() {
 
   return (
     <Box className={classes.preselectContainer}>
-      <PreselectTable
+      <SearchSelectPane
         refresh={refresh}
         displayStatus={curStatus}
         ButtonsComponent={LabelButtons}

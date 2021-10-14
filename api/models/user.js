@@ -1,3 +1,5 @@
+const MAX_KEYWORDS = 150;
+
 const assert = require("assert");
 
 const conAsync = require("../boot/db.js");
@@ -47,7 +49,7 @@ User.getUnlabeled = async (userId, status, searchOpts) => {
     findKeywords += " AND name LIKE ?";
     queryArgs.push("%" + searchOpts.nameQuery.toLowerCase() + "%");
   }
-  findKeywords += " LIMIT 300";
+  findKeywords += ` LIMIT ${MAX_KEYWORDS}`;
 
   const [keywords] = await con.query(findKeywords, queryArgs);
   return keywords;
