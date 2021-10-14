@@ -1,4 +1,4 @@
-const MAX_KEYWORDS = 150;
+const MAX_RESULTS = 150;
 
 const assert = require("assert");
 
@@ -19,7 +19,7 @@ User.getUnlabeled = async (userId, status, searchOpts) => {
   const con = await conAsync;
 
   let findKeywords = `
-    SELECT id, name
+    SELECT id, name, root_id
 
     FROM keyword
     LEFT JOIN 
@@ -35,6 +35,7 @@ User.getUnlabeled = async (userId, status, searchOpts) => {
   `;
   const queryArgs = [userId, status];
 
+  // Include optional advanced search parameters
   if (searchOpts.lengthRange[0]) {
     findKeywords += ` AND CHAR_LENGTH(name) BETWEEN ? AND ? `;
 
@@ -49,10 +50,44 @@ User.getUnlabeled = async (userId, status, searchOpts) => {
     findKeywords += " AND name LIKE ?";
     queryArgs.push("%" + searchOpts.nameQuery.toLowerCase() + "%");
   }
-  findKeywords += ` LIMIT ${MAX_KEYWORDS}`;
+  // findKeywords += ` LIMIT ${MAX_RESULTS}`;
 
   const [keywords] = await con.query(findKeywords, queryArgs);
-  return keywords;
+  const keywordIds = keywords.map((e) => e.id);
+
+  // Group keywords by root
+  let findKeywordRoots = `
+    SELECT root.id, lemma, MIN(keyword.id) AS score
+
+    FROM keyword 
+    JOIN root ON root_id = root.id 
+
+    WHERE keyword.id IN (?)
+    GROUP BY root.id
+
+    ORDER BY score
+    LIMIT ${MAX_RESULTS}
+  `;
+  const [roots] = await con.query(findKeywordRoots, [keywordIds]);
+
+  const rootIdToKeywords = {};
+  for (let root of roots) {
+    const rootId = root.id;
+
+    rootIdToKeywords[rootId] = {
+      id: rootId,
+      lemma: root.lemma,
+      keywords: [],
+    };
+  }
+
+  for (let keyword of keywords) {
+    const kwRootId = keyword.root_id;
+    if (rootIdToKeywords[kwRootId])
+      rootIdToKeywords[kwRootId].keywords.push(keyword);
+  }
+
+  return Object.values(rootIdToKeywords);
 };
 
 User.label = async (userId, keywordIds, label, fromStatus) => {

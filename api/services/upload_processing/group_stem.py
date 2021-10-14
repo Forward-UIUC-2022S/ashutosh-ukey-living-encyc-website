@@ -1,3 +1,4 @@
+# TODO: support for choosing main keyword (e.g. by length, id)
 import os
 from tqdm import tqdm
 from dotenv import load_dotenv
