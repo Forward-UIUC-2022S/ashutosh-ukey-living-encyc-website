@@ -18,6 +18,8 @@ function checkAbort(hasAborted) {
 }
 
 async function addExampleSents(keyword) {
+  if (!keyword) return;
+
   let program_cmd_inp = keyword.name.replace(/ /g, "+");
   program_cmd_inp += " " + NUM_EX_SENTS;
 
@@ -33,6 +35,7 @@ async function addExampleSents(keyword) {
 }
 
 async function addWikiInfo(keyword) {
+  if (!keyword) return;
   keyword.wiki = {};
 
   try {
@@ -70,6 +73,8 @@ async function addWikiInfo(keyword) {
 }
 
 router.get("/", async (req, res) => {
+  const curUri = "/keyword";
+
   let hasAborted = false;
   req.on("close", function (err) {
     hasAborted = true;

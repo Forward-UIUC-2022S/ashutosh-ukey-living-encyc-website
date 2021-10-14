@@ -96,7 +96,7 @@ export default function NavBar() {
         <Button
           clickedClassName={classes.clickedButton}
           name="Verify"
-          href="/verify"
+          href="/verify/relevance"
         />
       )}
       <div className={classes.iconContainer}>

@@ -47,11 +47,35 @@ const useStyles = makeStyles((theme) => ({
 
 function Row(props) {
   const classes = useStyles();
-  const { row } = props;
-  const [open, setOpen] = React.useState(false);
+  const { row: group } = props;
+
+  const [state, dispatch] = useContext(Context);
+  const { selectedKeywords } = state;
+
+  const [open, setOpen] = useState(false);
+  const [rowChecked, setRowChecked] = useState(false);
+  const [checkedKeywordIds, setCheckedKeywordIds] = useState([]);
 
   function toggleCollapse() {
     setOpen(!open);
+  }
+
+  function handleRowCheck(checked) {
+    setRowChecked(checked);
+
+    if (checked) {
+      dispatch({ type: "ADD_KEYWORDS_SELECTED", keywords: group.keywords });
+    } else {
+      setOpen(false);
+      dispatch({ type: "REMOVE_KEYWORDS_SELECTED", keywords: group.keywords });
+    }
+  }
+
+  function handleKeywordCheck(checked, keyword) {
+    if (checked) {
+      if (!rowChecked) setRowChecked(true);
+      dispatch({ type: "ADD_KEYWORDS_SELECTED", keywords: [keyword] });
+    } else dispatch({ type: "REMOVE_KEYWORDS_SELECTED", keywords: [keyword] });
   }
 
   return (
@@ -63,15 +87,15 @@ function Row(props) {
         <TableCell padding="checkbox">
           <Checkbox
             // indeterminate={numSelected > 0 && numSelected < rowCount}
-            // checked={rowCount > 0 && numSelected === rowCount}
-            // onChange={onSelectAllClick}
+            checked={rowChecked}
+            onChange={(event) => handleRowCheck(event.target.checked)}
             inputProps={{
               "aria-label": "select all desserts",
             }}
           />
         </TableCell>
         <TableCell className={classes.tableCellButton} onClick={toggleCollapse}>
-          {row.id}
+          {group.lemma}
         </TableCell>
         <TableCell
           className={classes.tableCellButton}
@@ -79,7 +103,7 @@ function Row(props) {
           component="th"
           scope="row"
         >
-          {row.name}
+          {group.keywords?.[0].name}
         </TableCell>
         <TableCell>
           <IconButton
@@ -102,23 +126,23 @@ function Row(props) {
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
-                    <TableCell padding="checkbox">
-                      <Checkbox />
-                    </TableCell>
+                    <TableCell />
                     <TableCell>Keyword</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {[
-                    { id: 4, name: "deep learning" },
-                    { id: 10, name: "security" },
-                  ].map((keyword) => (
+                  {group.keywords?.map((keyword) => (
                     <TableRow key={keyword.id}>
                       <TableCell
                         padding="checkbox"
                         style={{ borderBottom: "none" }}
                       >
-                        <Checkbox />
+                        <Checkbox
+                          checked={keyword.id in selectedKeywords}
+                          onChange={(event) =>
+                            handleKeywordCheck(event.target.checked, keyword)
+                          }
+                        />
                       </TableCell>
                       <TableCell
                         component="th"
@@ -141,28 +165,20 @@ function Row(props) {
 
 Row.propTypes = {
   row: PropTypes.shape({
-    calories: PropTypes.number.isRequired,
-    carbs: PropTypes.number.isRequired,
-    fat: PropTypes.number.isRequired,
-    history: PropTypes.arrayOf(
+    id: PropTypes.number,
+    lemma: PropTypes.string.isRequired,
+    keywords: PropTypes.arrayOf(
       PropTypes.shape({
-        amount: PropTypes.number.isRequired,
-        customerId: PropTypes.string.isRequired,
-        date: PropTypes.string.isRequired,
+        id: PropTypes.number.isRequired,
+        name: PropTypes.string.isRequired,
       })
     ).isRequired,
-    name: PropTypes.string.isRequired,
-    price: PropTypes.number.isRequired,
-    protein: PropTypes.number.isRequired,
   }).isRequired,
 };
 
 export default function KeywordTable(props) {
   const classes = useStyles();
   const { dataRows } = props;
-
-  const [state, dispatch] = useContext(Context);
-  const { selectedKeywords } = state;
 
   return (
     <TableContainer component={Paper}>

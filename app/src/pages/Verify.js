@@ -95,8 +95,9 @@ function DomainVerifySection() {
   const classes = useStyles();
   const [state, dispatch] = useContext(Context);
 
-  const selectedKeywordIds = state.selectedKeywords.map((kwd) => kwd.id);
+  const selectedKeywordIds = Object.keys(state.selectedKeywords);
   const lastKeywordId = selectedKeywordIds[selectedKeywordIds.length - 1];
+  console.log(lastKeywordId);
 
   const [refresh, setRefresh] = useState(false);
 

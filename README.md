@@ -11,3 +11,4 @@ Combining an existing keyword-labeling tool and keyword dictionary website. The 
 - Should Advanced Search be kept in definition and tutorial finding? (probably, yes)
 - Raw check full POS pattern of each keyword, check common substring on word granularity
 - useState on timer and clearTimeout before every state update, cancel prev get request as well using controller.
+- Make state store selected row groups, store seperate if for which keyword's info to display on the info pane

@@ -107,6 +107,30 @@ const Reducer = (state, action) => {
         searchKeywords: newSearchKeywords,
       };
     }
+    case "ADD_KEYWORDS_SELECTED": {
+      let newSelectedKeywords = { ...state.selectedKeywords };
+
+      for (let keyword of action.keywords) {
+        newSelectedKeywords[keyword.id] = keyword;
+      }
+      return {
+        ...state,
+        selectedKeywords: newSelectedKeywords,
+      };
+    }
+
+    case "REMOVE_KEYWORDS_SELECTED": {
+      let newSelectedKeywords = { ...state.selectedKeywords };
+
+      for (let keyword of action.keywords) {
+        delete newSelectedKeywords[keyword.id];
+      }
+      return {
+        ...state,
+        selectedKeywords: newSelectedKeywords,
+      };
+    }
+
     case "UPDATE_SELECTED_KEYWORDS":
       let timeSortedKwds = action.keywords;
 

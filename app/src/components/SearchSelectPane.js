@@ -68,7 +68,6 @@ export default function SearchSelectPane(props) {
   const { refresh, displayStatus, ButtonsComponent } = props;
 
   const { advSearchOpts } = state;
-  const selectedKeywordIds = state.selectedKeywords.map((e) => e.id);
 
   const [query, setQuery] = useState("");
   const [searchTimer, setSearchTimer] = useState();
