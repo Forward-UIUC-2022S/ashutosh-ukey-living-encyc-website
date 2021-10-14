@@ -14,7 +14,7 @@ router.get(
   "/callback",
   passport.authenticate("google", {
     failureRedirect: process.env["CLIENT_HOME_PAGE_URL"],
-    successRedirect: `${process.env["CLIENT_HOME_PAGE_URL"]}verify`,
+    successRedirect: `${process.env["CLIENT_HOME_PAGE_URL"]}verify/relevance`,
   })
 );
 
