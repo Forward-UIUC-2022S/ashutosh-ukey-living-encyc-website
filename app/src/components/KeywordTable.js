@@ -1,5 +1,7 @@
 import * as React from "react";
 import { useState, useEffect, useContext } from "react";
+import { useCookies } from "react-cookie";
+import { getHoverInteract } from "../utils";
 import { Context } from "../Store";
 
 import PropTypes from "prop-types";
@@ -23,7 +25,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 import { makeStyles } from "@material-ui/core/styles";
 
-const HOVER_DELAY = 10;
+const HOVER_DELAY = 4;
 
 const useStyles = makeStyles((theme) => ({
   tableHead: {
@@ -49,6 +51,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Row(props) {
+  const [cookies, _] = useCookies(["settings"]);
   const classes = useStyles();
   const { row: group, hoverTimer, setHoverTimer } = props;
 
@@ -84,6 +87,7 @@ function Row(props) {
   }
 
   function handleKeywordHoverWithDelay(keywordId) {
+    if (!getHoverInteract(cookies)) return;
     clearTimeout(hoverTimer);
     const timer = setTimeout(
       () => dispatch({ type: "SET_KEYWORD_INFO_ID", value: keywordId }),
@@ -93,6 +97,7 @@ function Row(props) {
   }
 
   function handleRowHoverWithDelay() {
+    if (!getHoverInteract(cookies)) return;
     clearTimeout(hoverTimer);
     const timer = setTimeout(() => {
       setOpen(true);

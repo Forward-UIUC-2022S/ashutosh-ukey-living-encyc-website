@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 
 import AdminSection from "./Admin";
+import SettingsSection from "./Settings";
 
 import { Box, Paper, TextField, Typography } from "@material-ui/core";
 
@@ -28,6 +29,7 @@ function Verify() {
       <SideMenu />
       <Switch>
         <Route path={`${path}/relevance`} component={DomainVerifySection} />
+        <Route path={`${path}/settings`} component={SettingsSection} />
         <PrivateRoute
           path={`${path}/admin`}
           component={AdminSection}

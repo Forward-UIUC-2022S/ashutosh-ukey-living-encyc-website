@@ -1,5 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { CookiesProvider } from "react-cookie";
+
 import "./index.css";
 import App from "./App";
 import Store from "./Store";
@@ -11,12 +13,14 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 
 ReactDOM.render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Store>
-        <App />
-      </Store>
-    </ThemeProvider>
+    <CookiesProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Store>
+          <App />
+        </Store>
+      </ThemeProvider>
+    </CookiesProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );
