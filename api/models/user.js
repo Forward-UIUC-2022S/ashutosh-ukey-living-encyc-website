@@ -1,4 +1,4 @@
-const MAX_RESULTS = 3;
+const MAX_RESULTS = 350;
 
 const assert = require("assert");
 

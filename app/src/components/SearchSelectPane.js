@@ -35,10 +35,10 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
   },
   tableContainer: {
-    position: "relative",
+    // position: "relative",
     display: "flex",
     flexDirection: "column",
-    height: 600,
+    // height: 600,
     marginBottom: 100,
   },
   searchFieldInput: {
@@ -150,7 +150,7 @@ export default function SearchSelectPane(props) {
           {ButtonsComponent ? <ButtonsComponent /> : null}
         </div>
         {/* Below element colors table head row */}
-        {<div className={classes.tableHead}></div>}
+        {/* <div className={classes.tableHead}></div> */}
         {<KeywordTable dataRows={keywordOpts} />}
         {/*
           <DataGrid

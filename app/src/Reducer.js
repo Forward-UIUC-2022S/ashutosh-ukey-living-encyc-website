@@ -40,7 +40,6 @@ const Reducer = (state, action) => {
     case "CLEAR_ADV_SEARCH_OPTS":
       return {
         ...state,
-        selectedKeywords: [],
         advSearchOpts: { lengthRange: [0, 100] },
       };
     case "UPDATE_ADV_SEARCH_POS":
@@ -58,7 +57,6 @@ const Reducer = (state, action) => {
 
       return {
         ...state,
-        selectedKeywords: [],
         advSearchOpts: {
           ...state.advSearchOpts,
           nameQuery: action.value,
@@ -79,8 +77,11 @@ const Reducer = (state, action) => {
         },
       };
     case "ADD_SELECTED_TO_SEARCH":
+      const arrSelectedKeywords = state.selectedKeywords.entries.map(
+        (kvPair) => kvPair[1]
+      );
       let addSearchKeywords = setDifference(
-        state.selectedKeywords,
+        arrSelectedKeywords,
         state.searchKeywords
       );
       if (addSearchKeywords.size === 0)
@@ -135,6 +136,27 @@ const Reducer = (state, action) => {
       return {
         ...state,
         expandedRowId: action.rowId,
+      };
+    case "SET_KEYWORD_INFO_ID":
+      return {
+        ...state,
+        keywordIdInfoPane: action.value,
+      };
+    case "CLEAR_ALL_SELECTED":
+      return {
+        ...state,
+        selectedKeywords: [],
+      };
+    case "SELECT_FULL_TABLE":
+      const allKeywords = { ...state.selectedKeywords };
+      for (let row of action.tableRows) {
+        for (let keyword of row.keywords) {
+          allKeywords[keyword.id] = keyword;
+        }
+      }
+      return {
+        ...state,
+        selectedKeywords: allKeywords,
       };
     case "UPDATE_SELECTED_KEYWORDS":
       let timeSortedKwds = action.keywords;

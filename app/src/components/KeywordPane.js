@@ -51,6 +51,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 8,
     maxHeight: 175,
     overflowY: "scroll",
+    overflowX: "hidden",
     paddingRight: 4,
   },
   container: {

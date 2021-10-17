@@ -10,6 +10,7 @@ import Collapse from "@mui/material/Collapse";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
+import TablePagination from "@mui/material/TablePagination";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
@@ -21,6 +22,8 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 import { makeStyles } from "@material-ui/core/styles";
+
+const HOVER_DELAY = 10;
 
 const useStyles = makeStyles((theme) => ({
   tableHead: {
@@ -47,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
 
 function Row(props) {
   const classes = useStyles();
-  const { row: group } = props;
+  const { row: group, hoverTimer, setHoverTimer } = props;
 
   const [state, dispatch] = useContext(Context);
   const { selectedKeywords, expandedRowId } = state;
@@ -66,13 +69,47 @@ function Row(props) {
       .map((e) => e.id)
       .reduce(checkSelectedReducer, false);
 
-    if (!keywordSelected) setRowChecked(false);
+    if (keywordSelected) setRowChecked(true);
+    else setRowChecked(false);
   }, [selectedKeywords]);
 
   function toggleCollapse() {
     const newOpen = !open;
     setOpen(newOpen);
-    if (newOpen) dispatch({ type: "SET_EXPANDED_ROW", rowId: group.id });
+    if (newOpen) {
+      clearTimeout(hoverTimer);
+      dispatch({ type: "SET_EXPANDED_ROW", rowId: group.id });
+      dispatch({ type: "SET_KEYWORD_INFO_ID", value: group.keywords[0].id });
+    }
+  }
+
+  function handleKeywordHoverWithDelay(keywordId) {
+    clearTimeout(hoverTimer);
+    const timer = setTimeout(
+      () => dispatch({ type: "SET_KEYWORD_INFO_ID", value: keywordId }),
+      HOVER_DELAY * 1000
+    );
+    setHoverTimer(timer);
+  }
+
+  function handleRowHoverWithDelay() {
+    clearTimeout(hoverTimer);
+    const timer = setTimeout(() => {
+      setOpen(true);
+      dispatch({ type: "SET_EXPANDED_ROW", rowId: group.id });
+
+      dispatch({ type: "SET_KEYWORD_INFO_ID", value: group.keywords[0].id });
+    }, HOVER_DELAY * 1000);
+    setHoverTimer(timer);
+  }
+
+  function handleHoverLeave() {
+    clearTimeout(hoverTimer);
+  }
+
+  function handleKeywordClick(keywordId) {
+    clearTimeout(hoverTimer);
+    dispatch({ type: "SET_KEYWORD_INFO_ID", value: keywordId });
   }
 
   function handleRowCheck(checked) {
@@ -99,6 +136,8 @@ function Row(props) {
       <TableRow
         sx={{ "& > *": { borderBottom: "unset" } }}
         className={classes.groupRow}
+        onMouseEnter={handleRowHoverWithDelay}
+        onMouseLeave={handleHoverLeave}
       >
         <TableCell padding="checkbox">
           <Checkbox
@@ -148,7 +187,13 @@ function Row(props) {
                 </TableHead>
                 <TableBody>
                   {group.keywords?.map((keyword) => (
-                    <TableRow key={keyword.id}>
+                    <TableRow
+                      key={keyword.id}
+                      onMouseEnter={() =>
+                        handleKeywordHoverWithDelay(keyword.id)
+                      }
+                      onMouseLeave={handleHoverLeave}
+                    >
                       <TableCell
                         padding="checkbox"
                         style={{ borderBottom: "none" }}
@@ -164,6 +209,8 @@ function Row(props) {
                         component="th"
                         scope="row"
                         style={{ borderBottom: "none" }}
+                        className={classes.tableCellButton}
+                        onClick={() => handleKeywordClick(keyword.id)}
                       >
                         {keyword.name}
                       </TableCell>
@@ -196,25 +243,78 @@ export default function KeywordTable(props) {
   const classes = useStyles();
   const { dataRows } = props;
 
+  const [state, dispatch] = useContext(Context);
+  const { selectedKeywords } = state;
+
+  const [rowHoverTimer, setRowHoverTimer] = useState();
+  const [allChecked, setAllChecked] = useState(false);
+
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(50);
+
+  const curPageRows = dataRows.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  useEffect(() => {
+    if (selectedKeywords.length === 0) setAllChecked(false);
+  }, [selectedKeywords]);
+
+  function handleTableCheck(checked) {
+    setAllChecked(checked);
+
+    if (checked) dispatch({ type: "SELECT_FULL_TABLE", tableRows: dataRows });
+    else dispatch({ type: "CLEAR_ALL_SELECTED" });
+  }
+
+  function handleChangeRowsPerPage(event) {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  }
+
   return (
-    <TableContainer component={Paper}>
-      <Table size="small" aria-label="collapsible table">
-        <TableHead className={classes.tableHead}>
-          <TableRow>
-            <TableCell padding="checkbox">
-              <Checkbox />
-            </TableCell>
-            <TableCell>Stem</TableCell>
-            <TableCell>Main Keyword</TableCell>
-            <TableCell />
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {dataRows.map((row) => {
-            return row && <Row key={row.id} row={row} />;
-          })}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <div>
+      <TableContainer style={{ height: 570 }}>
+        <Table size="small" aria-label="collapsible table">
+          <TableHead className={classes.tableHead}>
+            <TableRow>
+              <TableCell padding="checkbox">
+                <Checkbox
+                  checked={allChecked}
+                  onChange={(event) => handleTableCheck(event.target.checked)}
+                />
+              </TableCell>
+              <TableCell>Group Root</TableCell>
+              <TableCell>Top Keyword</TableCell>
+              <TableCell />
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {curPageRows.map((row) => {
+              return (
+                row && (
+                  <Row
+                    key={row.id}
+                    row={row}
+                    hoverTimer={rowHoverTimer}
+                    setHoverTimer={setRowHoverTimer}
+                  />
+                )
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[25, 50, 100]}
+        component="div"
+        count={dataRows.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={(_, newPage) => setPage(newPage)}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+    </div>
   );
 }
