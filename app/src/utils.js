@@ -6,3 +6,7 @@ function getDefaultValue(cookieValue, defaultValue) {
 export function getHoverInteract(cookies) {
   return getDefaultValue(cookies.settings?.hoverInteract, true);
 }
+
+export const iconProps = (iconSize) => ({
+  sx: { fontSize: iconSize },
+});

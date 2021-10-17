@@ -16,6 +16,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 
 import { makeStyles } from "@material-ui/core/styles";
+import { iconProps } from "../utils";
 
 const FETCH_DELAY = 6;
 const POS_DELAY = 3;
@@ -130,10 +131,6 @@ export default function AdvancedSearch(props) {
   const [searchText, setSearchText] = useState("");
   const [clearToggle, setClearToggle] = useState(false);
   const [searchOpts, setSearchOpts] = useState([]);
-
-  const iconProps = (iconSize) => ({
-    sx: { fontSize: iconSize },
-  });
 
   function cancelCaRequest() {
     clearTimeout(fetchTimer);

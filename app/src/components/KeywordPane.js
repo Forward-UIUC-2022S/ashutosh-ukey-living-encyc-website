@@ -5,17 +5,30 @@ import { Context } from "../Store";
 
 import TransparentButton from "./TransparentButton";
 
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+
 import { Box, Typography, Icon } from "@material-ui/core";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
 import { makeStyles } from "@material-ui/core/styles";
+import { iconProps } from "../utils";
 
 const loadingComponentProps = {
   size: 50,
   thickness: 2.8,
 };
 
+const closeIconSize = 24;
+
 const useStyles = makeStyles((theme) => ({
+  closeIconButton: {
+    display: "flex",
+    justifyContent: "flex-end",
+    marginTop: -20,
+    marginRight: -5,
+    marginBottom: -20,
+  },
   infoListItem: {
     fontSize: 12,
     marginLeft: -8,
@@ -69,6 +82,7 @@ const useStyles = makeStyles((theme) => ({
   titleContainer: {
     display: "flex",
     marginBottom: -14,
+    maxWidth: 180,
   },
   titleText: {
     fontSize: 18,
@@ -95,9 +109,14 @@ export default function KeywordPane(props) {
   const [keyword, setKeyword] = useState();
   const [loading, setLoading] = useState(false);
 
+  function handleClose() {
+    setKeyword(null);
+    dispatch({ type: "CLEAR_KEYWORD_INFO_ID" });
+  }
+
   useEffect(() => {
     async function getKeywordInfo(controller) {
-      if (keywordId) {
+      if (typeof keywordId === "number") {
         setLoading(true);
 
         const keywordInfoUrl = "/keyword?id=" + keywordId;
@@ -135,6 +154,11 @@ export default function KeywordPane(props) {
 
   return !keyword ? null : (
     <Box className={classes.container}>
+      <div className={classes.closeIconButton}>
+        <IconButton onClick={handleClose}>
+          <CloseIcon {...iconProps(closeIconSize)} />
+        </IconButton>
+      </div>
       <div className={classes.titleContainer}>
         <Typography className={classes.titleText}>{keyword.name}</Typography>
         <TransparentButton href={googleSearchUrl} target="_blank">

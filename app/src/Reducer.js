@@ -142,6 +142,12 @@ const Reducer = (state, action) => {
         ...state,
         keywordIdInfoPane: action.value,
       };
+    case "CLEAR_KEYWORD_INFO_ID":
+      // console.log("Ay?");
+      return {
+        ...state,
+        keywordIdInfoPane: null,
+      };
     case "CLEAR_ALL_SELECTED":
       return {
         ...state,

@@ -29,6 +29,8 @@ function Verify() {
       <SideMenu />
       <Switch>
         <Route path={`${path}/relevance`} component={DomainVerifySection} />
+        <Route path={`${path}/definition`} component={DomainVerifySection} />
+        <Route path={`${path}/resources`} component={DomainVerifySection} />
         <Route path={`${path}/settings`} component={SettingsSection} />
         <PrivateRoute
           path={`${path}/admin`}
@@ -51,7 +53,7 @@ function SideMenu() {
     { name: "Admin", href: `${url}/admin`, requireAdmin: true },
     { name: "Domain Relevance", href: `${url}/relevance` },
     { name: "Generated Definitions", href: `${url}/definition` },
-    { name: "Tutorials & Surveys", href: `${url}/learn` },
+    { name: "Tutorials & Surveys", href: `${url}/resources` },
     { name: "Settings", href: `${url}/settings` },
   ];
 
