@@ -77,7 +77,6 @@ export default function SearchSelectPane(props) {
   const [query, setQuery] = useState("");
   const [searchTimer, setSearchTimer] = useState();
   const [keywordOpts, setKeywordOpts] = useState([]);
-  const [keywordsIndex, setKeywordsIndex] = useState({});
 
   useEffect(() => {
     async function getUserStats() {
@@ -110,12 +109,6 @@ export default function SearchSelectPane(props) {
       let res = await fetch(getOptsUrl);
       res = await res.json();
       setKeywordOpts(res);
-
-      const newIndex = {};
-      for (let kwd of res) {
-        newIndex[kwd.id] = kwd;
-      }
-      setKeywordsIndex(newIndex);
     }
 
     dispatch({ type: "SET_TABLE_LOADING", value: true });

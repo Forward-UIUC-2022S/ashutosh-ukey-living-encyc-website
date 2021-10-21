@@ -24,13 +24,14 @@ const LENGTH_DELAY = 4;
 const KWQ_DELAY = 3;
 
 const dropdownIconSize = 30;
-const clearIconSize = 21;
+const clearIconSize = 19;
 
 const useStyles = makeStyles((theme) => ({
   topBanner: { display: "flex", justifyContent: "space-between" },
   clearButtonText: {
     color: "black",
-    marginLeft: 3,
+    marginLeft: 5,
+    paddingTop: 2,
   },
   posChipsContainer: {
     marginTop: 8,
@@ -180,19 +181,6 @@ export default function AdvancedSearch(props) {
     "UPDATE_ADV_SEARCH_LRANGE",
     LENGTH_DELAY
   );
-
-  useEffect(() => {
-    console.log("Pos effect triggered");
-    updatePosWithDelay(posPattern);
-  }, [posPattern]);
-  useEffect(() => {
-    console.log("Kwq effect triggered");
-    updateKwqWithDelay(keywordQuery);
-  }, [keywordQuery]);
-  useEffect(() => {
-    console.log("Length effect triggered");
-    updateLengthWithDelay(lengthRange);
-  }, [lengthRange]);
 
   useEffect(() => {
     async function getKeywordOpts() {

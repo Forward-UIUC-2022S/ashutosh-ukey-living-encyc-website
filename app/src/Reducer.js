@@ -40,6 +40,7 @@ const Reducer = (state, action) => {
     case "CLEAR_ADV_SEARCH_OPTS":
       return {
         ...state,
+        searchKeywords: [],
         advSearchOpts: { lengthRange: [0, 100] },
       };
     case "UPDATE_ADV_SEARCH_POS":
