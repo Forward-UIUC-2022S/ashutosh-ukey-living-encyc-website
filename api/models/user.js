@@ -56,9 +56,11 @@ User.getUnlabeledKeywords = async (userId, searchOpts) => {
   }
 
   const [keywords] = await con.query(findKeywords, queryArgs);
-  const keywordIds = keywords.map((e) => e.id);
+  if (keywords.length === 0) return [];
 
   // Group keywords by root
+  const keywordIds = keywords.map((e) => e.id);
+
   let findKeywordRoots = `
     SELECT root.id, lemma, ${sortCriteria} AS score
 
