@@ -132,6 +132,11 @@ const Reducer = (state, action) => {
         selectedKeywords: newSelectedKeywords,
       };
     }
+    case "SET_TABLE_LOADING":
+      return {
+        ...state,
+        tableLoading: action.value,
+      };
     case "SET_VERIFY_TAB":
       return {
         ...state,

@@ -15,7 +15,7 @@ const initialState = {
 
   expandAdvSearch: false,
   advSearchOpts: {},
-  isLoading: false,
+  tableLoading: true,
 };
 
 const Store = ({ children }) => {

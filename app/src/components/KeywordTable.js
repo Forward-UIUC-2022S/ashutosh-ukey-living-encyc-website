@@ -18,6 +18,8 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 
+import CircularProgress from "@material-ui/core/CircularProgress";
+
 import Paper from "@mui/material/Paper";
 import IconButton from "@mui/material/IconButton";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -28,6 +30,22 @@ import { makeStyles } from "@material-ui/core/styles";
 const HOVER_DELAY = 4;
 
 const useStyles = makeStyles((theme) => ({
+  noDataContainer: {
+    position: "absolute",
+    display: "flex",
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tableContainer: {
+    height: 570,
+    // position: "relative",
+  },
+  tableBodyContainer: {
+    height: 570,
+    position: "relative",
+  },
   tableHead: {
     zIndex: 2,
     height: 45,
@@ -249,7 +267,7 @@ export default function KeywordTable(props) {
   const { dataRows } = props;
 
   const [state, dispatch] = useContext(Context);
-  const { selectedKeywords } = state;
+  const { selectedKeywords, tableLoading } = state;
 
   const [rowHoverTimer, setRowHoverTimer] = useState();
   const [allChecked, setAllChecked] = useState(false);
@@ -278,10 +296,20 @@ export default function KeywordTable(props) {
     setPage(0);
   }
 
+  // Check if at least one row;
+  const showData = curPageRows?.length > 0;
+
   return (
     <div>
-      <TableContainer style={{ height: 570 }} component={Paper}>
-        <Table size="small" aria-label="collapsible table">
+      <TableContainer
+        className={showData ? classes.tableContainer : null}
+        component={Paper}
+      >
+        <Table
+          className={showData ? null : classes.tableBodyContainer}
+          size="small"
+          aria-label="collapsible table"
+        >
           <TableHead className={classes.tableHead}>
             <TableRow>
               <TableCell padding="checkbox">
@@ -295,20 +323,30 @@ export default function KeywordTable(props) {
               <TableCell />
             </TableRow>
           </TableHead>
-          <TableBody>
-            {curPageRows.map((row) => {
-              return (
-                row && (
-                  <Row
-                    key={row.id}
-                    row={row}
-                    hoverTimer={rowHoverTimer}
-                    setHoverTimer={setRowHoverTimer}
-                  />
-                )
-              );
-            })}
-          </TableBody>
+          {!showData ? (
+            <div className={classes.noDataContainer}>
+              {tableLoading ? (
+                <CircularProgress />
+              ) : (
+                <Typography>No rows</Typography>
+              )}
+            </div>
+          ) : (
+            <TableBody>
+              {curPageRows.map((row) => {
+                return (
+                  row && (
+                    <Row
+                      key={row.id}
+                      row={row}
+                      hoverTimer={rowHoverTimer}
+                      setHoverTimer={setRowHoverTimer}
+                    />
+                  )
+                );
+              })}
+            </TableBody>
+          )}
         </Table>
       </TableContainer>
       <TablePagination

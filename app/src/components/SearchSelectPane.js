@@ -104,7 +104,9 @@ export default function SearchSelectPane(props) {
       setKeywordsIndex(newIndex);
     }
 
+    dispatch({ type: "SET_TABLE_LOADING", value: true });
     getOpts();
+    dispatch({ type: "SET_TABLE_LOADING", value: false });
   }, [advSearchOpts, refresh, curVerifyTab]);
 
   /*
