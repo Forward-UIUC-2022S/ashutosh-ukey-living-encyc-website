@@ -86,8 +86,6 @@ export default function SearchSelectPane(props) {
       let res = await fetch(getUserStatsUrl);
       res = await res.json();
       setUserStats(res);
-
-      console.log(res);
     }
 
     getUserStats();

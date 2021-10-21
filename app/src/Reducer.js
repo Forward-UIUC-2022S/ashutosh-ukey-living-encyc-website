@@ -77,9 +77,7 @@ const Reducer = (state, action) => {
         },
       };
     case "ADD_SELECTED_TO_SEARCH":
-      const arrSelectedKeywords = state.selectedKeywords.entries.map(
-        (kvPair) => kvPair[1]
-      );
+      const arrSelectedKeywords = Object.values(state.selectedKeywords);
       let addSearchKeywords = setDifference(
         arrSelectedKeywords,
         state.searchKeywords
