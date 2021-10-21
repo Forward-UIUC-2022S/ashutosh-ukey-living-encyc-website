@@ -91,12 +91,16 @@ export default function NavBar() {
 
   return (
     <div className={classes.root}>
-      <Button clickedClassName={classes.clickedButton} name="Search" href="/" />
+      <Button
+        clickedClassName={classes.clickedButton}
+        name="Search"
+        href="/search"
+      />
       {isLoggedIn && (
         <Button
           clickedClassName={classes.clickedButton}
           name="Verify"
-          href="/verify/relevance"
+          href="/verify"
         />
       )}
       <div className={classes.iconContainer}>

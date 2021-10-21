@@ -1,5 +1,10 @@
-import React, { useContext, useEffect } from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import React, { useContext } from "react";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from "react-router-dom";
 import { Context } from "./Store";
 
 import NavBar from "./components/NavBar";
@@ -17,8 +22,11 @@ export default function App() {
         <NavBar />
 
         <Switch>
+          <Route exact path="/">
+            <Redirect to="/search" />
+          </Route>
           <PrivateRoute path="/verify" component={VerifyPage} />
-          <Route path="/" component={HomePage} />
+          <Route path="/search" component={HomePage} />
         </Switch>
       </Router>
     </React.Fragment>

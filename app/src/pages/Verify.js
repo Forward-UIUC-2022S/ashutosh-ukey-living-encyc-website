@@ -1,12 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { Context } from "../Store";
 
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  useRouteMatch,
-} from "react-router-dom";
+import { Switch, Route, useRouteMatch, Redirect } from "react-router-dom";
 
 import AdminSection from "./Admin";
 import SettingsSection from "./Settings";
@@ -33,6 +28,9 @@ function Verify() {
           component={AdminSection}
           requireAdmin={true}
         />
+        <Route exact path={`${path}/`}>
+          <Redirect to={`${path}/relevance`} />
+        </Route>
         <Route path={`${path}/relevance`} component={DomainVerifySection} />
         <Route path={`${path}/definition`} component={DomainVerifySection} />
         <Route path={`${path}/tutorial`} component={DomainVerifySection} />
@@ -49,7 +47,8 @@ function SideMenu() {
   const { url } = useRouteMatch();
   const classes = useStyles();
 
-  const sideMenuOpts = [
+  const curDeployedTabIdxs = [0, 1, 4];
+  let sideMenuOpts = [
     { name: "Admin", href: `${url}/admin`, requireAdmin: true },
     { name: "Domain Relevance", href: `${url}/relevance`, tabIden: "domain" },
     {
@@ -64,6 +63,7 @@ function SideMenu() {
     },
     { name: "Settings", href: `${url}/settings` },
   ];
+  sideMenuOpts = curDeployedTabIdxs.map((i) => sideMenuOpts[i]);
 
   return (
     <Box className={classes.sideContainer}>
