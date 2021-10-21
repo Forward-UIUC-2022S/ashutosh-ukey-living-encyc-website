@@ -15,6 +15,23 @@ function addAdminAttr(user) {
   return user;
 }
 
+User.getSummary = async (userId) => {
+  const con = await conAsync;
+  const res = {};
+
+  const getTotalKeywords = `
+    SELECT COUNT(*) AS count 
+
+    FROM keyword_label 
+    WHERE user_id = ?
+  `;
+  const [rows] = await con.query(getTotalKeywords, [userId]);
+
+  res.totalKeywords = rows[0].count;
+
+  return res;
+};
+
 User.getUnlabeledKeywords = async (userId, searchOpts) => {
   const con = await conAsync;
 

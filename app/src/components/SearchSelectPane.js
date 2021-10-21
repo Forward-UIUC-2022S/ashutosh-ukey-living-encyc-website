@@ -7,7 +7,6 @@ import KeywordTable from "./KeywordTable";
 import AdvancedSearch from "./AdvancedSearch";
 
 import { Box, TextField, Typography } from "@material-ui/core";
-// import Autocomplete from "@material-ui/lab/Autocomplete";
 // import { DataGrid } from "@material-ui/data-grid";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -70,12 +69,29 @@ export default function SearchSelectPane(props) {
   const [state, dispatch] = useContext(Context);
   const { refresh, ButtonsComponent } = props;
 
-  const { advSearchOpts, curVerifyTab } = state;
+  const { advSearchOpts, curVerifyTab, selectedKeywords } = state;
+
+  const numSelectedKeywords = Object.keys(selectedKeywords).length;
+  const [userStats, setUserStats] = useState({});
 
   const [query, setQuery] = useState("");
   const [searchTimer, setSearchTimer] = useState();
   const [keywordOpts, setKeywordOpts] = useState([]);
   const [keywordsIndex, setKeywordsIndex] = useState({});
+
+  useEffect(() => {
+    async function getUserStats() {
+      let getUserStatsUrl = `/labeler`;
+
+      let res = await fetch(getUserStatsUrl);
+      res = await res.json();
+      setUserStats(res);
+
+      console.log(res);
+    }
+
+    getUserStats();
+  }, [refresh]);
 
   useEffect(() => {
     async function getOpts() {
@@ -109,7 +125,6 @@ export default function SearchSelectPane(props) {
     dispatch({ type: "SET_TABLE_LOADING", value: false });
   }, [advSearchOpts, refresh, curVerifyTab]);
 
-  /*
   useEffect(() => {
     function updateStoreQuery() {
       dispatch({
@@ -122,9 +137,11 @@ export default function SearchSelectPane(props) {
     clearTimeout(searchTimer);
     const timer = setTimeout(updateStoreQuery, FETCH_DELAY * 1000);
     setSearchTimer(timer);
-  }, [query]);
-  */
 
+    return () => clearTimeout(searchTimer);
+  }, [query]);
+
+  /*
   function handleQueryChange(newQuery) {
     setQuery(newQuery);
 
@@ -137,41 +154,43 @@ export default function SearchSelectPane(props) {
     }, FETCH_DELAY * 1000);
     setSearchTimer(timer);
   }
+  */
 
   return (
     <div className={classes.container}>
-      {/*<Autocomplete
-        classes={{
-          root: classes.searchFieldContainer,
-          input: classes.searchFieldInput,
-        }}
-        freeSolo
-        options={[]}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            defaultValue={query}
-            onChange={(event) => handleQueryChange(event.target.value)}
-            variant="outlined"
-            placeholder="Search keywords"
-          />
-        )}
-        />*/}
       <TextField
         size="small"
         className={classes.searchFieldContainer}
         defaultValue={query}
-        onChange={(event) => handleQueryChange(event.target.value)}
+        onChange={(event) => setQuery(event.target.value)}
         variant="outlined"
         placeholder="Search keywords"
       />
       <AdvancedSearch />
       <Box className={classes.tableContainer}>
         <div className={classes.tableTitleContainer}>
-          <Typography className={classes.tableTitleText} variant="h5">
-            Select Keywords
-          </Typography>
+          {/*
+            <Typography className={classes.tableTitleText} variant="h5">
+              Select Keywords
+            </Typography>
+          */}
           {ButtonsComponent ? <ButtonsComponent /> : null}
+          {
+            <div
+              style={{
+                display: "flex",
+                flexGrow: 1,
+                flexDirection: "column",
+                alignItems: "flex-end",
+                paddingRight: 30,
+              }}
+            >
+              <Typography>Selected Keywords: {numSelectedKeywords}</Typography>
+              <Typography>
+                Total Labeled: {userStats.totalKeywords ?? 0}
+              </Typography>
+            </div>
+          }
         </div>
         {/* Below element colors table head row */}
         {/* <div className={classes.tableHead}></div> */}

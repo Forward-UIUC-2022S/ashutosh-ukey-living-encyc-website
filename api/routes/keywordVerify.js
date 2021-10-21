@@ -44,4 +44,11 @@ router.put("/keywords/mark", isLoggedIn, async (req, res) => {
   }
 });
 
+router.get("/", isLoggedIn, async (req, res) => {
+  const userInfo = await User.getSummary(req.user.id);
+  res.send(userInfo);
+
+  console.log("GET /labeler", req.user);
+});
+
 module.exports = router;
