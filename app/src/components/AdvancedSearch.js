@@ -105,7 +105,7 @@ const useStyles = makeStyles((theme) => ({
     padding: "16px 25px",
   },
   root: {
-    marginTop: 12,
+    marginTop: 8,
     marginLeft: 6,
   },
 }));
@@ -196,7 +196,7 @@ export default function AdvancedSearch(props) {
 
   useEffect(() => {
     async function getKeywordOpts() {
-      const searchKeywordsUrl = `/keyword/search/?query=${searchText}`;
+      const searchKeywordsUrl = `/keywords?query=${searchText}`;
       let res = await fetch(searchKeywordsUrl, {
         method: "GET",
       });
@@ -214,7 +214,7 @@ export default function AdvancedSearch(props) {
     async function getCommonAttrs(controller) {
       if (searchKeywords.length > 0) {
         let keywordsIdsUri = searchKeywords.map((e) => e.id).join(",");
-        const searchKeywordsUrl = `/keyword/common-attrs/?ids=${keywordsIdsUri}`;
+        const searchKeywordsUrl = `/keywords/common-attrs?ids=${keywordsIdsUri}`;
         let res = await fetch(searchKeywordsUrl, {
           signal: controller.signal,
           method: "GET",

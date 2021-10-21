@@ -32,7 +32,7 @@ export default function Admin() {
       data: fileContent,
     };
 
-    fetch("/label/upload", {
+    fetch("/labeler/upload", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

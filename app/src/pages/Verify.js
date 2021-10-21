@@ -28,15 +28,15 @@ function Verify() {
     <Box className={classes.container}>
       <SideMenu />
       <Switch>
-        <Route path={`${path}/relevance`} component={DomainVerifySection} />
-        <Route path={`${path}/definition`} component={DomainVerifySection} />
-        <Route path={`${path}/resources`} component={DomainVerifySection} />
-        <Route path={`${path}/settings`} component={SettingsSection} />
         <PrivateRoute
           path={`${path}/admin`}
           component={AdminSection}
           requireAdmin={true}
         />
+        <Route path={`${path}/relevance`} component={DomainVerifySection} />
+        <Route path={`${path}/definition`} component={DomainVerifySection} />
+        <Route path={`${path}/tutorial`} component={DomainVerifySection} />
+        <Route path={`${path}/settings`} component={SettingsSection} />
       </Switch>
     </Box>
   );
@@ -51,9 +51,17 @@ function SideMenu() {
 
   const sideMenuOpts = [
     { name: "Admin", href: `${url}/admin`, requireAdmin: true },
-    { name: "Domain Relevance", href: `${url}/relevance` },
-    { name: "Generated Definitions", href: `${url}/definition` },
-    { name: "Tutorials & Surveys", href: `${url}/resources` },
+    { name: "Domain Relevance", href: `${url}/relevance`, tabIden: "domain" },
+    {
+      name: "Definitions",
+      href: `${url}/definition`,
+      tabIden: "definition",
+    },
+    {
+      name: "Tutorials & Surveys",
+      href: `${url}/tutorial`,
+      tabIden: "tutorial",
+    },
     { name: "Settings", href: `${url}/settings` },
   ];
 
@@ -64,6 +72,10 @@ function SideMenu() {
           (!opt.requireAdmin || isAdmin) && (
             <Button
               key={idx}
+              onClick={
+                opt.tabIden &&
+                (() => dispatch({ type: "SET_VERIFY_TAB", value: opt.tabIden }))
+              }
               clickedClassName={classes.sideButtonClicked}
               unclickedClassName={classes.sideButtonUnclicked}
               size="small"
@@ -76,8 +88,8 @@ function SideMenu() {
   );
 }
 
-async function markSelected(selectedKeywordIds, curStatus, label) {
-  const labelUrl = `/label?fromStatus=${curStatus}&label=${label}`;
+async function markSelected(selectedKeywordIds, label) {
+  const labelUrl = `/labeler/keywords/mark?label=${label}`;
 
   let res = await fetch(labelUrl, {
     method: "PUT",
@@ -99,7 +111,7 @@ function DomainVerifySection() {
   const classes = useStyles();
   const [state, dispatch] = useContext(Context);
 
-  const { keywordIdInfoPane } = state;
+  const { curVerifyTab } = state;
   const selectedKeywordIds = Object.keys(state.selectedKeywords);
   // const lastKeywordId = selectedKeywordIds[selectedKeywordIds.length - 1];
   // console.log("Last added keyword id: ", lastKeywordId);
@@ -108,33 +120,39 @@ function DomainVerifySection() {
 
   const enableButtons = selectedKeywordIds?.length > 0;
 
-  const curStatus = "pending-domain";
   async function markAndRefresh(label) {
-    const res = await markSelected(selectedKeywordIds, curStatus, label);
+    const res = await markSelected(selectedKeywordIds, label);
 
     if (res.numAffected > 0) setRefresh(!refresh);
   }
 
+  const labelKeywords = curVerifyTab === "domain";
   const LabelButtons = () => (
     <div className={classes.markButtonsContainer}>
-      <Button
-        name="Mark Relevant"
-        onClick={() => markAndRefresh("good")}
-        unclickedClassName={
-          enableButtons ? classes.allCorrectButton : classes.disabledButton
-        }
-        labelStyleName={classes.buttonText}
-        size="small"
-      />
-      <Button
-        name="Mark Irrelevant"
-        onClick={() => markAndRefresh("bad")}
-        unclickedClassName={
-          enableButtons ? classes.allIncorrectButton : classes.disabledButton
-        }
-        labelStyleName={classes.buttonText}
-        size="small"
-      />
+      {labelKeywords && (
+        <>
+          <Button
+            name="Mark Relevant"
+            onClick={() => markAndRefresh("good")}
+            unclickedClassName={
+              enableButtons ? classes.allCorrectButton : classes.disabledButton
+            }
+            labelStyleName={classes.buttonText}
+            size="small"
+          />
+          <Button
+            name="Mark Irrelevant"
+            onClick={() => markAndRefresh("bad")}
+            unclickedClassName={
+              enableButtons
+                ? classes.allIncorrectButton
+                : classes.disabledButton
+            }
+            labelStyleName={classes.buttonText}
+            size="small"
+          />
+        </>
+      )}
       <Button
         name="Find Similar"
         onClick={() => dispatch({ type: "ADD_SELECTED_TO_SEARCH" })}
@@ -149,11 +167,7 @@ function DomainVerifySection() {
 
   return (
     <Box className={classes.preselectContainer}>
-      <SearchSelectPane
-        refresh={refresh}
-        displayStatus={curStatus}
-        ButtonsComponent={LabelButtons}
-      />
+      <SearchSelectPane refresh={refresh} ButtonsComponent={LabelButtons} />
       <KeywordPane />
     </Box>
   );

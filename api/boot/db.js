@@ -1,8 +1,6 @@
 const mysql = require("mysql2/promise");
 const bluebird = require("bluebird");
 
-const { logSqlError } = require("../utils");
-
 const conAsync = mysql.createConnection({
   host: "localhost",
   user: process.env["MYSQL_USER"],

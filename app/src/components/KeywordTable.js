@@ -280,7 +280,7 @@ export default function KeywordTable(props) {
 
   return (
     <div>
-      <TableContainer style={{ height: 570 }}>
+      <TableContainer style={{ height: 570 }} component={Paper}>
         <Table size="small" aria-label="collapsible table">
           <TableHead className={classes.tableHead}>
             <TableRow>

@@ -132,6 +132,11 @@ const Reducer = (state, action) => {
         selectedKeywords: newSelectedKeywords,
       };
     }
+    case "SET_VERIFY_TAB":
+      return {
+        ...state,
+        curVerifyTab: action.value,
+      };
     case "SET_EXPANDED_ROW":
       return {
         ...state,
@@ -143,7 +148,6 @@ const Reducer = (state, action) => {
         keywordIdInfoPane: action.value,
       };
     case "CLEAR_KEYWORD_INFO_ID":
-      // console.log("Ay?");
       return {
         ...state,
         keywordIdInfoPane: null,

@@ -1,6 +1,6 @@
 const MAX_RESULTS = 350;
 
-const assert = require("assert");
+// const assert = require("assert");
 
 const conAsync = require("../boot/db.js");
 const Keyword = require("./keyword.js");
@@ -15,11 +15,11 @@ function addAdminAttr(user) {
   return user;
 }
 
-User.getUnlabeled = async (userId, status, searchOpts) => {
+User.getUnlabeledKeywords = async (userId, searchOpts) => {
   const con = await conAsync;
 
   let findKeywords = `
-    SELECT id, name, root_id
+    SELECT id, name, root_id, LENGTH(name) AS score
 
     FROM keyword
     LEFT JOIN 
@@ -27,15 +27,17 @@ User.getUnlabeled = async (userId, status, searchOpts) => {
         SELECT * 
         FROM keyword_label 
         WHERE user_id = ?
-      ) AS user_keyword_lables
+      ) AS user_keyword_labels
     ON id = keyword_id
 
-    WHERE status=?
+    WHERE status = 'pending-domain'
       AND keyword_id IS NULL
   `;
-  const queryArgs = [userId, status];
+  const queryArgs = [userId];
 
   // Include optional advanced search parameters
+  let sortCriteria = "MIN(keyword.id)";
+
   if (searchOpts.lengthRange[0]) {
     findKeywords += ` AND CHAR_LENGTH(name) BETWEEN ? AND ? `;
 
@@ -49,15 +51,16 @@ User.getUnlabeled = async (userId, status, searchOpts) => {
   if (searchOpts.nameQuery) {
     findKeywords += " AND name LIKE ?";
     queryArgs.push("%" + searchOpts.nameQuery.toLowerCase() + "%");
+
+    sortCriteria = "LENGTH(lemma)";
   }
-  // findKeywords += ` LIMIT ${MAX_RESULTS}`;
 
   const [keywords] = await con.query(findKeywords, queryArgs);
   const keywordIds = keywords.map((e) => e.id);
 
   // Group keywords by root
   let findKeywordRoots = `
-    SELECT root.id, lemma, MIN(keyword.id) AS score
+    SELECT root.id, lemma, ${sortCriteria} AS score
 
     FROM keyword 
     JOIN root ON root_id = root.id 
@@ -90,57 +93,29 @@ User.getUnlabeled = async (userId, status, searchOpts) => {
   return Object.values(rootIdToKeywords);
 };
 
-User.label = async (userId, keywordIds, label, fromStatus) => {
-  // Only allow labeling keywords with pending status
-  assert(["pending-domain", "pending-info"].includes(fromStatus));
-
+User.labelKeywords = async (userId, keywordIds, label) => {
   const con = await conAsync;
-
   let numAffected = 0;
 
   async function labelHelper(keywordId) {
-    if (!(await Keyword.checkStableStatus(keywordId, fromStatus))) return;
-
-    // Check to make sure user has not already labeled keyword
-    const getPrevLabel = `
-      SELECT COUNT(*) AS count 
-      FROM keyword_label 
-
-      WHERE keyword_id = ?
-        AND user_id = ?
-    `;
-    let [rows] = await con.query(getPrevLabel, [keywordId, userId]);
-    assert(rows[0].count === 0);
-
-    const result = await Keyword.label(keywordId, label, fromStatus);
-
     // Log user's label for current keyword
-    if (result?.todo === "add-label") {
-      const insertUserLabel = `
-          INSERT INTO keyword_label 
-            (keyword_id, user_id)
-          VALUES 
-            (?, ?)
-        `;
-      con.query(insertUserLabel, [keywordId, userId]);
+    const insertUserLabel = `
+    INSERT INTO keyword_label 
+      (keyword_id, user_id, label)
+    VALUES 
+      (?, ?, ?)
+  `;
+    const result = await con.query(insertUserLabel, [keywordId, userId, label]);
+    console.log(result?.error);
+    if (!result?.error) {
+      numAffected += 1;
+      await Keyword.updateStatus(keywordId);
     }
-
-    if (!result?.error) numAffected += 1;
   }
 
   // Update db labels in parallel
   // NOTE: possible to reformat by using SQL JOIN, but negligible difference
   await Promise.all(keywordIds.map(labelHelper));
-
-  if (numAffected > 0) {
-    const updateUserLabelCount = `
-    UPDATE user
-    SET num_labeled=num_labeled+${numAffected}
-  
-    WHERE id=?
-  `;
-    con.query(updateUserLabelCount, [userId]);
-  }
 
   console.log(`Succesfully labeled ${numAffected} keywords`);
   return numAffected;

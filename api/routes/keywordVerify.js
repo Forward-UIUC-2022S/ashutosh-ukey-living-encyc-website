@@ -10,29 +10,29 @@ router.post("/upload", isLoggedInAdmin, (req, res) => {
   console.log(req.body);
 });
 
-router.get("/pending", async (req, res) => {
-  // router.get("/pending", isLoggedIn, async (req, res) => {
-  const keywords = await User.getUnlabeled(1, req.query.status, {
-    // const keywords = await User.getUnlabeled(req.user.id, req.query.status, {
+// router.get("/keywords", async (req, res) => {
+router.get("/keywords", isLoggedIn, async (req, res) => {
+  // const keywords = await User.getUnlabeledKeywords(1, {
+  const keywords = await User.getUnlabeledKeywords(req.user.id, {
     nameQuery: req.query.nameQuery,
     posPattern: req.query.posPattern,
     lengthRange: [req.query.minLength, req.query.maxLength],
   });
 
-  console.log("GET /label/pending", req.query);
+  console.log("GET /labeler/keywords", req.query);
   res.send(keywords);
 });
 
-// router.put("/", async (req, res) => {
-router.put("/", isLoggedIn, async (req, res) => {
+// router.put("/keywords/mark", async (req, res) => {
+router.put("/keywords/mark", isLoggedIn, async (req, res) => {
   console.log(req.query);
 
   try {
-    const numAffected = await User.label(
+    const numAffected = await User.labelKeywords(
+      // 1,
       req.user.id,
       req.body,
-      req.query.label,
-      req.query.fromStatus
+      req.query.label
     );
 
     res.send({

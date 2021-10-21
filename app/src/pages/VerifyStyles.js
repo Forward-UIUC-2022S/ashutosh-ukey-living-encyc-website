@@ -1,13 +1,5 @@
 import { makeStyles } from "@material-ui/core/styles";
-
-function staticButtonColorStyle(color) {
-  return {
-    backgroundColor: color,
-    "&:hover": {
-      background: color,
-    },
-  };
-}
+import { staticButtonColorStyle } from "../utils";
 
 const sideButtonStyle = {
   width: 220,

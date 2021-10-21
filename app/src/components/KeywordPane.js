@@ -3,16 +3,19 @@ import parse from "html-react-parser";
 import { useEffect, useState, useContext } from "react";
 import { Context } from "../Store";
 
+import Button from "../components/Button";
 import TransparentButton from "./TransparentButton";
 
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
+import DictionaryIcon from "@mui/icons-material/MenuBook";
 
+import Checkbox from "@mui/material/Checkbox";
 import { Box, Typography, Icon } from "@material-ui/core";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
 import { makeStyles } from "@material-ui/core/styles";
-import { iconProps } from "../utils";
+import { iconProps, staticButtonColorStyle } from "../utils";
 
 const loadingComponentProps = {
   size: 50,
@@ -20,8 +23,34 @@ const loadingComponentProps = {
 };
 
 const closeIconSize = 24;
+const dictIconSize = 45;
+
+const verifyButtonStyles = {
+  padding: 0,
+  maxWidth: 200,
+  border: "2px solid",
+  borderRadius: 10,
+  marginRight: 10,
+};
 
 const useStyles = makeStyles((theme) => ({
+  markButtonsContainer: {
+    display: "flex",
+    alignItems: "center",
+  },
+  disabledButton: {
+    ...verifyButtonStyles,
+    ...staticButtonColorStyle(theme.palette.backGray.main),
+    pointerEvents: "none",
+  },
+  allCorrectButton: {
+    ...verifyButtonStyles,
+    ...staticButtonColorStyle(theme.palette.verifyGreen.main),
+  },
+  allIncorrectButton: {
+    ...verifyButtonStyles,
+    ...staticButtonColorStyle(theme.palette.verifyRed.main),
+  },
   closeIconButton: {
     display: "flex",
     justifyContent: "flex-end",
@@ -53,14 +82,14 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 12,
     height: 50,
   },
-  wikiTitleContainer: {
+  infoTitleContainer: {
     display: "flex",
     alignItems: "center",
   },
   wikiSummaryText: {
     fontSize: 12,
   },
-  wikiSummaryContainer: {
+  infoBodyContainer: {
     marginTop: 8,
     maxHeight: 175,
     overflowY: "scroll",
@@ -102,10 +131,14 @@ const useStyles = makeStyles((theme) => ({
 export default function KeywordPane(props) {
   const classes = useStyles();
   const [state, dispatch] = useContext(Context);
-  const { keywordIdInfoPane: keywordId } = state;
+  const { keywordIdInfoPane: keywordId, curVerifyTab } = state;
+
+  const showDefinitions = curVerifyTab === "definition" && true;
+  const showTutorials = curVerifyTab === "tutorial";
 
   const [infoReqController, setInfoReqController] = useState();
 
+  const [enableButtons, setEnableButtons] = useState(true);
   const [keyword, setKeyword] = useState();
   const [loading, setLoading] = useState(false);
 
@@ -119,7 +152,7 @@ export default function KeywordPane(props) {
       if (typeof keywordId === "number") {
         setLoading(true);
 
-        const keywordInfoUrl = "/keyword?id=" + keywordId;
+        const keywordInfoUrl = "/keywords/" + keywordId;
         let res = await fetch(keywordInfoUrl, {
           method: "GET",
           signal: controller.signal,
@@ -152,6 +185,29 @@ export default function KeywordPane(props) {
       </Box>
     );
 
+  const LabelButtons = () => (
+    <div className={classes.markButtonsContainer}>
+      <Button
+        name="Mark Relevant"
+        onClick={() => console.log("Hello")}
+        unclickedClassName={
+          enableButtons ? classes.allCorrectButton : classes.disabledButton
+        }
+        labelStyleName={classes.buttonText}
+        size="small"
+      />
+      <Button
+        name="Mark Irrelevant"
+        onClick={() => console.log("World")}
+        unclickedClassName={
+          enableButtons ? classes.allIncorrectButton : classes.disabledButton
+        }
+        labelStyleName={classes.buttonText}
+        size="small"
+      />
+    </div>
+  );
+
   return !keyword ? null : (
     <Box className={classes.container}>
       <div className={classes.closeIconButton}>
@@ -168,10 +224,38 @@ export default function KeywordPane(props) {
           />
         </TransparentButton>
       </div>
+      {showDefinitions && (
+        <div className={classes.infoContainer}>
+          <div className={classes.infoTitleContainer}>
+            <DictionaryIcon
+              {...iconProps(dictIconSize)}
+              style={{ marginRight: 10 }}
+            />
+
+            <Typography className={classes.infoTitle}>
+              <b>Definitions</b>
+            </Typography>
+          </div>
+
+          <div className={classes.infoBodyContainer}>
+            {keyword.sentences.map((elem, idx) => (
+              <div
+                key={idx}
+                style={{ display: "flex", alignItems: "flex-start" }}
+              >
+                <Checkbox style={{ padding: 0, paddingRight: 15 }} />
+                <Typography className={classes.infoListItem}>
+                  "{parse(elem.sentence)}"
+                </Typography>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {keyword.wiki && (
         <div className={classes.infoContainer}>
           <TransparentButton href={keyword.wiki.mainUrl} target="_blank">
-            <div className={classes.wikiTitleContainer}>
+            <div className={classes.infoTitleContainer}>
               <img
                 className={classes.wikiIcon}
                 src="https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg"
@@ -184,7 +268,7 @@ export default function KeywordPane(props) {
             </div>
           </TransparentButton>
 
-          <div className={classes.wikiSummaryContainer}>
+          <div className={classes.infoBodyContainer}>
             {keyword.wiki.summary && (
               <Typography className={classes.wikiSummaryText}>
                 {keyword.wiki.summary}
@@ -204,7 +288,7 @@ export default function KeywordPane(props) {
           </div>
           {keyword.sentences?.length > 0 && (
             <div className={classes.infoContainer}>
-              <div className={classes.wikiTitleContainer}>
+              <div className={classes.infoTitleContainer}>
                 <img
                   className={classes.arxivIcon}
                   src="https://storage.scolary.com/storage/file/public/992eb78c-f028-4463-a080-877254c9ec2b.svg"
@@ -215,7 +299,7 @@ export default function KeywordPane(props) {
                 </Typography>
               </div>
 
-              <div className={classes.wikiSummaryContainer}>
+              <div className={classes.infoBodyContainer}>
                 <ul>
                   {keyword.sentences.map((elem, idx) => (
                     <li key={idx} className={classes.infoListItem}>

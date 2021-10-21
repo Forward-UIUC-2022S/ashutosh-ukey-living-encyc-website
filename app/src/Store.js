@@ -6,6 +6,8 @@ const initialState = {
   isAdmin: false,
   user: {},
 
+  curVerifyTab: "domain",
+
   keywordIdInfoPane: null,
   expandedRowId: null,
   selectedKeywords: {},

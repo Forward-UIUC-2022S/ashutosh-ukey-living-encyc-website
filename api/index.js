@@ -40,8 +40,8 @@ const server = app.listen(port, () => {
 });
 
 // Declare app routes
-app.use("/label", keywordVerifyRouter);
-app.use("/keyword", keywordRouter);
+app.use("/labeler", keywordVerifyRouter);
+app.use("/keywords", keywordRouter);
 app.use("/auth", authRouter);
 
 // Gracefully exit server

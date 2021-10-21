@@ -1,12 +1,14 @@
 import { useState, useEffect, useContext } from "react";
 import { Context } from "../Store";
 
+import { tabToLabelType } from "../utils";
+
 import KeywordTable from "./KeywordTable";
 import AdvancedSearch from "./AdvancedSearch";
 
 import { Box, TextField, Typography } from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
-import { DataGrid } from "@material-ui/data-grid";
+// import Autocomplete from "@material-ui/lab/Autocomplete";
+// import { DataGrid } from "@material-ui/data-grid";
 
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -46,6 +48,7 @@ const useStyles = makeStyles((theme) => ({
     height: 5,
   },
   searchFieldContainer: {
+    width: "100%",
     background: theme.palette.inputGray.main,
   },
   dataRow: {
@@ -65,9 +68,9 @@ const columns = [
 export default function SearchSelectPane(props) {
   const classes = useStyles();
   const [state, dispatch] = useContext(Context);
-  const { refresh, displayStatus, ButtonsComponent } = props;
+  const { refresh, ButtonsComponent } = props;
 
-  const { advSearchOpts } = state;
+  const { advSearchOpts, curVerifyTab } = state;
 
   const [query, setQuery] = useState("");
   const [searchTimer, setSearchTimer] = useState();
@@ -76,16 +79,20 @@ export default function SearchSelectPane(props) {
 
   useEffect(() => {
     async function getOpts() {
-      let getOptsUrl = "/label/pending?status=" + displayStatus;
+      const labelType = tabToLabelType[curVerifyTab];
+      let getOptsUrl = `/labeler/${labelType}s`;
+
       const { nameQuery, posPattern, lengthRange } = advSearchOpts;
 
-      if (nameQuery?.length > 0) getOptsUrl += "&nameQuery=" + nameQuery;
-      if (posPattern?.length > 0) getOptsUrl += "&posPattern=" + posPattern;
+      const queryParams = [];
+      if (nameQuery?.length > 0) queryParams.push("nameQuery=" + nameQuery);
+      if (posPattern?.length > 0) queryParams.push("posPattern=" + posPattern);
       if (typeof lengthRange?.[0] === "number")
-        getOptsUrl += "&minLegth=" + lengthRange[0];
+        queryParams.push("minLegth=" + lengthRange[0]);
       if (typeof lengthRange?.[1] === "number")
-        getOptsUrl += "&maxLegth=" + lengthRange[1];
+        queryParams.push("maxLegth=" + lengthRange[1]);
 
+      if (queryParams.length > 0) getOptsUrl += "?" + queryParams.join("&");
       let res = await fetch(getOptsUrl);
       res = await res.json();
       setKeywordOpts(res);
@@ -96,9 +103,11 @@ export default function SearchSelectPane(props) {
       }
       setKeywordsIndex(newIndex);
     }
-    getOpts();
-  }, [advSearchOpts, refresh]);
 
+    getOpts();
+  }, [advSearchOpts, refresh, curVerifyTab]);
+
+  /*
   useEffect(() => {
     function updateStoreQuery() {
       dispatch({
@@ -112,19 +121,24 @@ export default function SearchSelectPane(props) {
     const timer = setTimeout(updateStoreQuery, FETCH_DELAY * 1000);
     setSearchTimer(timer);
   }, [query]);
+  */
 
-  function onKeywordsSelect(newSelectionModel) {
-    const keywordIds = newSelectionModel;
-    const keywords = keywordIds.map((id) => keywordsIndex[id]);
-    dispatch({
-      type: "UPDATE_SELECTED_KEYWORDS",
-      keywords: keywords,
-    });
+  function handleQueryChange(newQuery) {
+    setQuery(newQuery);
+
+    clearTimeout(searchTimer);
+    const timer = setTimeout(() => {
+      dispatch({
+        type: "UPDATE_LABEL_SEARCH_QUERY",
+        value: newQuery,
+      });
+    }, FETCH_DELAY * 1000);
+    setSearchTimer(timer);
   }
 
   return (
     <div className={classes.container}>
-      <Autocomplete
+      {/*<Autocomplete
         classes={{
           root: classes.searchFieldContainer,
           input: classes.searchFieldInput,
@@ -135,11 +149,19 @@ export default function SearchSelectPane(props) {
           <TextField
             {...params}
             defaultValue={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => handleQueryChange(event.target.value)}
             variant="outlined"
             placeholder="Search keywords"
           />
         )}
+        />*/}
+      <TextField
+        size="small"
+        className={classes.searchFieldContainer}
+        defaultValue={query}
+        onChange={(event) => handleQueryChange(event.target.value)}
+        variant="outlined"
+        placeholder="Search keywords"
       />
       <AdvancedSearch />
       <Box className={classes.tableContainer}>

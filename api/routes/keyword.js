@@ -72,29 +72,6 @@ async function addWikiInfo(keyword) {
   }
 }
 
-router.get("/", async (req, res) => {
-  const curUri = "/keyword";
-
-  let hasAborted = false;
-  req.on("close", function (err) {
-    hasAborted = true;
-    res.end();
-  });
-
-  const keyword = await Keyword.get(req.query.id);
-
-  await Promise.all([addWikiInfo(keyword), addExampleSents(keyword)]);
-
-  try {
-    checkAbort(hasAborted);
-    res.send(keyword);
-    console.log("GET /keyword", req.query);
-  } catch (error) {
-    if (error?.type === "clientAbort") console.log("ABORT /keyword", req.query);
-    else throw error;
-  }
-});
-
 router.get("/common-attrs", async (req, res) => {
   const idsArray = req.query.ids.split(",");
   const commonAttrs = await Keyword.getSimilarAttrs(idsArray);
@@ -103,9 +80,32 @@ router.get("/common-attrs", async (req, res) => {
   console.log("GET /keyword/common-attrs", req.query);
 });
 
-router.get("/search", async (req, res) => {
+router.get("/", async (req, res) => {
   const keywords = await Keyword.search(req.query.query);
   res.send(keywords);
+});
+
+router.get("/:id", async (req, res) => {
+  const curUri = "/keyword";
+
+  let hasAborted = false;
+  req.on("close", function (err) {
+    hasAborted = true;
+    res.end();
+  });
+
+  const keyword = await Keyword.get(req.params.id);
+
+  await Promise.all([addWikiInfo(keyword), addExampleSents(keyword)]);
+
+  try {
+    checkAbort(hasAborted);
+    res.send(keyword);
+    console.log("GET /keyword", req.params);
+  } catch (error) {
+    if (error?.type === "clientAbort") console.log("ABORT /keyword", req.query);
+    else throw error;
+  }
 });
 
 module.exports = router;

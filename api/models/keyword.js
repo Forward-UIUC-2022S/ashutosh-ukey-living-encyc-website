@@ -121,65 +121,47 @@ Keyword.checkStableStatus = async (keywordId, fromStatus) => {
   return fromStatus === keyword.status;
 };
 
-Keyword.label = async (keywordId, label, fromStatus) => {
+async function getLabelCount(keywordId, label) {
   const con = await conAsync;
 
-  const getKeywordStatus = `
-    SELECT good_label_count, bad_label_count
-    FROM keyword
+  const getCount = `
+    SELECT COUNT(*) AS count
+    FROM keyword_label
 
-    WHERE id=?
+    WHERE keyword_id=?
+    AND label=?
   `;
 
-  const [keywords] = await con.query(getKeywordStatus, [keywordId]);
-  const keyword = keywords[0];
+  const [rows] = await con.query(getCount, [keywordId, label]);
+  return rows[0].count;
+}
 
-  let numGoodLabels = keyword.good_label_count;
-  let numBadLabels = keyword.bad_label_count;
+Keyword.updateStatus = async (keywordId) => {
+  const con = await conAsync;
 
-  if (label === "good") numGoodLabels += 1;
-  else if (label == "bad") numBadLabels += 1;
+  const res = await Promise.all([
+    getLabelCount(keywordId, "good"),
+    getLabelCount(keywordId, "bad"),
+  ]);
+  const [numGoodLabels, numBadLabels] = res;
 
   let nextStatus = "";
   if (numGoodLabels >= MIN_SAME_LABELS) {
-    nextStatus = "status + 2";
+    nextStatus = "pending-info";
   } else if (numBadLabels >= MIN_SAME_LABELS) {
-    nextStatus = "status + 1";
+    nextStatus = "incorrect-domain";
   }
 
   // If enough labels to change keyword status
   if (nextStatus !== "") {
-    const deletePrevLabels = `
-        DELETE FROM keyword_label 
-        WHERE keyword_id = ?
-      `;
-    con.query(deletePrevLabels, [keywordId]);
-
     const updateKeywordStatus = `
         UPDATE keyword
         SET 
-          status=${nextStatus},
-          good_label_count=0,
-          bad_label_count=0
+          status=?
 
         WHERE id=?
       `;
-    con.query(updateKeywordStatus, [keywordId]);
-  }
-
-  // Insufficient labels to change keyword status
-  else {
-    const updateKeywordStatus = `
-      UPDATE keyword
-      SET 
-        good_label_count=${numGoodLabels},
-        bad_label_count=${numBadLabels}
-
-      WHERE id=?
-    `;
-    con.query(updateKeywordStatus, [keywordId]);
-
-    return { todo: "add-label" };
+    con.query(updateKeywordStatus, [nextStatus, keywordId]);
   }
 };
 

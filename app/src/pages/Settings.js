@@ -19,7 +19,6 @@ export default function Settings() {
 
   useEffect(() => {
     if (cookies.settings === undefined) {
-      console.log("Huhh??");
       setCookie(
         "settings",
         {
@@ -62,7 +61,7 @@ export default function Settings() {
             checked={hoverChecked}
             onChange={(event) => handleHoverCheck(event.target.checked)}
           />
-          <Typography style={{ fontSize: 20 }}>Interact on hover </Typography>
+          <Typography style={{ fontSize: 20 }}>Respond to hover </Typography>
         </div>
         {/* <Typography style={{ marginTop: 20 }}>Sample script: </Typography> */}
       </div>
