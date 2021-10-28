@@ -10,6 +10,8 @@ const conAsync = mysql.createConnection({
 });
 
 async function createTables() {
+  return; 
+  
   const con = await conAsync;
   const createUser = `
     CREATE TABLE IF NOT EXISTS user(
