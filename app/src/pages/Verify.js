@@ -47,7 +47,7 @@ function SideMenu() {
   const { url } = useRouteMatch();
   const classes = useStyles();
 
-  const curDeployedTabIdxs = [0, 1, 4];
+  const curDeployedTabIdxs = [0, 1, 2, 4];
   let sideMenuOpts = [
     { name: "Admin", href: `${url}/admin`, requireAdmin: true },
     { name: "Domain Relevance", href: `${url}/relevance`, tabIden: "domain" },
@@ -63,7 +63,7 @@ function SideMenu() {
     },
     { name: "Settings", href: `${url}/settings` },
   ];
-  sideMenuOpts = curDeployedTabIdxs.map((i) => sideMenuOpts[i]);
+  // sideMenuOpts = curDeployedTabIdxs.map((i) => sideMenuOpts[i]);
 
   return (
     <Box className={classes.sideContainer}>
@@ -116,14 +116,14 @@ function DomainVerifySection() {
   // const lastKeywordId = selectedKeywordIds[selectedKeywordIds.length - 1];
   // console.log("Last added keyword id: ", lastKeywordId);
 
-  const [refresh, setRefresh] = useState(false);
+  // const [refresh, setRefresh] = useState(false);
 
   const enableButtons = selectedKeywordIds?.length > 0;
 
   async function markAndRefresh(label) {
     const res = await markSelected(selectedKeywordIds, label);
 
-    if (res.numAffected > 0) setRefresh(!refresh);
+    if (res.numAffected > 0) dispatch({ type: "REFRESH_TABLE" });
   }
 
   const labelKeywords = curVerifyTab === "domain";
@@ -167,7 +167,7 @@ function DomainVerifySection() {
 
   return (
     <Box className={classes.preselectContainer}>
-      <SearchSelectPane refresh={refresh} ButtonsComponent={LabelButtons} />
+      <SearchSelectPane ButtonsComponent={LabelButtons} />
       <KeywordPane />
     </Box>
   );

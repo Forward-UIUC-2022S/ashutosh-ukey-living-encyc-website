@@ -1,7 +1,6 @@
-const MIN_SAME_LABELS = 2;
 const MAX_SEARCH_RESULTS = 20;
 
-const { findCommonSubstr } = require("../utils");
+const { findCommonSubstr, MIN_SAME_LABELS } = require("../utils");
 const conAsync = require("../boot/db.js");
 
 const Keyword = {};
@@ -63,14 +62,12 @@ Keyword.getSimilarAttrs = async (keywordIds) => {
 Keyword.get = async (keywordId) => {
   const con = await conAsync;
 
+  // Get basic keyword info
   let findKeyword = `
-    SELECT keyword.id, name, content
+    SELECT id, name
 
     FROM keyword
-    LEFT JOIN definition
-      ON definition.id = definition_id
-
-    WHERE keyword.id=?
+    WHERE id=?
     LIMIT 1
   `;
 

@@ -10,12 +10,15 @@ const initialState = {
 
   keywordIdInfoPane: null,
   expandedRowId: null,
+  keywordTableOpts: [],
   selectedKeywords: {},
   searchKeywords: [],
 
   expandAdvSearch: false,
   advSearchOpts: {},
   tableLoading: true,
+  tableRefreshToggle: false,
+  statsRefreshToggle: false,
 };
 
 const Store = ({ children }) => {

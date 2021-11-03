@@ -16,6 +16,16 @@ const Reducer = (state, action) => {
         ...state,
         expandAdvSearch: !state.expandAdvSearch,
       };
+    case "REFRESH_TABLE":
+      return {
+        ...state,
+        tableRefreshToggle: !state.tableRefreshToggle,
+      };
+    case "REFRESH_USER_STATS":
+      return {
+        ...state,
+        statsRefreshToggle: !state.statsRefreshToggle,
+      };
     case "LOGIN":
       return {
         ...state,
@@ -40,6 +50,7 @@ const Reducer = (state, action) => {
     case "CLEAR_ADV_SEARCH_OPTS":
       return {
         ...state,
+        expandAdvSearch: false,
         searchKeywords: [],
         advSearchOpts: { lengthRange: [0, 100] },
       };
@@ -137,8 +148,12 @@ const Reducer = (state, action) => {
         tableLoading: action.value,
       };
     case "SET_VERIFY_TAB":
+      if (state.curVerifyTab === action.value) return state;
+
       return {
         ...state,
+        selectedKeywords: {},
+        keywordIdInfoPane: null,
         curVerifyTab: action.value,
       };
     case "SET_EXPANDED_ROW":
@@ -150,6 +165,27 @@ const Reducer = (state, action) => {
       return {
         ...state,
         keywordIdInfoPane: action.value,
+      };
+    case "SET_KEYWORD_TABLE_OPTS":
+      return {
+        ...state,
+        keywordTableOpts: action.value,
+      };
+    case "REMOVE_KEYWORD_TABLE_OPT":
+      const newKeywordTableOpts = [...state.keywordTableOpts];
+
+      for (let r_i = newKeywordTableOpts.length - 1; r_i >= 0; r_i--) {
+        const root = newKeywordTableOpts[r_i];
+        for (let i = root.keywords.length - 1; i >= 0; i--) {
+          if (root.keywords[i].id === action.keywordId)
+            root.keywords.splice(i, 1);
+        }
+        if (root.keywords.length === 0) newKeywordTableOpts.splice(r_i, 1);
+      }
+
+      return {
+        ...state,
+        keywordTableOpts: newKeywordTableOpts,
       };
     case "CLEAR_KEYWORD_INFO_ID":
       return {

@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { Context } from "../Store";
 
-import { tabToLabelType } from "../utils";
+import { tabToLabelType, capitalizeFirstLetter } from "../utils";
 
 import KeywordTable from "./KeywordTable";
 import AdvancedSearch from "./AdvancedSearch";
@@ -67,16 +67,24 @@ const columns = [
 export default function SearchSelectPane(props) {
   const classes = useStyles();
   const [state, dispatch] = useContext(Context);
-  const { refresh, ButtonsComponent } = props;
+  const { ButtonsComponent } = props;
 
-  const { advSearchOpts, curVerifyTab, selectedKeywords } = state;
+  const {
+    advSearchOpts,
+    curVerifyTab,
+    selectedKeywords,
+    tableRefreshToggle,
+    statsRefreshToggle,
+  } = state;
 
+  const labelType = tabToLabelType[curVerifyTab];
   const numSelectedKeywords = Object.keys(selectedKeywords).length;
+
   const [userStats, setUserStats] = useState({});
 
   const [query, setQuery] = useState("");
   const [searchTimer, setSearchTimer] = useState();
-  const [keywordOpts, setKeywordOpts] = useState([]);
+  // const [keywordOpts, setKeywordOpts] = useState([]);
 
   useEffect(() => {
     async function getUserStats() {
@@ -88,33 +96,34 @@ export default function SearchSelectPane(props) {
     }
 
     getUserStats();
-  }, [refresh]);
+  }, [statsRefreshToggle, curVerifyTab]);
 
   useEffect(() => {
     async function getOpts() {
-      const labelType = tabToLabelType[curVerifyTab];
-      let getOptsUrl = `/labeler/${labelType}s`;
+      let getOptsUrl = `/labeler/keywords`;
 
       const { nameQuery, posPattern, lengthRange } = advSearchOpts;
 
       const queryParams = [];
+      if (labelType !== "keyword") queryParams.push("labelType=" + labelType);
       if (nameQuery?.length > 0) queryParams.push("nameQuery=" + nameQuery);
       if (posPattern?.length > 0) queryParams.push("posPattern=" + posPattern);
       if (typeof lengthRange?.[0] === "number")
-        queryParams.push("minLegth=" + lengthRange[0]);
+        queryParams.push("minLength=" + lengthRange[0]);
       if (typeof lengthRange?.[1] === "number")
-        queryParams.push("maxLegth=" + lengthRange[1]);
+        queryParams.push("maxLength=" + lengthRange[1]);
 
       if (queryParams.length > 0) getOptsUrl += "?" + queryParams.join("&");
       let res = await fetch(getOptsUrl);
       res = await res.json();
-      setKeywordOpts(res);
+      dispatch({ type: "SET_KEYWORD_TABLE_OPTS", value: res });
+      // setKeywordOpts(res);
     }
 
     dispatch({ type: "SET_TABLE_LOADING", value: true });
     getOpts();
     dispatch({ type: "SET_TABLE_LOADING", value: false });
-  }, [advSearchOpts, refresh, curVerifyTab]);
+  }, [advSearchOpts, tableRefreshToggle, curVerifyTab]);
 
   useEffect(() => {
     function updateStoreQuery() {
@@ -147,6 +156,8 @@ export default function SearchSelectPane(props) {
   }
   */
 
+  const numLabeled =
+    userStats["total" + capitalizeFirstLetter(labelType) + "s"];
   return (
     <div className={classes.container}>
       <TextField
@@ -178,14 +189,15 @@ export default function SearchSelectPane(props) {
             >
               <Typography>Selected Keywords: {numSelectedKeywords}</Typography>
               <Typography>
-                Total Labeled: {userStats.totalKeywords ?? 0}
+                Total {capitalizeFirstLetter(labelType)}s Labeled:{" "}
+                {numLabeled ?? 0}
               </Typography>
             </div>
           }
         </div>
         {/* Below element colors table head row */}
         {/* <div className={classes.tableHead}></div> */}
-        {<KeywordTable dataRows={keywordOpts} />}
+        {<KeywordTable />}
         {/*
           <DataGrid
             rows={keywordOpts}

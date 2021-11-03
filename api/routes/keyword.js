@@ -101,7 +101,7 @@ router.get("/:id", async (req, res) => {
   try {
     checkAbort(hasAborted);
     res.send(keyword);
-    console.log("GET /keyword", req.params);
+    console.log(`GET /keyword/${req.params.id}`, req.query);
   } catch (error) {
     if (error?.type === "clientAbort") console.log("ABORT /keyword", req.query);
     else throw error;

@@ -4,6 +4,8 @@ const MAX_RESULTS = 350;
 
 const conAsync = require("../boot/db.js");
 const Keyword = require("./keyword.js");
+const Definition = require("./definition.js");
+const Tutorial = require("./tutorial.js");
 
 const { isAdmin } = require("../utils");
 
@@ -15,28 +17,85 @@ function addAdminAttr(user) {
   return user;
 }
 
+User.findOrCreate = async (googleUser) => {
+  const con = await conAsync;
+  const userEmail = googleUser.email;
+
+  const findUserByEmail = `SELECT * FROM user WHERE email=?`;
+  const [users] = await con.query(findUserByEmail, [userEmail]);
+
+  // Insert new user into db
+  if (users.length == 0) {
+    const insertUser = `
+          INSERT INTO user (email, first_name, last_name)
+          VALUES (?, ?, ?)
+        `;
+    let userInfo = [
+      googleUser.email,
+      googleUser.given_name,
+      googleUser.family_name,
+    ];
+    const [result] = await con.query(insertUser, userInfo);
+    const dbUserId = result.insertId;
+
+    const findUserById = `
+      SELECT * FROM user WHERE id=?
+    `;
+    let [rows] = await con.query(findUserById, [dbUserId]);
+    const newUser = rows[0];
+
+    return addAdminAttr(newUser);
+  }
+
+  // Return existing db user
+  else {
+    return addAdminAttr(users[0]);
+  }
+};
+
 User.getSummary = async (userId) => {
   const con = await conAsync;
   const res = {};
 
+  // Total number of keywords labeled by user
   const getTotalKeywords = `
     SELECT COUNT(*) AS count 
 
     FROM keyword_label 
     WHERE user_id = ?
   `;
-  const [rows] = await con.query(getTotalKeywords, [userId]);
-
+  let [rows] = await con.query(getTotalKeywords, [userId]);
   res.totalKeywords = rows[0].count;
+
+  // Total number of definitions labeled by user
+  const getTotalDefinitions = `
+    SELECT COUNT(*) AS count 
+
+    FROM definition_label 
+    WHERE user_id = ?
+  `;
+  [rows] = await con.query(getTotalDefinitions, [userId]);
+  res.totalDefinitions = rows[0].count;
+
+  // Total number of tutorials labeled by user
+  const getTotalTutorials = `
+    SELECT COUNT(*) AS count 
+
+    FROM tutorial_label 
+    WHERE user_id = ?
+  `;
+  [rows] = await con.query(getTotalTutorials, [userId]);
+  res.totalTutorials = rows[0].count;
 
   return res;
 };
 
-User.getUnlabeledKeywords = async (userId, searchOpts) => {
+User.getUnlabeledKeywords = async (userId, searchOpts, labelType) => {
   const con = await conAsync;
 
+  // Get keywords with unverified domain relevance
   let findKeywords = `
-    SELECT id, name, root_id, LENGTH(name) AS score
+    SELECT id, name, root_id
 
     FROM keyword
     LEFT JOIN 
@@ -50,6 +109,63 @@ User.getUnlabeledKeywords = async (userId, searchOpts) => {
     WHERE status = 'pending-domain'
       AND keyword_id IS NULL
   `;
+
+  // Get keywords with unverified definitions
+  if (labelType === "definition")
+    findKeywords = `
+      SELECT id, name, root_id
+
+      FROM keyword 
+      JOIN
+        (
+          -- Get keywords with pending definitions user has not labeled
+          SELECT DISTINCT(keyword_id) AS keyword_id
+
+          FROM definition
+          LEFT JOIN 
+            ( 
+              SELECT definition_id, user_id
+              FROM definition_label 
+              WHERE user_id = ?
+            ) AS user_definition_labels
+          ON definition.id = definition_id
+
+          WHERE definition.status = 'pending'
+            AND user_definition_labels.definition_id IS NULL
+        ) AS unlabeled_defs_keywords
+
+      ON id = keyword_id
+
+      WHERE keyword.status = 'pending-info' 
+    `;
+  else if (labelType === "tutorial")
+    findKeywords = `
+      SELECT id, name, root_id
+
+      FROM keyword 
+      JOIN
+        (
+          -- Get keywords with pending tutorials user has not labeled
+          SELECT DISTINCT(keyword_id) AS keyword_id
+
+          FROM tutorial
+          LEFT JOIN 
+            ( 
+              SELECT tutorial_id, user_id
+              FROM tutorial_label 
+              WHERE user_id = ?
+            ) AS user_tutorial_labels
+          ON tutorial.id = tutorial_id
+
+          WHERE tutorial.status = 'pending'
+            AND user_tutorial_labels.tutorial_id IS NULL
+        ) AS unlabeled_tutors_keywords
+
+      ON id = keyword_id
+
+      WHERE keyword.status = 'pending-info' 
+  `;
+
   const queryArgs = [userId];
 
   // Include optional advanced search parameters
@@ -125,11 +241,11 @@ User.labelKeywords = async (userId, keywordIds, label) => {
       (?, ?, ?)
   `;
     const result = await con.query(insertUserLabel, [keywordId, userId, label]);
-    console.log(result?.error);
+
     if (!result?.error) {
       numAffected += 1;
       await Keyword.updateStatus(keywordId);
-    }
+    } else console.log(result?.error);
   }
 
   // Update db labels in parallel
@@ -140,40 +256,121 @@ User.labelKeywords = async (userId, keywordIds, label) => {
   return numAffected;
 };
 
-User.findOrCreate = async (googleUser) => {
+User.getUnlabeledDefinitions = async (userId, keywordId) => {
   const con = await conAsync;
-  const userEmail = googleUser.email;
 
-  const findUserByEmail = `SELECT * FROM user WHERE email=?`;
-  const [users] = await con.query(findUserByEmail, [userEmail]);
+  let findDefinitions = `
+    SELECT id, content
 
-  // Insert new user into db
-  if (users.length == 0) {
-    const insertUser = `
-          INSERT INTO user (email, first_name, last_name)
-          VALUES (?, ?, ?)
-        `;
-    let userInfo = [
-      googleUser.email,
-      googleUser.given_name,
-      googleUser.family_name,
-    ];
-    const [result] = await con.query(insertUser, userInfo);
-    const dbUserId = result.insertId;
+    FROM definition
+    LEFT JOIN 
+      ( 
+        SELECT definition_id
+        FROM definition_label 
+        WHERE user_id = ?
+      ) AS user_keyword_labels
+    ON id = definition_id
 
-    const findUserById = `
-      SELECT * FROM user WHERE id=?
-    `;
-    let [rows] = await con.query(findUserById, [dbUserId]);
-    const newUser = rows[0];
+    WHERE keyword_id = ?
+      AND status = 'pending'
+      AND definition_id IS NULL
+  `;
+  const queryArgs = [userId, keywordId];
+  const [definitions] = await con.query(findDefinitions, queryArgs);
 
-    return addAdminAttr(newUser);
+  return definitions;
+};
+
+User.labelDefinitions = async (userId, definitionIds, label) => {
+  const con = await conAsync;
+  let numAffected = 0;
+
+  async function labelHelper(definitionId) {
+    // Log user's label for current keyword
+    const insertUserLabel = `
+    INSERT INTO definition_label 
+      (definition_id, user_id, label)
+    VALUES 
+      (?, ?, ?)
+  `;
+    const result = await con.query(insertUserLabel, [
+      definitionId,
+      userId,
+      label,
+    ]);
+
+    if (!result?.error) {
+      numAffected += 1;
+      await Definition.updateStatus(definitionId);
+    } else console.log(result?.error);
   }
 
-  // Return existing db user
-  else {
-    return addAdminAttr(users[0]);
+  // Update db labels in parallel
+  // NOTE: possible to reformat by using SQL JOIN, but negligible difference
+  await Promise.all(definitionIds.map(labelHelper));
+
+  console.log(`Succesfully labeled ${numAffected} definitions`);
+  return numAffected;
+};
+
+User.getUnlabeledTutorials = async (userId, keywordId) => {
+  const con = await conAsync;
+
+  let findTutorials = `
+    SELECT id, title, url, 
+      authors, year, num_citation
+
+    FROM tutorial
+
+    -- Ignore tutorials already labeled by user
+    LEFT JOIN 
+      ( 
+        SELECT tutorial_id
+        FROM tutorial_label 
+        WHERE user_id = ?
+      ) AS user_tutorial_labels
+    ON id = tutorial_id
+
+    WHERE keyword_id = ?
+      AND status = 'pending'
+      AND tutorial_id IS NULL
+  `;
+  const queryArgs = [userId, keywordId];
+  const [tutorials] = await con.query(findTutorials, queryArgs);
+
+  return tutorials;
+};
+
+User.labelTutorials = async (userId, tutorialIds, label) => {
+  const con = await conAsync;
+  let numAffected = 0;
+
+  async function labelHelper(tutorialId) {
+    // Log user's label for current keyword
+    const insertUserLabel = `
+    INSERT INTO tutorial_label 
+      (tutorial_id, user_id, label)
+    VALUES 
+      (?, ?, ?)
+  `;
+    const result = await con.query(insertUserLabel, [
+      tutorialId,
+      userId,
+      label,
+    ]);
+
+    if (!result?.error) {
+      numAffected += 1;
+      await Tutorial.updateStatus(tutorialId);
+    } else console.log(result?.error);
   }
+
+  // Update db labels in parallel
+  // NOTE: possible to reformat by using SQL JOIN, but negligible difference
+  await Promise.all(tutorialIds.map(labelHelper));
+
+  console.log(`Succesfully labeled ${numAffected} tutorials`);
+  return numAffected;
 };
 
 module.exports = User;

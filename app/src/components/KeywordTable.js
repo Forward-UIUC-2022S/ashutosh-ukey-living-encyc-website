@@ -264,10 +264,10 @@ Row.propTypes = {
 
 export default function KeywordTable(props) {
   const classes = useStyles();
-  const { dataRows } = props;
+  // const { dataRows } = props;
 
   const [state, dispatch] = useContext(Context);
-  const { selectedKeywords, tableLoading } = state;
+  const { selectedKeywords, tableLoading, keywordTableOpts: dataRows } = state;
 
   const [rowHoverTimer, setRowHoverTimer] = useState();
   const [allChecked, setAllChecked] = useState(false);

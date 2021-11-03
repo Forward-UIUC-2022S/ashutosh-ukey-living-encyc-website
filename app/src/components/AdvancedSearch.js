@@ -146,12 +146,15 @@ export default function AdvancedSearch(props) {
   }
 
   function createUpdateWithTimeBuffer(
+    updateLocal,
     curTimer,
     updateTimer,
     actionType,
     timeDelay
   ) {
     return (newValue) => {
+      updateLocal(newValue);
+
       clearTimeout(curTimer);
       const timer = setTimeout(() => {
         dispatch({
@@ -164,18 +167,21 @@ export default function AdvancedSearch(props) {
   }
 
   const updatePosWithDelay = createUpdateWithTimeBuffer(
+    setPosPattern,
     posTimer,
     setPosTimer,
     "UPDATE_ADV_SEARCH_POS",
     POS_DELAY
   );
   const updateKwqWithDelay = createUpdateWithTimeBuffer(
+    setKeywordQuery,
     kwqTimer,
     setKwqTimer,
     "UPDATE_LABEL_SEARCH_QUERY",
     KWQ_DELAY
   );
   const updateLengthWithDelay = createUpdateWithTimeBuffer(
+    setLengthRange,
     lengthTimer,
     setLengthTimer,
     "UPDATE_ADV_SEARCH_LRANGE",
@@ -242,7 +248,7 @@ export default function AdvancedSearch(props) {
       `<${tag}>` +
       posPattern.substring(cursorPos);
 
-    setPosPattern(newPosPattern);
+    updatePosWithDelay(newPosPattern);
 
     posInputRef.current?.focus();
     // const newPos = cursorPos + tag.length;
@@ -333,7 +339,8 @@ export default function AdvancedSearch(props) {
                 size="small"
                 // getAriaLabel={() => "Length range"}
                 value={lengthRange}
-                onChange={(_, newValue) => setLengthRange(newValue)}
+                // onChange={(_, newValue) => setLengthRange(newValue)}
+                onChange={(e) => updateLengthWithDelay(e.target.value)}
                 valueLabelDisplay="auto"
                 max={100}
                 // getAriaValueText={(value) => `${value} chars`}
@@ -345,7 +352,8 @@ export default function AdvancedSearch(props) {
               </Typography>
               <TextField
                 InputProps={{ classes: { input: classes.substrTextContainer } }}
-                onChange={(e) => setKeywordQuery(e.target.value)}
+                // onChange={(e) => setKeywordQuery(e.target.value)}
+                onChange={(e) => updateKwqWithDelay(e.target.value)}
                 value={keywordQuery}
                 variant="outlined"
               />
@@ -355,7 +363,8 @@ export default function AdvancedSearch(props) {
                 <b>POS pattern:</b>
               </Typography>
               <TextField
-                onChange={(e) => setPosPattern(e.target.value)}
+                // onChange={(e) => setPosPattern(e.target.value)}
+                onChange={(e) => updatePosWithDelay(e.target.value)}
                 value={posPattern}
                 inputRef={posInputRef}
                 InputProps={{ classes: { input: classes.substrTextContainer } }}

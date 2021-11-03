@@ -1,4 +1,5 @@
 const adminList = process.env["ADMINS"]?.split(",");
+const MIN_SAME_LABELS = 2;
 
 // Taken from https://www.tutorialspoint.com/finding-the-longest-common-consecutive-substring-between-two-strings-in-javascript
 function findCommonSubstr(str1 = "", str2 = "") {
@@ -65,8 +66,10 @@ function logSqlError(err) {
   console.error("Mysql error: " + err.message);
 }
 
+exports.MIN_SAME_LABELS = MIN_SAME_LABELS;
 exports.findCommonSubstr = findCommonSubstr;
 exports.logSqlError = logSqlError;
+
 exports.isLoggedIn = isLoggedIn;
 exports.isLoggedInAdmin = isLoggedInAdmin;
 exports.isAdmin = isAdmin;
