@@ -319,7 +319,8 @@ export default function KeywordTable(props) {
   function handleTableCheck(checked) {
     setAllChecked(checked);
 
-    if (checked) dispatch({ type: "SELECT_FULL_TABLE", tableRows: dataRows });
+    if (checked)
+      dispatch({ type: "SELECT_FULL_TABLE", tableRows: curPageRows });
     else dispatch({ type: "CLEAR_ALL_SELECTED" });
   }
 
