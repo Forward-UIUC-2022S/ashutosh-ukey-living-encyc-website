@@ -22,7 +22,7 @@ export default function Settings() {
       setCookie(
         "settings",
         {
-          hoverInteract: true,
+          hoverInteract: false,
         },
         {
           path: "/",

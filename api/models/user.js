@@ -1,4 +1,5 @@
 const MAX_RESULTS = 350;
+const EPSILON = 0.0001;
 
 // const assert = require("assert");
 
@@ -7,7 +8,7 @@ const Keyword = require("./keyword.js");
 const Definition = require("./definition.js");
 const Tutorial = require("./tutorial.js");
 
-const { isAdmin } = require("../utils");
+const { isAdmin, shuffleArray } = require("../utils");
 
 const User = {};
 
@@ -90,6 +91,134 @@ User.getSummary = async (userId) => {
   return res;
 };
 
+function testRatiosToNum(goodLabelRatio, badLabelRatio) {
+  // Handle special cases
+  if (goodLabelRatio === 0 || isNaN(goodLabelRatio)) goodLabelRatio = EPSILON;
+  if (badLabelRatio === 0 || isNaN(badLabelRatio)) badLabelRatio = EPSILON;
+
+  // Prevent divide by zero error
+  console.log("Ratio with slack", goodLabelRatio, badLabelRatio);
+
+  const totalDefault = 10;
+  let numTestGood = Math.round(
+    (badLabelRatio / (goodLabelRatio + badLabelRatio)) * totalDefault
+  );
+  let numTestBad = totalDefault - numTestGood;
+
+  const maxTestRatio = 0.08;
+  const lowerTestThresh = 0.02;
+
+  if (goodLabelRatio > maxTestRatio) numTestGood = 0;
+  else if (goodLabelRatio < lowerTestThresh) numTestGood *= 2;
+
+  if (badLabelRatio > maxTestRatio) numTestBad = 0;
+  else if (badLabelRatio < lowerTestThresh) numTestBad *= 2;
+
+  return [numTestGood, numTestBad];
+}
+
+async function getTestKeywords(userId) {
+  const con = await conAsync;
+
+  // Calculate current ratios of test keywords labeled
+  const getTotalLabeled = `
+    SELECT COUNT(*) AS count
+
+    FROM keyword_label 
+    WHERE user_id = ?
+  `;
+  let [totalLabeled] = await con.query(getTotalLabeled, [userId]);
+  totalLabeled = totalLabeled[0].count;
+
+  const getTestGoodLabeled = `
+    SELECT COUNT(*) AS count
+
+    FROM keyword_label 
+    WHERE user_id = ?
+        AND label = 'test-good'
+  `;
+  let [numTestGoodLabeled] = await con.query(getTestGoodLabeled, [userId]);
+  numTestGoodLabeled = numTestGoodLabeled[0].count;
+
+  const getTestBadLabeled = `
+    SELECT COUNT(*) AS count
+
+    FROM keyword_label 
+    WHERE user_id = ?
+        AND label = 'test-bad'
+  `;
+  let [numTestBadLabeled] = await con.query(getTestBadLabeled, [userId]);
+  numTestBadLabeled = numTestBadLabeled[0].count;
+
+  const testGoodLabelRatio = numTestGoodLabeled / totalLabeled;
+  const testBadLabelRatio = numTestBadLabeled / totalLabeled;
+
+  const [numTestGood, numTestBad] = testRatiosToNum(
+    testGoodLabelRatio,
+    testBadLabelRatio
+  );
+  console.log("Number test: ", numTestGood, numTestBad);
+
+  // Get ground truth 'good' label keywords
+  const findTestGoodKeywords = `
+    SELECT id, name, root_id
+
+    FROM keyword
+    LEFT JOIN 
+      ( 
+        SELECT * 
+        FROM keyword_label 
+        WHERE user_id = ?
+      ) AS user_keyword_labels
+    ON id = keyword_id
+
+    WHERE 
+      ( 
+        status = 'pending-info'
+        OR status = 'verified'
+      )
+      AND keyword_id IS NULL
+
+    LIMIT ?
+  `;
+  const [goodKeywords] = await con.query(findTestGoodKeywords, [
+    userId,
+    numTestGood,
+  ]);
+
+  // Get ground truth 'bad' label keywords
+  const findTestBadKeywords = `
+    SELECT id, name, root_id
+
+    FROM keyword
+    LEFT JOIN 
+      ( 
+        SELECT * 
+        FROM keyword_label 
+        WHERE user_id = ?
+      ) AS user_keyword_labels
+    ON id = keyword_id
+
+    WHERE 
+      status = 'incorrect-domain'
+      AND keyword_id IS NULL
+
+    LIMIT ?
+  `;
+  const [badKeywords] = await con.query(findTestBadKeywords, [
+    userId,
+    numTestBad,
+  ]);
+
+  // Shuffle order of good keywords and bad keywords
+  let testKeywords = shuffleArray(goodKeywords.concat(badKeywords));
+  testKeywords.forEach((elem) => {
+    elem.priority = 1;
+  });
+  console.log(`Returning ${testKeywords.length} test keywords`);
+  return testKeywords;
+}
+
 User.getUnlabeledKeywords = async (userId, searchOpts, labelType) => {
   const con = await conAsync;
 
@@ -138,6 +267,7 @@ User.getUnlabeledKeywords = async (userId, searchOpts, labelType) => {
 
       WHERE keyword.status = 'pending-info' 
     `;
+  // Get keywords with unverified tutorials
   else if (labelType === "tutorial")
     findKeywords = `
       SELECT id, name, root_id
@@ -188,13 +318,13 @@ User.getUnlabeledKeywords = async (userId, searchOpts, labelType) => {
     sortCriteria = "LENGTH(lemma)";
   }
 
-  const [keywords] = await con.query(findKeywords, queryArgs);
-  if (keywords.length === 0) return [];
+  let [keywords] = await con.query(findKeywords, queryArgs);
 
   // Group keywords by root
+  if (keywords.length === 0) return [];
   const keywordIds = keywords.map((e) => e.id);
 
-  let findKeywordRoots = `
+  const findKeywordRoots = `
     SELECT root.id, lemma, ${sortCriteria} AS score
 
     FROM keyword 
@@ -206,13 +336,70 @@ User.getUnlabeledKeywords = async (userId, searchOpts, labelType) => {
     ORDER BY score
     LIMIT ${MAX_RESULTS}
   `;
-  const [roots] = await con.query(findKeywordRoots, [keywordIds]);
+  let [roots] = await con.query(findKeywordRoots, [keywordIds]);
 
-  const rootIdToKeywords = {};
+  // Add test keywords to estimate user label accuracy
+  if (labelType === "keyword") {
+    const testKeywords = await getTestKeywords(userId);
+
+    if (testKeywords.length > 0) {
+      const rootIds = roots.map((r) => r.id);
+      const testKeywordIds = testKeywords.map((k) => k.id);
+      const findTestKeywordRoots = `
+        SELECT root.id, lemma
+
+        FROM keyword 
+        JOIN root ON root_id = root.id
+
+        WHERE keyword.id IN (?)
+        GROUP BY root.id
+      `;
+      const [testRoots] = await con.query(findTestKeywordRoots, [
+        testKeywordIds,
+      ]);
+      roots = roots.filter((r) => rootIds.includes(r.id));
+
+      roots = testRoots.concat(roots);
+      keywords = testKeywords.concat(keywords);
+    }
+  }
+
+  // Sort roots using priority indicators
+  const rootIdToPriority = {};
   for (let root of roots) {
     const rootId = root.id;
+    rootIdToPriority[rootId] = 0;
+  }
 
-    rootIdToKeywords[rootId] = {
+  for (let keyword of keywords) {
+    const kwRootId = keyword.root_id;
+    if (typeof rootIdToPriority[kwRootId] === "number" && keyword.priority)
+      rootIdToPriority[kwRootId] += keyword.priority;
+  }
+
+  for (let i = 0; i < roots.length; i++) {
+    const root = roots[i];
+    const rootPriority = rootIdToPriority[root.id];
+
+    if (rootPriority > 0) {
+      // Move root to array front
+      // TODO: add into seperate array, sort on that array then add to front
+      roots.splice(i, 1);
+      roots.unshift(root);
+    }
+  }
+
+  // Adding keywords to root
+  const rootIdToIdx = {};
+  const res = [];
+
+  for (let i = 0; i < roots.length; i++) {
+    const root = roots[i];
+    const rootId = root.id;
+    const rootIdx = i;
+
+    rootIdToIdx[rootId] = rootIdx;
+    res[i] = {
       id: rootId,
       lemma: root.lemma,
       keywords: [],
@@ -221,11 +408,13 @@ User.getUnlabeledKeywords = async (userId, searchOpts, labelType) => {
 
   for (let keyword of keywords) {
     const kwRootId = keyword.root_id;
-    if (rootIdToKeywords[kwRootId])
-      rootIdToKeywords[kwRootId].keywords.push(keyword);
+    if (typeof rootIdToIdx[kwRootId] === "number") {
+      const kwRootIdx = rootIdToIdx[kwRootId];
+      res[kwRootIdx].keywords.push(keyword);
+    }
   }
 
-  return Object.values(rootIdToKeywords);
+  return res;
 };
 
 User.labelKeywords = async (userId, keywordIds, label) => {
@@ -233,6 +422,21 @@ User.labelKeywords = async (userId, keywordIds, label) => {
   let numAffected = 0;
 
   async function labelHelper(keywordId) {
+    let labelStatus = label;
+
+    // Check if test keyword
+    const getKeywordStatus = `
+      SELECT status
+
+      FROM keyword 
+      WHERE id=?
+    `;
+    let [keywordStatus] = await con.query(getKeywordStatus, [keywordId]);
+    keywordStatus = keywordStatus[0].status;
+
+    const isTestKeyword = keywordStatus !== "pending-domain";
+    if (isTestKeyword) labelStatus = "test-" + label;
+
     // Log user's label for current keyword
     const insertUserLabel = `
     INSERT INTO keyword_label 
@@ -240,11 +444,15 @@ User.labelKeywords = async (userId, keywordIds, label) => {
     VALUES 
       (?, ?, ?)
   `;
-    const result = await con.query(insertUserLabel, [keywordId, userId, label]);
+    const result = await con.query(insertUserLabel, [
+      keywordId,
+      userId,
+      labelStatus,
+    ]);
 
     if (!result?.error) {
       numAffected += 1;
-      await Keyword.updateStatus(keywordId);
+      if (!isTestKeyword) await Keyword.updateStatus(keywordId);
     } else console.log(result?.error);
   }
 
@@ -259,7 +467,7 @@ User.labelKeywords = async (userId, keywordIds, label) => {
 User.getUnlabeledDefinitions = async (userId, keywordId) => {
   const con = await conAsync;
 
-  let findDefinitions = `
+  const findDefinitions = `
     SELECT id, content
 
     FROM definition
@@ -316,7 +524,7 @@ User.labelDefinitions = async (userId, definitionIds, label) => {
 User.getUnlabeledTutorials = async (userId, keywordId) => {
   const con = await conAsync;
 
-  let findTutorials = `
+  const findTutorials = `
     SELECT id, title, url, 
       authors, year, num_citation
 

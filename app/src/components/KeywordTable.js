@@ -17,6 +17,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
+import Tooltip from "@mui/material/Tooltip";
 
 import CircularProgress from "@material-ui/core/CircularProgress";
 
@@ -24,6 +25,9 @@ import Paper from "@mui/material/Paper";
 import IconButton from "@mui/material/IconButton";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+
+import CircleIcon from "@mui/icons-material/Circle";
+import PriorityIcon from "@mui/icons-material/ArrowUpward";
 
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -52,6 +56,7 @@ const useStyles = makeStyles((theme) => ({
     top: 0,
     position: "sticky",
     backgroundColor: theme.palette.pendingYellow.main,
+    // backgroundColor: theme.palette.primary.main,
   },
   groupRow: {
     backgroundColor: theme.palette.inputGray.main,
@@ -78,6 +83,11 @@ function Row(props) {
 
   const [open, setOpen] = useState(false);
   const [rowChecked, setRowChecked] = useState(false);
+
+  const totalPriority = group.keywords?.reduce(
+    (sum, k) => sum + (k.priority ?? 0),
+    0
+  );
 
   useEffect(() => {
     if (expandedRowId !== group.id) setOpen(false);
@@ -172,16 +182,29 @@ function Row(props) {
             }}
           />
         </TableCell>
-        <TableCell className={classes.tableCellButton} onClick={toggleCollapse}>
-          {group.lemma}
-        </TableCell>
         <TableCell
           className={classes.tableCellButton}
           onClick={toggleCollapse}
           component="th"
           scope="row"
         >
-          {group.keywords?.[0].name}
+          <div style={{ display: "inline-block" }}>
+            {group.keywords?.[0].name}
+          </div>
+          {totalPriority > 0 && (
+            <Tooltip title="high priority" placement="right">
+              <PriorityIcon
+                style={{
+                  color: "orange",
+                  fontSize: 17,
+                  marginLeft: 3,
+                }}
+              />
+            </Tooltip>
+          )}
+        </TableCell>
+        <TableCell className={classes.tableCellButton} onClick={toggleCollapse}>
+          {group.lemma}
         </TableCell>
         <TableCell>
           <IconButton
@@ -236,6 +259,15 @@ function Row(props) {
                         onClick={() => handleKeywordClick(keyword.id)}
                       >
                         {keyword.name}
+                        {keyword.priority > 0 && (
+                          <CircleIcon
+                            style={{
+                              color: "orange",
+                              fontSize: 8,
+                              marginLeft: 6,
+                            }}
+                          />
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -318,8 +350,8 @@ export default function KeywordTable(props) {
                   onChange={(event) => handleTableCheck(event.target.checked)}
                 />
               </TableCell>
-              <TableCell>Group Root</TableCell>
               <TableCell>Top Keyword</TableCell>
+              <TableCell>Group Root</TableCell>
               <TableCell />
             </TableRow>
           </TableHead>

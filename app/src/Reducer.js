@@ -19,6 +19,7 @@ const Reducer = (state, action) => {
     case "REFRESH_TABLE":
       return {
         ...state,
+        selectedKeywords: {},
         tableRefreshToggle: !state.tableRefreshToggle,
       };
     case "REFRESH_USER_STATS":

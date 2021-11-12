@@ -18,10 +18,10 @@ import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import { makeStyles } from "@material-ui/core/styles";
 import { iconProps } from "../utils";
 
-const FETCH_DELAY = 6;
+const COMMON_ATTRS_DELAY = 4;
 const POS_DELAY = 3;
-const LENGTH_DELAY = 4;
-const KWQ_DELAY = 3;
+const LENGTH_DELAY = 3;
+const KWQ_DELAY = 2;
 
 const dropdownIconSize = 30;
 const clearIconSize = 19;
@@ -231,7 +231,7 @@ export default function AdvancedSearch(props) {
     const controller = new AbortController();
     const timer = setTimeout(
       () => getCommonAttrs(controller),
-      FETCH_DELAY * 1000
+      COMMON_ATTRS_DELAY * 1000
     );
 
     setCaReqController(controller);

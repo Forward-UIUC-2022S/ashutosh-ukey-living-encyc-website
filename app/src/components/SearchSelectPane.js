@@ -78,6 +78,8 @@ export default function SearchSelectPane(props) {
   } = state;
 
   const labelType = tabToLabelType[curVerifyTab];
+  console.log("Hey", curVerifyTab, labelType);
+
   const numSelectedKeywords = Object.keys(selectedKeywords).length;
 
   const [userStats, setUserStats] = useState({});
@@ -105,7 +107,7 @@ export default function SearchSelectPane(props) {
       const { nameQuery, posPattern, lengthRange } = advSearchOpts;
 
       const queryParams = [];
-      if (labelType !== "keyword") queryParams.push("labelType=" + labelType);
+      queryParams.push("labelType=" + labelType);
       if (nameQuery?.length > 0) queryParams.push("nameQuery=" + nameQuery);
       if (posPattern?.length > 0) queryParams.push("posPattern=" + posPattern);
       if (typeof lengthRange?.[0] === "number")
@@ -117,6 +119,8 @@ export default function SearchSelectPane(props) {
       let res = await fetch(getOptsUrl);
       res = await res.json();
       dispatch({ type: "SET_KEYWORD_TABLE_OPTS", value: res });
+
+      console.log("Fetched table opts: ", res);
       // setKeywordOpts(res);
     }
 

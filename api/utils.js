@@ -1,6 +1,26 @@
 const adminList = process.env["ADMINS"]?.split(",");
 const MIN_SAME_LABELS = 2;
 
+function shuffleArray(array) {
+  let currentIndex = array.length,
+    randomIndex;
+
+  // While there remain elements to shuffle...
+  while (currentIndex != 0) {
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex],
+    ];
+  }
+
+  return array;
+}
+
 // Taken from https://www.tutorialspoint.com/finding-the-longest-common-consecutive-substring-between-two-strings-in-javascript
 function findCommonSubstr(str1 = "", str2 = "") {
   const s1 = [...str1];
@@ -67,7 +87,10 @@ function logSqlError(err) {
 }
 
 exports.MIN_SAME_LABELS = MIN_SAME_LABELS;
+
+exports.shuffleArray = shuffleArray;
 exports.findCommonSubstr = findCommonSubstr;
+
 exports.logSqlError = logSqlError;
 
 exports.isLoggedIn = isLoggedIn;

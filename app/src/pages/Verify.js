@@ -123,7 +123,10 @@ function DomainVerifySection() {
   async function markAndRefresh(label) {
     const res = await markSelected(selectedKeywordIds, label);
 
-    if (res.numAffected > 0) dispatch({ type: "REFRESH_TABLE" });
+    if (res.numAffected > 0) {
+      dispatch({ type: "REFRESH_TABLE" });
+      dispatch({ type: "REFRESH_USER_STATS" });
+    }
   }
 
   const labelKeywords = curVerifyTab === "domain";
