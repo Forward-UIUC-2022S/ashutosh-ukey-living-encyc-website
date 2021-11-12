@@ -47,7 +47,7 @@ function SideMenu() {
   const { url } = useRouteMatch();
   const classes = useStyles();
 
-  const curDeployedTabIdxs = [0, 1, 2, 4];
+  const curDeployedTabIdxs = [0, 1, 4];
   let sideMenuOpts = [
     { name: "Admin", href: `${url}/admin`, requireAdmin: true },
     { name: "Domain Relevance", href: `${url}/relevance`, tabIden: "domain" },
@@ -63,7 +63,7 @@ function SideMenu() {
     },
     { name: "Settings", href: `${url}/settings` },
   ];
-  // sideMenuOpts = curDeployedTabIdxs.map((i) => sideMenuOpts[i]);
+  sideMenuOpts = curDeployedTabIdxs.map((i) => sideMenuOpts[i]);
 
   return (
     <Box className={classes.sideContainer}>

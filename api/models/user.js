@@ -3,7 +3,7 @@ const EPSILON = 0.0001;
 
 // const assert = require("assert");
 
-const conAsync = require("../boot/db.js");
+const dbConnPool = require("../boot/db.js");
 const Keyword = require("./keyword.js");
 const Definition = require("./definition.js");
 const Tutorial = require("./tutorial.js");
@@ -19,7 +19,7 @@ function addAdminAttr(user) {
 }
 
 User.findOrCreate = async (googleUser) => {
-  const con = await conAsync;
+  const con = await dbConnPool;
   const userEmail = googleUser.email;
 
   const findUserByEmail = `SELECT * FROM user WHERE email=?`;
@@ -55,7 +55,7 @@ User.findOrCreate = async (googleUser) => {
 };
 
 User.getSummary = async (userId) => {
-  const con = await conAsync;
+  const con = await dbConnPool;
   const res = {};
 
   // Total number of keywords labeled by user
@@ -118,7 +118,7 @@ function testRatiosToNum(goodLabelRatio, badLabelRatio) {
 }
 
 async function getTestKeywords(userId) {
-  const con = await conAsync;
+  const con = await dbConnPool;
 
   // Calculate current ratios of test keywords labeled
   const getTotalLabeled = `
@@ -220,7 +220,7 @@ async function getTestKeywords(userId) {
 }
 
 User.getUnlabeledKeywords = async (userId, searchOpts, labelType) => {
-  const con = await conAsync;
+  const con = await dbConnPool;
 
   // Get keywords with unverified domain relevance
   let findKeywords = `
@@ -418,7 +418,7 @@ User.getUnlabeledKeywords = async (userId, searchOpts, labelType) => {
 };
 
 User.labelKeywords = async (userId, keywordIds, label) => {
-  const con = await conAsync;
+  const con = await dbConnPool;
   let numAffected = 0;
 
   async function labelHelper(keywordId) {
@@ -465,7 +465,7 @@ User.labelKeywords = async (userId, keywordIds, label) => {
 };
 
 User.getUnlabeledDefinitions = async (userId, keywordId) => {
-  const con = await conAsync;
+  const con = await dbConnPool;
 
   const findDefinitions = `
     SELECT id, content
@@ -490,7 +490,7 @@ User.getUnlabeledDefinitions = async (userId, keywordId) => {
 };
 
 User.labelDefinitions = async (userId, definitionIds, label) => {
-  const con = await conAsync;
+  const con = await dbConnPool;
   let numAffected = 0;
 
   async function labelHelper(definitionId) {
@@ -522,7 +522,7 @@ User.labelDefinitions = async (userId, definitionIds, label) => {
 };
 
 User.getUnlabeledTutorials = async (userId, keywordId) => {
-  const con = await conAsync;
+  const con = await dbConnPool;
 
   const findTutorials = `
     SELECT id, title, url, 
@@ -550,7 +550,7 @@ User.getUnlabeledTutorials = async (userId, keywordId) => {
 };
 
 User.labelTutorials = async (userId, tutorialIds, label) => {
-  const con = await conAsync;
+  const con = await dbConnPool;
   let numAffected = 0;
 
   async function labelHelper(tutorialId) {

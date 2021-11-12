@@ -21,6 +21,10 @@ function shuffleArray(array) {
   return array;
 }
 
+function getDbConnection(pool) {
+  return pool;
+}
+
 // Taken from https://www.tutorialspoint.com/finding-the-longest-common-consecutive-substring-between-two-strings-in-javascript
 function findCommonSubstr(str1 = "", str2 = "") {
   const s1 = [...str1];
@@ -96,6 +100,8 @@ exports.logSqlError = logSqlError;
 exports.isLoggedIn = isLoggedIn;
 exports.isLoggedInAdmin = isLoggedInAdmin;
 exports.isAdmin = isAdmin;
+
+exports.getDbConnection = getDbConnection;
 
 if (require.main === module) {
   const inp1 = ["machine learning algorithms"];

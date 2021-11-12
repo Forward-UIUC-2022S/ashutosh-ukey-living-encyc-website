@@ -1,9 +1,14 @@
 require("dotenv").config();
 
+const { getDbConnection } = require("./utils");
+
 const cors = require("cors");
 const express = require("express");
 const session = require("express-session");
+const MemoryStore = require('memorystore')(session)
 const passport = require("passport");
+
+// const MySQLStore = require('express-mysql-session')(session);
 
 const authRouter = require("./routes/auth");
 const keywordRouter = require("./routes/keyword");
@@ -11,7 +16,9 @@ const keywordVerifyRouter = require("./routes/keywordVerify");
 
 // Execute setup files
 const { proc: whooshProc } = require("./boot/whoosh");
-const conAsync = require("./boot/db");
+const dbConnPool = require("./boot/db");
+// const sessionStore = new MySQLStore({}, dbConnPool);
+
 require("./boot/auth");
 const app = express();
 
@@ -27,6 +34,10 @@ app.use(
 app.use(
   session({
     secret: process.env["SESSION_SECRET"],
+    // store: sessionStore,
+    store: new MemoryStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    }),
     resave: true,
     saveUninitialized: true,
   })
@@ -46,7 +57,7 @@ app.use("/auth", authRouter);
 
 // Gracefully exit server
 async function cleanup() {
-  const con = await conAsync;
+  const con = await dbConnPool;
 
   con.end();
   server.close();

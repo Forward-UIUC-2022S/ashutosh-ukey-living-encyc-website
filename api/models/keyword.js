@@ -1,13 +1,13 @@
 const MAX_SEARCH_RESULTS = 20;
 
 const { findCommonSubstr, MIN_SAME_LABELS } = require("../utils");
-const conAsync = require("../boot/db.js");
+const dbConnPool = require("../boot/db.js");
 
 const Keyword = {};
 
 Keyword.getSimilarAttrs = async (keywordIds) => {
   if (keywordIds.length === 0) return {};
-  const con = await conAsync;
+  const con = await dbConnPool;
 
   let getKeywordInfo = `
     SELECT id, name, pos
@@ -60,7 +60,7 @@ Keyword.getSimilarAttrs = async (keywordIds) => {
 };
 
 Keyword.get = async (keywordId) => {
-  const con = await conAsync;
+  const con = await dbConnPool;
 
   // Get basic keyword info
   let findKeyword = `
@@ -76,7 +76,7 @@ Keyword.get = async (keywordId) => {
 };
 
 Keyword.search = async (query) => {
-  const con = await conAsync;
+  const con = await dbConnPool;
 
   let sqlWhereClause = "";
   const sqlParams = [];
@@ -103,7 +103,7 @@ Keyword.search = async (query) => {
 
 // Handle race condition between multiple labelers
 Keyword.checkStableStatus = async (keywordId, fromStatus) => {
-  const con = await conAsync;
+  const con = await dbConnPool;
 
   const getKeywordStatus = `
     SELECT status
@@ -119,7 +119,7 @@ Keyword.checkStableStatus = async (keywordId, fromStatus) => {
 };
 
 async function getLabelCount(keywordId, label) {
-  const con = await conAsync;
+  const con = await dbConnPool;
 
   const getCount = `
     SELECT COUNT(*) AS count
@@ -134,7 +134,7 @@ async function getLabelCount(keywordId, label) {
 }
 
 Keyword.updateStatus = async (keywordId) => {
-  const con = await conAsync;
+  const con = await dbConnPool;
 
   const res = await Promise.all([
     getLabelCount(keywordId, "good"),
