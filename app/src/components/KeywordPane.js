@@ -117,7 +117,7 @@ const useStyles = makeStyles((theme) => ({
   titleContainer: {
     display: "flex",
     marginBottom: -14,
-    maxWidth: 180,
+    maxWidth: 185,
   },
   titleText: {
     fontSize: 18,
