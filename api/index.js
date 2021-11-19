@@ -6,8 +6,9 @@ const session = require("express-session");
 const passport = require("passport");
 
 const authRouter = require("./routes/auth");
+const adminRouter = require("./routes/admin");
 const keywordRouter = require("./routes/keyword");
-const keywordVerifyRouter = require("./routes/keywordVerify");
+const labelerRouter = require("./routes/labeler");
 
 // Execute setup files
 const { proc: whooshProc } = require("./boot/whoosh");
@@ -40,7 +41,8 @@ const server = app.listen(port, () => {
 });
 
 // Declare app routes
-app.use("/labeler", keywordVerifyRouter);
+app.use("/labeler", labelerRouter);
+app.use("/admin", adminRouter);
 app.use("/keywords", keywordRouter);
 app.use("/auth", authRouter);
 

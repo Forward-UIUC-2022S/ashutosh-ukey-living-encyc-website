@@ -54,6 +54,129 @@ User.findOrCreate = async (googleUser) => {
   }
 };
 
+User.getLabelerReport = async () => {
+  const con = await conAsync;
+  let res = {};
+
+  // Collect ground truth label performance
+  const getTruePositive = `
+    SELECT user_id, COUNT(*) AS count
+    FROM keyword_label
+    JOIN keyword
+      ON keyword.id = keyword_id
+    
+    WHERE label = 'test-good' AND status = 'pending-info'
+    GROUP BY user_id;
+  `;
+  let userTPs = con.query(getTruePositive);
+
+  const getTrueNegative = `
+    SELECT user_id, COUNT(*) AS count
+    FROM keyword_label
+    JOIN keyword
+      ON keyword.id = keyword_id
+    
+    WHERE label = 'test-bad' AND status = 'incorrect-domain'
+    GROUP BY user_id;
+  `;
+  let userTNs = con.query(getTrueNegative);
+
+  const getFalsePositive = `
+    SELECT user_id, COUNT(*) AS count
+    FROM keyword_label
+    JOIN keyword
+      ON keyword.id = keyword_id
+    
+    WHERE label = 'test-good' AND status = 'incorrect-domain'
+    GROUP BY user_id;
+  `;
+  let userFPs = con.query(getFalsePositive);
+
+  const getFalseNegative = `
+    SELECT user_id, COUNT(*) AS count
+    FROM keyword_label
+    JOIN keyword
+      ON keyword.id = keyword_id
+    
+    WHERE label = 'test-bad' AND status = 'pending-info'
+    GROUP BY user_id;
+  `;
+  let userFNs = con.query(getFalseNegative);
+
+  const getTotalGood = `
+    SELECT user_id, COUNT(*) AS count
+    FROM keyword_label
+    
+    WHERE label = 'good'
+    GROUP BY user_id;
+  `;
+  let userNumGoods = con.query(getTotalGood);
+
+  const getTotalBad = `
+  SELECT user_id, COUNT(*) AS count
+  FROM keyword_label
+
+  WHERE label = 'bad'
+  GROUP BY user_id;
+  `;
+  let userNumBads = con.query(getTotalBad);
+
+  // Create report for each user
+  const getUserBasicInfo = `
+    SELECT id, email, first_name, last_name 
+
+    FROM user
+  `;
+  let users = con.query(getUserBasicInfo);
+
+  // Execute queries and parallel and collect results
+  [
+    [userTPs],
+    [userTNs],
+    [userFPs],
+    [userFNs],
+    [userNumGoods],
+    [userNumBads],
+    [users],
+  ] = await Promise.all([
+    userTPs,
+    userTNs,
+    userFPs,
+    userFNs,
+    userNumGoods,
+    userNumBads,
+    users,
+  ]);
+
+  // console.log(userTPs, userTNs, userFPs, userFNs, users);
+
+  // Organize results
+  for (let user of users) {
+    const { id, email, first_name, last_name } = user;
+    res[id] = {
+      id: id,
+      email: email,
+      name: first_name + " " + last_name,
+      numTP: 0,
+      numTN: 0,
+      numFP: 0,
+      numFN: 0,
+      numGood: 0,
+      numBad: 0,
+    };
+  }
+
+  for (let stat of userTPs) res[stat["user_id"]].numTP = stat["count"];
+  for (let stat of userTNs) res[stat["user_id"]].numTN = stat["count"];
+  for (let stat of userFPs) res[stat["user_id"]].numFP = stat["count"];
+  for (let stat of userFNs) res[stat["user_id"]].numFN = stat["count"];
+  for (let stat of userNumGoods) res[stat["user_id"]].numGood = stat["count"];
+  for (let stat of userNumBads) res[stat["user_id"]].numBad = stat["count"];
+
+  res = Object.values(res);
+  return res;
+};
+
 User.getSummary = async (userId) => {
   const con = await conAsync;
   const res = {};

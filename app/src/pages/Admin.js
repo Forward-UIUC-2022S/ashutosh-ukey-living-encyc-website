@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Typography } from "@material-ui/core";
 import Button from "../components/Button";
@@ -9,6 +9,19 @@ export default function Admin() {
   const classes = useStyles();
   const [file, setFile] = useState();
   const [fileContent, setFileContent] = useState("");
+  const [userReports, setUserReports] = useState();
+
+  useEffect(() => {
+    async function getUserReport() {
+      let res = await fetch("/admin/reports");
+      res = await res.json();
+
+      console.log(res);
+      setUserReports(res);
+    }
+
+    getUserReport();
+  }, []);
 
   function onFileChange(event) {
     const newFile = event.target.files[0];
@@ -32,7 +45,7 @@ export default function Admin() {
       data: fileContent,
     };
 
-    fetch("/labeler/upload", {
+    fetch("/admin/upload", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -61,6 +74,13 @@ export default function Admin() {
         </div>
         {/* <Typography style={{ marginTop: 20 }}>Sample script: </Typography> */}
         {/*fileContent.length > 0 && fileContent*/}
+      </div>
+      <div style={{ marginTop: 35 }}>
+        <Typography variant="h4">User Performance</Typography>
+        {
+          // Use D3 to display the data
+          userReports ? JSON.stringify(userReports) : "loading"
+        }
       </div>
     </div>
   );

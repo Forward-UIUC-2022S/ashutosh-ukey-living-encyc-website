@@ -4,11 +4,6 @@ const { isLoggedIn, isLoggedInAdmin, logSqlError } = require("../utils");
 
 const router = express.Router();
 
-router.post("/upload", isLoggedInAdmin, (req, res) => {
-  console.log("File content on the server");
-  console.log(req.body);
-});
-
 // router.get("/keywords", async (req, res) => {
 router.get("/keywords", isLoggedIn, async (req, res) => {
   // const keywords = await User.getUnlabeledKeywords(1, {
