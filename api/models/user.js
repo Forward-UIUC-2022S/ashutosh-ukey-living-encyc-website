@@ -55,7 +55,7 @@ User.findOrCreate = async (googleUser) => {
 };
 
 User.getLabelerReport = async () => {
-  const con = await conAsync;
+  const con = await dbConnPool;
   let res = {};
 
   // Collect ground truth label performance
