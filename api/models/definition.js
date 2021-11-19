@@ -1,10 +1,10 @@
-const conAsync = require("../boot/db.js");
+const dbConnPool = require("../boot/db.js");
 const { MIN_SAME_LABELS } = require("../utils");
 
 const Definition = {};
 
 async function getLabelCount(definitionId, label) {
-  const con = await conAsync;
+  const con = await dbConnPool;
 
   const getCount = `
     SELECT COUNT(*) AS count
@@ -19,7 +19,7 @@ async function getLabelCount(definitionId, label) {
 }
 
 Definition.updateStatus = async (definitionId) => {
-  const con = await conAsync;
+  const con = await dbConnPool;
 
   const res = await Promise.all([
     getLabelCount(definitionId, "good"),

@@ -1,7 +1,8 @@
+// const mysql = require("mysql2/promise");
 const mysql = require("mysql2/promise");
 const bluebird = require("bluebird");
 
-const conAsync = mysql.createConnection({
+const pool = mysql.createPool({
   host: "localhost",
   user: process.env["MYSQL_USER"],
   password: process.env["MYSQL_PASS"],
@@ -12,7 +13,7 @@ const conAsync = mysql.createConnection({
 async function createTables() {
   return; 
   
-  const con = await conAsync;
+  const con = await dbConnPool;
   const createUser = `
     CREATE TABLE IF NOT EXISTS user(
       id INT NOT NULL AUTO_INCREMENT,
@@ -41,4 +42,4 @@ async function createTables() {
 }
 createTables();
 
-module.exports = conAsync;
+module.exports = pool;

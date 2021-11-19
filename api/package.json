@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "deploy": "export NODE_ENV=production && node index.js",
     "start": "nodemon index.js",
     "debug": "node inspect index.js"
   },
@@ -17,6 +18,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.2",
     "joi": "^17.4.2",
+    "memorystore": "^1.6.6",
     "mysql2": "^2.3.0",
     "passport": "^0.4.1",
     "passport-google-oauth2": "^0.2.0",
