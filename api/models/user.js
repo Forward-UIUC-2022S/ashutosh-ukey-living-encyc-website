@@ -240,6 +240,59 @@ function testRatiosToNum(goodLabelRatio, badLabelRatio) {
   return [numTestGood, numTestBad];
 }
 
+// Keyword groups where not all have been labeled
+async function getPartialLabeledKeywords(userId) {
+  const con = await dbConnPool;
+
+  // Get ground truth 'good' label keywords
+  const findPartialLabelKeywords = `
+    SELECT 
+      id, name,
+      root_id
+
+      -- Find all keywords for roots user has labeled
+      FROM
+        (
+          SELECT id, name, root_id
+  
+          FROM keyword
+          WHERE root_id IN
+            ( 
+              SELECT DISTINCT(root_id) 
+              FROM keyword_pages.keyword_label
+              JOIN keyword_pages.keyword 
+                ON id = keyword_id
+
+              WHERE user_id = ?
+            )
+        ) AS user_expanded_keywords
+
+      LEFT JOIN 
+        (
+          SELECT keyword_id 
+            
+          FROM keyword_pages.keyword_label 
+          WHERE user_id = ?
+        ) AS user_keywords
+
+        ON id = keyword_id
+  
+      WHERE keyword_id IS NULL;
+  `;
+  const [partialLabelKeywords] = await con.query(findPartialLabelKeywords, [
+    userId,
+    userId,
+  ]);
+  partialLabelKeywords.forEach((elem) => {
+    elem.priority = 3;
+  });
+
+  console.log(
+    `Returning ${partialLabelKeywords.length} partially labeled keywords`
+  );
+  return partialLabelKeywords;
+}
+
 async function getTestKeywords(userId) {
   const con = await dbConnPool;
 
@@ -464,11 +517,23 @@ User.getUnlabeledKeywords = async (userId, searchOpts, labelType) => {
   // Add test keywords to estimate user label accuracy
   if (labelType === "keyword") {
     const testKeywords = await getTestKeywords(userId);
+    const partialLabelKeywords = await getPartialLabeledKeywords(userId);
 
-    if (testKeywords.length > 0) {
-      const rootIds = roots.map((r) => r.id);
-      const testKeywordIds = testKeywords.map((k) => k.id);
-      const findTestKeywordRoots = `
+    // Remove duplicates
+    const priorityKeywords = testKeywords;
+    const seenKeywordIds = new Set(testKeywords.map((e) => e.id));
+
+    for (let kw of partialLabelKeywords) {
+      if (!seenKeywordIds.has(kw.id)) {
+        priorityKeywords.push(kw);
+        seenKeywordIds.add(kw.id);
+      }
+    }
+
+    if (priorityKeywords.length > 0) {
+      const priorityKeywordIds = priorityKeywords.map((k) => k.id);
+
+      const findPriorityKeywordRoots = `
         SELECT root.id, lemma
 
         FROM keyword 
@@ -477,13 +542,17 @@ User.getUnlabeledKeywords = async (userId, searchOpts, labelType) => {
         WHERE keyword.id IN (?)
         GROUP BY root.id
       `;
-      const [testRoots] = await con.query(findTestKeywordRoots, [
-        testKeywordIds,
+      const [priorityRoots] = await con.query(findPriorityKeywordRoots, [
+        priorityKeywordIds,
       ]);
-      roots = roots.filter((r) => rootIds.includes(r.id));
+      const priorityRootIds = priorityRoots.map((r) => r.id);
 
-      roots = testRoots.concat(roots);
-      keywords = testKeywords.concat(keywords);
+      // Remove duplicates
+      roots = roots.filter((r) => !priorityRootIds.includes(r.id));
+      keywords = keywords.filter((kw) => !priorityKeywordIds.includes(kw.id));
+
+      roots = priorityRoots.concat(roots);
+      keywords = priorityKeywords.concat(keywords);
     }
   }
 
@@ -500,17 +569,14 @@ User.getUnlabeledKeywords = async (userId, searchOpts, labelType) => {
       rootIdToPriority[kwRootId] += keyword.priority;
   }
 
-  for (let i = 0; i < roots.length; i++) {
-    const root = roots[i];
-    const rootPriority = rootIdToPriority[root.id];
+  roots.sort((rootA, rootB) => {
+    let keyA = rootIdToPriority[rootA.id] ?? 0,
+      keyB = rootIdToPriority[rootB.id] ?? 0;
 
-    if (rootPriority > 0) {
-      // Move root to array front
-      // TODO: add into seperate array, sort on that array then add to front
-      roots.splice(i, 1);
-      roots.unshift(root);
-    }
-  }
+    if (keyA > keyB) return -1;
+    if (keyA < keyB) return 1;
+    return 0;
+  });
 
   // Adding keywords to root
   const rootIdToIdx = {};
