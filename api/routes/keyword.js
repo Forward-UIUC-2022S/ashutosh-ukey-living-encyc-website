@@ -81,22 +81,27 @@ router.get("/common-attrs", async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
-  const keywords = await Keyword.search(req.query.query);
+  const keywords = await Keyword.search(
+    req.query.query,
+    req.query.isForDisplay
+  );
   res.send(keywords);
 });
 
 router.get("/:id", async (req, res) => {
-  const curUri = "/keyword";
-
   let hasAborted = false;
   req.on("close", function (err) {
     hasAborted = true;
     res.end();
   });
+  let keyword;
 
-  const keyword = await Keyword.get(req.params.id);
-
-  await Promise.all([addWikiInfo(keyword), addExampleSents(keyword)]);
+  if (req.query.displayInfo) {
+    keyword = await Keyword.getDisplayInfo(req.params.id);
+  } else {
+    keyword = await Keyword.get(req.params.id);
+    await Promise.all([addWikiInfo(keyword), addExampleSents(keyword)]);
+  }
 
   try {
     checkAbort(hasAborted);

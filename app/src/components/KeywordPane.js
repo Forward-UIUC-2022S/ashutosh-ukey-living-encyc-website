@@ -15,8 +15,8 @@ import Checkbox from "@mui/material/Checkbox";
 import { Box, Typography, Icon } from "@material-ui/core";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
-import { makeStyles } from "@material-ui/core/styles";
-import { iconProps, staticButtonColorStyle } from "../utils";
+import { makeStylesStable } from "../utils";
+import { iconProps, staticButtonColorStyle, fetchApi } from "../utils";
 
 const loadingComponentProps = {
   size: 50,
@@ -34,7 +34,7 @@ const verifyButtonStyles = {
   marginRight: 10,
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStylesStable((theme) => ({
   buttonText: {
     fontSize: 10,
     padding: "2px 8px",
@@ -199,7 +199,7 @@ export default function KeywordPane(props) {
 
   async function markDefinitions(label) {
     const labelUrl = `/labeler/definitions/mark?label=${label}`;
-    let res = await fetch(labelUrl, {
+    let res = await fetchApi(labelUrl, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -226,7 +226,7 @@ export default function KeywordPane(props) {
 
   async function markTutorials(label) {
     const labelUrl = `/labeler/tutorials/mark?label=${label}`;
-    let res = await fetch(labelUrl, {
+    let res = await fetchApi(labelUrl, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -276,7 +276,7 @@ export default function KeywordPane(props) {
 
         let keywordInfoUrl = "/keywords/" + keywordId;
 
-        let res = await fetch(keywordInfoUrl, {
+        let res = await fetchApi(keywordInfoUrl, {
           method: "GET",
           signal: controller.signal,
         });
@@ -292,7 +292,7 @@ export default function KeywordPane(props) {
       if (typeof keywordId === "number") {
         let keywordDefinitionsUrl = `/labeler/keyword/${keywordId}/definitions`;
 
-        let res = await fetch(keywordDefinitionsUrl, {
+        let res = await fetchApi(keywordDefinitionsUrl, {
           method: "GET",
           signal: controller.signal,
         });
@@ -308,7 +308,7 @@ export default function KeywordPane(props) {
       if (typeof keywordId === "number") {
         let keywordTutorialsUrl = `/labeler/keyword/${keywordId}/tutorials`;
 
-        let res = await fetch(keywordTutorialsUrl, {
+        let res = await fetchApi(keywordTutorialsUrl, {
           method: "GET",
           signal: controller.signal,
         });

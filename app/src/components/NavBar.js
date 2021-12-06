@@ -1,4 +1,3 @@
-import { proxy } from "../../package.json";
 import { useContext, useEffect, useState } from "react";
 import { useLocation, useHistory } from "react-router-dom";
 import { Context } from "../Store";
@@ -9,10 +8,12 @@ import LogoutIcon from "@material-ui/icons/ExitToApp";
 
 import Button from "./Button";
 import TransparentButton from "./TransparentButton";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStylesStable, fetchApi } from "../utils";
 // import TransparentLink from "./TransparentLink";
 
-const useStyles = makeStyles((theme) => ({
+const proxy = process.env.REACT_APP_API_BASE_URL;
+
+const useStyles = makeStylesStable((theme) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -54,10 +55,11 @@ export default function NavBar() {
   useEffect(() => {
     async function checkLoggedIn() {
       try {
-        let res = await fetch("/auth/verify", {
+        let res = await fetchApi("/auth/verify", {
           method: "GET",
           credentials: "include",
         });
+        console.log(res);
         res = await res.json();
         console.log("Google user info: ", res);
 
@@ -89,12 +91,17 @@ export default function NavBar() {
     window.open(`${proxy}/auth/logout`, "_self");
   }
 
+  function clearSearchQuery() {
+    dispatch({ type: "CLEAR_KEYWORD_DISPLAY_QUERY" });
+  }
+
   return (
     <div className={classes.root}>
       <Button
         clickedClassName={classes.clickedButton}
         name="Search"
         href="/search"
+        onClick={clearSearchQuery}
       />
       {isLoggedIn && (
         <Button

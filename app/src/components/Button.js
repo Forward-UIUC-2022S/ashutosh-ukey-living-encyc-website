@@ -1,10 +1,10 @@
 import { useLocation } from "react-router-dom";
 
 import { Button as MuiButton } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStylesStable } from "../utils";
 import { Link } from "react-router-dom";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStylesStable((theme) => ({
   label: {
     textTransform: "capitalize",
     padding: "4px 26px",

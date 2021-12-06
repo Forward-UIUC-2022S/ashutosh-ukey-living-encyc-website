@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStylesStable } from "../utils";
 import { staticButtonColorStyle } from "../utils";
 
 const sideButtonStyle = {
@@ -17,7 +17,7 @@ const verifyAllButtonStyles = {
   marginRight: 10,
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStylesStable((theme) => ({
   markButtonsContainer: {
     display: "flex",
     alignItems: "center",

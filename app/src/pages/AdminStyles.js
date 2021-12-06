@@ -1,11 +1,11 @@
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStylesStable } from "../utils";
 
 const verifyButtonStyles = {
   width: "25%",
   border: "2px solid",
   borderRadius: 10,
 };
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStylesStable((theme) => ({
   fileInput: {
     marginTop: 40,
     marginBottom: 15,

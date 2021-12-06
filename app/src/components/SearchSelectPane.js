@@ -9,11 +9,11 @@ import AdvancedSearch from "./AdvancedSearch";
 import { Box, TextField, Typography } from "@material-ui/core";
 // import { DataGrid } from "@material-ui/data-grid";
 
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStylesStable, fetchApi } from "../utils";
 
 const FETCH_DELAY = 5;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStylesStable((theme) => ({
   container: {
     flex: 3.5,
     marginTop: 20,
@@ -92,7 +92,7 @@ export default function SearchSelectPane(props) {
     async function getUserStats() {
       let getUserStatsUrl = `/labeler`;
 
-      let res = await fetch(getUserStatsUrl);
+      let res = await fetchApi(getUserStatsUrl);
       res = await res.json();
       setUserStats(res);
     }
@@ -116,7 +116,7 @@ export default function SearchSelectPane(props) {
         queryParams.push("maxLength=" + lengthRange[1]);
 
       if (queryParams.length > 0) getOptsUrl += "?" + queryParams.join("&");
-      let res = await fetch(getOptsUrl);
+      let res = await fetchApi(getOptsUrl);
       res = await res.json();
       dispatch({ type: "SET_KEYWORD_TABLE_OPTS", value: res });
 

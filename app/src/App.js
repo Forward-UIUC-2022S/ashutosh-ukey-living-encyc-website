@@ -10,11 +10,12 @@ import { Context } from "./Store";
 import NavBar from "./components/NavBar";
 import PrivateRoute from "./components/PrivateRoute";
 
-import HomePage from "./pages/Home";
+import SearchPage from "./pages/Search";
 import VerifyPage from "./pages/Verify";
+import KeywordPage from "./pages/Keyword";
 
 export default function App() {
-  const [_, dispatch] = useContext(Context);
+  // const [_, dispatch] = useContext(Context);
 
   return (
     <React.Fragment>
@@ -22,11 +23,12 @@ export default function App() {
         <NavBar />
 
         <Switch>
+          <PrivateRoute path="/verify" component={VerifyPage} />
           <Route exact path="/">
             <Redirect to="/search" />
           </Route>
-          <PrivateRoute path="/verify" component={VerifyPage} />
-          <Route path="/search" component={HomePage} />
+          <Route path="/search" component={SearchPage} />
+          <Route path="/keyword/:id" component={KeywordPage} />
         </Switch>
       </Router>
     </React.Fragment>

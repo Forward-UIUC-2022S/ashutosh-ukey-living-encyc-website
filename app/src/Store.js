@@ -2,6 +2,7 @@ import React, { createContext, useReducer } from "react";
 import Reducer from "./Reducer";
 
 const initialState = {
+  displayKeywordQuery: null,
   isLoggedIn: false,
   isAdmin: false,
   user: {},

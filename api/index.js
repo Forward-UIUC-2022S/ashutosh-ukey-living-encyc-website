@@ -5,7 +5,7 @@ const { getDbConnection } = require("./utils");
 const cors = require("cors");
 const express = require("express");
 const session = require("express-session");
-const MemoryStore = require('memorystore')(session)
+const MemoryStore = require("memorystore")(session);
 const passport = require("passport");
 
 // const MySQLStore = require('express-mysql-session')(session);
@@ -32,12 +32,13 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(
   session({
     secret: process.env["SESSION_SECRET"],
     // store: sessionStore,
     store: new MemoryStore({
-      checkPeriod: 86400000 // prune expired entries every 24h
+      checkPeriod: 86400000, // prune expired entries every 24h
     }),
     resave: true,
     saveUninitialized: true,

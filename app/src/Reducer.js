@@ -11,6 +11,16 @@ function setDifference(arr1, arr2) {
 
 const Reducer = (state, action) => {
   switch (action.type) {
+    case "SET_KEYWORD_DISPLAY_QUERY":
+      return {
+        ...state,
+        displayKeywordQuery: action.value,
+      };
+    case "CLEAR_KEYWORD_DISPLAY_QUERY":
+      return {
+        ...state,
+        displayKeywordQuery: null,
+      };
     case "TOGGLE_ADV_SEARCH":
       return {
         ...state,

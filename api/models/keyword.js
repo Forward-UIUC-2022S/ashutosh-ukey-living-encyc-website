@@ -63,7 +63,7 @@ Keyword.get = async (keywordId) => {
   const con = await dbConnPool;
 
   // Get basic keyword info
-  let findKeyword = `
+  const findKeyword = `
     SELECT id, name
 
     FROM keyword
@@ -75,13 +75,102 @@ Keyword.get = async (keywordId) => {
   return rows[0];
 };
 
-Keyword.search = async (query) => {
+/* 
+  Verified and good quality info that
+  we want to display to users (i.e. not manual labelers)
+
+  TODO: change to use verified data
+*/
+Keyword.getDisplayInfo = async (keywordId) => {
   const con = await dbConnPool;
 
-  let sqlWhereClause = "";
+  // Get definition and wikiurl
+  const getBasicInfo = `
+    SELECT 
+      name, wikiurl,
+      actual_def, generated_def
+
+
+    FROM keyword
+    JOIN display_definition 
+      ON keyword.id = keyword_id 
+
+    WHERE keyword.id = ?
+  `;
+  let [rows, _] = await con.query(getBasicInfo, [keywordId]);
+  const keywordInfo = rows[0];
+
+  // Get surveys
+  const getSurveys = `
+    SELECT 
+      url, title, authors, 
+      year, num_citation 
+
+    FROM survey 
+    WHERE keyword_id = ?
+  `;
+  [rows, _] = await con.query(getSurveys, [keywordId]);
+  keywordInfo["surveys"] = rows;
+
+  // Get functionally similar keywords
+  const getFuncSimilar = `
+    SELECT 
+      keyword_id2 AS id, keyword.name,
+      score
+
+    FROM related_keyword 
+    JOIN keyword
+      ON keyword_id2 = keyword.id
+
+    WHERE keyword_id1 = ?
+      AND relationship = 'word2vecf'
+
+    ORDER BY score DESC
+    LIMIT 10
+  `;
+  [rows, _] = await con.query(getFuncSimilar, [keywordId]);
+  keywordInfo["funcSimilarKwds"] = rows;
+
+  // Get semantically similar keywords
+  const getSemSimilar = `
+    SELECT 
+      keyword_id2 AS id, keyword.name,
+      score
+
+    FROM related_keyword 
+    JOIN keyword
+      ON keyword_id2 = keyword.id
+
+    WHERE keyword_id1 = ?
+      AND relationship = 'word2vec'
+
+    ORDER BY score DESC
+    LIMIT 10
+  `;
+  [rows, _] = await con.query(getSemSimilar, [keywordId]);
+  keywordInfo["semSimilarKwds"] = rows;
+
+  return keywordInfo;
+};
+
+// TODO: Add flag for display info or not
+Keyword.search = async (query, isForDisplay) => {
+  const con = await dbConnPool;
+
+  let sqlWhereClause = "ORDER BY id";
   const sqlParams = [];
 
-  if (query?.length > 0) {
+  if (isForDisplay) {
+    sqlWhereClause = `
+      JOIN display_definition 
+      ON keyword_id = keyword.id 
+
+      WHERE LENGTH(generated_def) > 0
+    `;
+    if (query?.length > 0)
+      sqlWhereClause += " AND name LIKE ? ORDER BY LENGTH(name) ";
+    else sqlWhereClause += " ORDER BY id ";
+  } else if (query?.length > 0) {
     sqlWhereClause = `WHERE name LIKE ? ORDER BY LENGTH(name)`;
 
     const sqlSearchPattern = `%${query.toLowerCase()}%`;

@@ -29,11 +29,11 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import CircleIcon from "@mui/icons-material/Circle";
 import PriorityIcon from "@mui/icons-material/ArrowUpward";
 
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStylesStable } from "../utils";
 
 const HOVER_DELAY = 4;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStylesStable((theme) => ({
   noDataContainer: {
     position: "absolute",
     display: "flex",

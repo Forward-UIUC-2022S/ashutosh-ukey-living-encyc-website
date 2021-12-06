@@ -14,6 +14,7 @@ import PrivateRoute from "../components/PrivateRoute";
 import SearchSelectPane from "../components/SearchSelectPane";
 
 import useStyles from "./VerifyStyles";
+import { fetchApi } from "../utils";
 
 function Verify() {
   const { path } = useRouteMatch();
@@ -91,7 +92,7 @@ function SideMenu() {
 async function markSelected(selectedKeywordIds, label) {
   const labelUrl = `/labeler/keywords/mark?label=${label}`;
 
-  let res = await fetch(labelUrl, {
+  let res = await fetchApi(labelUrl, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

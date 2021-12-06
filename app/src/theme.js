@@ -1,7 +1,7 @@
-import { createMuiTheme } from "@material-ui/core/styles";
+import { createTheme } from "@material-ui/core/styles";
 
 // A custom theme for this app
-const theme = createMuiTheme({
+const theme = createTheme({
   typography: {
     // fontSize: 12
   },
@@ -14,6 +14,7 @@ const theme = createMuiTheme({
       main: "#70B1C8",
     },
     inputGray: {
+      light: "#EDEDED",
       main: "#E4E4E4",
     },
     backGray: {

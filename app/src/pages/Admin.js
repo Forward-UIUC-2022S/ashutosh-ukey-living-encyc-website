@@ -4,6 +4,7 @@ import { Typography } from "@material-ui/core";
 import Button from "../components/Button";
 
 import useStyles from "./AdminStyles";
+import { fetchApi } from "../utils";
 
 export default function Admin() {
   const classes = useStyles();
@@ -13,7 +14,7 @@ export default function Admin() {
 
   useEffect(() => {
     async function getUserReport() {
-      let res = await fetch("/admin/reports");
+      let res = await fetchApi("/admin/reports");
       res = await res.json();
 
       console.log(res);
@@ -45,7 +46,7 @@ export default function Admin() {
       data: fileContent,
     };
 
-    fetch("/admin/upload", {
+    fetchApi("/admin/upload", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

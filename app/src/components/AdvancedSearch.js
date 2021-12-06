@@ -15,8 +15,8 @@ import ClearIcon from "@mui/icons-material/DoNotDisturbAlt";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 
-import { makeStyles } from "@material-ui/core/styles";
-import { iconProps } from "../utils";
+import { makeStylesStable } from "../utils";
+import { iconProps, fetchApi } from "../utils";
 
 const COMMON_ATTRS_DELAY = 4;
 const POS_DELAY = 3;
@@ -26,7 +26,7 @@ const KWQ_DELAY = 2;
 const dropdownIconSize = 30;
 const clearIconSize = 19;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStylesStable((theme) => ({
   topBanner: { display: "flex", justifyContent: "space-between" },
   clearButtonText: {
     color: "black",
@@ -191,7 +191,7 @@ export default function AdvancedSearch(props) {
   useEffect(() => {
     async function getKeywordOpts() {
       const searchKeywordsUrl = `/keywords?query=${searchText}`;
-      let res = await fetch(searchKeywordsUrl, {
+      let res = await fetchApi(searchKeywordsUrl, {
         method: "GET",
       });
       res = await res.json();
@@ -209,7 +209,7 @@ export default function AdvancedSearch(props) {
       if (searchKeywords.length > 0) {
         let keywordsIdsUri = searchKeywords.map((e) => e.id).join(",");
         const searchKeywordsUrl = `/keywords/common-attrs?ids=${keywordsIdsUri}`;
-        let res = await fetch(searchKeywordsUrl, {
+        let res = await fetchApi(searchKeywordsUrl, {
           signal: controller.signal,
           method: "GET",
         });

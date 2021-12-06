@@ -1,14 +1,14 @@
 import { useContext } from "react";
 import { Context } from "../Store";
 
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStylesStable } from "../utils";
 
 import { Typography } from "@material-ui/core";
 import IconButton from "@mui/material/IconButton";
 
 import CancelIcon from "@mui/icons-material/Cancel";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStylesStable((theme) => ({
   root: {
     display: "inline-block",
     alignItems: "center",

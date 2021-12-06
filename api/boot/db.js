@@ -3,7 +3,7 @@ const mysql = require("mysql2/promise");
 const bluebird = require("bluebird");
 
 const pool = mysql.createPool({
-  host: "localhost",
+  host: process.env["MYSQL_HOST"],
   user: process.env["MYSQL_USER"],
   password: process.env["MYSQL_PASS"],
   database: process.env["MYSQL_DB"],
@@ -11,8 +11,8 @@ const pool = mysql.createPool({
 });
 
 async function createTables() {
-  return; 
-  
+  return;
+
   const con = await dbConnPool;
   const createUser = `
     CREATE TABLE IF NOT EXISTS user(
