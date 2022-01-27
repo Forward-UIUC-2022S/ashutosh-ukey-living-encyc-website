@@ -176,9 +176,12 @@ Keyword.search = async (query, isForDisplay) => {
     if (query?.length > 0) {
       sqlWhereClause += " AND name LIKE ? ORDER BY LENGTH(name) ";
       sqlParams.push(getSqlSearchPattern(query));
-    } else sqlWhereClause += " ORDER BY id ";
+    } else {
+      sqlWhereClause += " ORDER BY id ";
+    }
   } else if (query?.length > 0) {
     sqlWhereClause = `WHERE name LIKE ? ORDER BY LENGTH(name)`;
+
     sqlParams.push(getSqlSearchPattern(query));
   }
 
