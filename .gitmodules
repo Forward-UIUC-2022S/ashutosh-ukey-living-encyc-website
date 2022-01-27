@@ -1,0 +1,12 @@
+[submodule "python-modules/angeline-prabakar-keyword-usage-within-domain"]
+	path = python-modules/angeline-prabakar-keyword-usage-within-domain
+	url = https://github.com/Forward-UIUC-2021F/angeline-prabakar-keyword-usage-within-domain.git
+[submodule "python-modules/henrik-tseng-meaningful-relations-between-keywords"]
+	path = python-modules/henrik-tseng-meaningful-relations-between-keywords
+	url = https://github.com/Forward-UIUC-2021F/henrik-tseng-meaningful-relations-between-keywords.git
+[submodule "python-modules/naifu-zheng-example-sentence-extraction"]
+	path = python-modules/naifu-zheng-example-sentence-extraction
+	url = https://github.com/Forward-UIUC-2021F/naifu-zheng-example-sentence-extraction.git
+[submodule "python-modules/zicheng-ma-educational-website-and-courses-finder-for-keyword"]
+	path = python-modules/zicheng-ma-educational-website-and-courses-finder-for-keyword
+	url = https://github.com/Forward-UIUC-2021F/zicheng-ma-educational-website-and-courses-finder-for-keyword.git

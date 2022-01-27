@@ -108,6 +108,8 @@ Keyword.getDisplayInfo = async (keywordId) => {
 
     FROM survey 
     WHERE keyword_id = ?
+
+    LIMIT 15
   `;
   [rows, _] = await con.query(getSurveys, [keywordId]);
   keywordInfo["surveys"] = rows;
@@ -153,6 +155,10 @@ Keyword.getDisplayInfo = async (keywordId) => {
   return keywordInfo;
 };
 
+function getSqlSearchPattern(query) {
+  return `%${query.toLowerCase()}%`;
+}
+
 // TODO: Add flag for display info or not
 Keyword.search = async (query, isForDisplay) => {
   const con = await dbConnPool;
@@ -165,16 +171,15 @@ Keyword.search = async (query, isForDisplay) => {
       JOIN display_definition 
       ON keyword_id = keyword.id 
 
-      WHERE LENGTH(generated_def) > 0
+      -- WHERE LENGTH(generated_def) > 0
     `;
-    if (query?.length > 0)
+    if (query?.length > 0) {
       sqlWhereClause += " AND name LIKE ? ORDER BY LENGTH(name) ";
-    else sqlWhereClause += " ORDER BY id ";
+      sqlParams.push(getSqlSearchPattern(query));
+    } else sqlWhereClause += " ORDER BY id ";
   } else if (query?.length > 0) {
     sqlWhereClause = `WHERE name LIKE ? ORDER BY LENGTH(name)`;
-
-    const sqlSearchPattern = `%${query.toLowerCase()}%`;
-    sqlParams.push(sqlSearchPattern);
+    sqlParams.push(getSqlSearchPattern(query));
   }
 
   let searchKeywords = `

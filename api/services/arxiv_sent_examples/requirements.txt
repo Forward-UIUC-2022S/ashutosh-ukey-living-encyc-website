@@ -1,8 +1,0 @@
-click==8.0.1
-joblib==1.0.1
-mysql-connector-python==8.0.26
-nltk==3.6.3
-protobuf==3.18.0
-regex==2021.9.24
-tqdm==4.62.3
-Whoosh==2.7.4

@@ -9,8 +9,8 @@ const useStyles = makeStylesStable((theme) => ({
     alignItems: "center",
     justifyContent: "center",
     // padding: "10px 20px",
-    height: 74,
-    width: "16ch",
+    height: 50,
+    width: "22ch",
     backgroundColor: theme.palette.inputGray.light,
     border: "3px solid",
     borderColor: theme.palette.verifyGreen.main,
@@ -19,7 +19,7 @@ const useStyles = makeStylesStable((theme) => ({
   text: {
     verticalAlign: "middle",
     textAlign: "center",
-    maxWidth: "12ch",
+    maxWidth: "20ch",
     fontSize: 13,
   },
 }));

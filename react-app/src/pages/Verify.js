@@ -64,7 +64,7 @@ function SideMenu() {
     },
     { name: "Settings", href: `${url}/settings` },
   ];
-  sideMenuOpts = curDeployedTabIdxs.map((i) => sideMenuOpts[i]);
+  // sideMenuOpts = curDeployedTabIdxs.map((i) => sideMenuOpts[i]);
 
   return (
     <Box className={classes.sideContainer}>

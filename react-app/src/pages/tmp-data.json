@@ -1,0 +1,303 @@
+{
+  "timeline": {
+    "2008": 192,
+    "2015": 1788,
+    "2014": 1596,
+    "2019": 6694,
+    "1999": 23,
+    "2005": 73,
+    "2018": 4658,
+    "2013": 1377,
+    "2020": 5701,
+    "2002": 32,
+    "2016": 2411,
+    "2012": 1183,
+    "2010": 523,
+    "2011": 717,
+    "2017": 2990,
+    "2007": 158,
+    "2003": 64,
+    "2009": 336,
+    "2006": 87,
+    "1998": 18,
+    "2001": 35,
+    "2004": 70,
+    "2000": 30,
+    "1996": 20,
+    "1997": 18,
+    "1994": 17,
+    "1995": 11
+  },
+  "references": [
+    "https://www.geeksforgeeks.org/data-structures/",
+    "https://en.wikipedia.org/wiki/Data_structure",
+    "https://searchsqlserver.techtarget.com/definition/data-structure",
+    "https://towardsdatascience.com/8-common-data-structures-every-programmer-must-know-171acf6a1a42",
+    "https://www.programiz.com/dsa/data-structure-types",
+    "https://www.codecademy.com/resources/blog/why-data-structures/",
+    "https://csveda.com/data-structure/applications-of-data-structures/",
+    "https://www.geeksforgeeks.org/real-time-application-of-data-structures/",
+    "https://medium.com/geekculture/applications-of-data-structures-6ab9920ea3e5",
+    "https://dzone.com/articles/data-structures-and-their-applications",
+    "https://www.quora.com/What-are-the-applications-of-data-structures",
+    "https://www.tutorialspoint.com/data_structures_algorithms/index.htm",
+    "https://en.wikipedia.org/wiki/Data_structure",
+    "https://www.britannica.com/technology/data-structure",
+    "https://ieeexplore.ieee.org/document/1408790",
+    "https://gist.github.com/CMCDragonkai/d266a3055735545447439f0fa662a0e1",
+    "https://www.sigcis.org/files/A%20brief%20history.pdf",
+    "https://www.quora.com/Who-invented-data-structures-like-stack-queues-and-linked-lists",
+    "https://emerginged.com/blogs/emerginged-blog/eight-data-structures-every-programmer-has-to-know",
+    "https://www.integralist.co.uk/posts/data-types-and-data-structures/",
+    "https://towardsdatascience.com/8-common-data-structures-every-programmer-must-know-171acf6a1a42",
+    "https://www.programiz.com/dsa/data-structure-types",
+    "https://en.wikipedia.org/wiki/List_of_data_structures",
+    "https://www.geeksforgeeks.org/data-structures/"
+  ],
+  "article": [
+    {
+      "content": "Data structure is a storage that is used to store and organize data. It is a way of arranging data on a computer so that it can be accessed efficiently. For example, we can store a list of items having the same data-type using the array data structure. Learn any programming language from scratch and understand all its fundamentals concepts for a strong programming foundation in the easiest possible manner with help of GeeksforGeeks Language Foundation Courses. Get interview-centric live online classes on Data Structure and Algorithms from any geographical location to enhance your problem-solving & programming skills."
+    },
+    {
+      "heading": "History",
+      "content": "Git is a distributed version control system that operates on a directory of files. It is a history tree that supports the features of the history log. Git uses the snapshot method for encoding states where the snapshots are \"lazy\", and only after a git gc does it change to using the delta method. Even with this delta compression applied at git gc, binary files are still problematic. This isn't because of some fundamental difference between text data and binary data, but mainly due to the way programs create binary blobs. At the same time, compression is often applied immediately to the binary file which happens to PDF, JPEG, MPEG, DOC, DOCX and more."
+    },
+    {
+      "heading": "Types",
+      "content": "When we think of data structures, there are generally four forms:. A data structure is a collection of data type 'values' which are stored and organized in such a way that it allows for efficient access and modification. In some cases a data structure can become the underlying implementation for a particular data type. An abstract data type (ADT) describes the expected behaviour associated with a concrete data structure. In an array, elements in memory are arranged in continuous memory. The type of elements that can be stored in the form of arrays is determined by the programming language. Stack data structure works in the LIFO principle, which is, the last element stored in a stack will be removed first. Queue data structure, which works just like a queue of people in the ticket counter where first person on the queue will get the ticket first."
+    },
+    {
+      "heading": "Applications",
+      "content": "The following computer problems can be solved using Data Structures and Algorithms. There are three common problems that applications face now-a-days: Data Search, Multiple Requests and Data Mining. What is a Data Structure? There can be many definitions for a data structure, but the easiest one to understand is the following:. A data structure is a collection of values. The values can have relationships among them and they can have functions applied to them. Each one is different in what it can do and what it is best used for. Arrays are the simplest data structures that store items of the same data type. Graphs are a data structure where data is stored in a series of interconnected vertices and edges."
+    }
+  ],
+  "topResearchers": [
+    {
+      "id": 13650,
+      "name": "Jiawei Han",
+      "score": 13344,
+      "photoUrl": "https://ws.engr.illinois.edu/directory/viewphoto.aspx?id=4947&s=300&type=portrait",
+      "affiliation": "university of illinois at urbana champaign",
+      "position": "Michael Aiken Chair"
+    },
+    {
+      "id": 6250,
+      "name": "Marth, Gabor",
+      "score": 12236,
+      "photoUrl": "https://simonsfoundation.imgix.net/wp-content/uploads/sites/2/2017/07/25185730/GaborMarth250.jpg?auto=format&q=90",
+      "affiliation": "university of utah",
+      "position": ""
+    },
+    {
+      "id": 8512,
+      "name": "Marth, Gabor",
+      "score": 12236,
+      "photoUrl": "https://healthcare.utah.edu/publicaffairs/news/2014/images/marth-yandell.jpg",
+      "affiliation": "university of utah",
+      "position": ""
+    },
+    {
+      "id": 11696,
+      "name": "Charles Leiserson",
+      "score": 11176,
+      "photoUrl": "https://www.csail.mit.edu/sites/default/files/styles/headshot/public/images/people/profile/Charles%20Leiserson.jpg?h=eeb21fa4&itok=FhMXr-4d",
+      "affiliation": "massachusetts institute of technology",
+      "position": "Edwin Sibley Webster Professor of EE; "
+    },
+    {
+      "id": 15574,
+      "name": "Robert Tarjan",
+      "score": 10906,
+      "photoUrl": "https://www.cs.princeton.edu/sites/all/modules/custom/cs_people/generate_thumbnail.php?id=32&thumb=",
+      "affiliation": "princeton university",
+      "position": "  James S. McDonnell Distinguished University Professor "
+    },
+    {
+      "id": 11735,
+      "name": "Ronald Rivest",
+      "score": 10523,
+      "photoUrl": "https://people.csail.mit.edu/rivest/photos/rivest_photo.jpg",
+      "affiliation": "massachusetts institute of technology",
+      "position": "Institute Professor"
+    },
+    {
+      "id": 12759,
+      "name": "Thomas H. Cormen",
+      "score": 10515,
+      "photoUrl": "https://web.cs.dartmouth.edu/sites/department_computer_science/files/styles/profile_portrait/public/237_original.jpg?itok=bWpco7ax",
+      "affiliation": "dartmouth college",
+      "position": "Professor of Computer Science"
+    },
+    {
+      "id": 2456,
+      "name": "Steven Salzberg",
+      "score": 10181,
+      "photoUrl": "https://www.bme.jhu.edu/wp-content/uploads/2019/10/Steven-Salzberg.jpg",
+      "affiliation": "johns hopkins university",
+      "position": "BLOOMBERG DISTINGUISHED PROFESSOR"
+    },
+    {
+      "id": 5455,
+      "name": "Leonidas Guibas",
+      "score": 9316,
+      "photoUrl": "https://geometry.stanford.edu/member/guibas/images/Guibas_Photo.jpg",
+      "affiliation": "stanford university",
+      "position": null
+    },
+    {
+      "id": 11684,
+      "name": "David Karger",
+      "score": 9162,
+      "photoUrl": "http://people.csail.mit.edu/karger/karger300.jpg",
+      "affiliation": "massachusetts institute of technology",
+      "position": "Professor of CS and Engineering"
+    },
+    {
+      "id": 11713,
+      "name": "Robert Morris",
+      "score": 8551,
+      "photoUrl": "https://www.eecs.mit.edu/sites/default/files/person-photos/morris_0.jpg",
+      "affiliation": "massachusetts institute of technology",
+      "position": "Professor of CS and Engineering"
+    },
+    {
+      "id": 11681,
+      "name": "M. Frans Kaashoek",
+      "score": 7517,
+      "photoUrl": "https://www.eecs.mit.edu/sites/default/files/person-photos/kaashoek_0.jpg",
+      "affiliation": "massachusetts institute of technology",
+      "position": "Charles A. Piper (1935) Professor "
+    },
+    {
+      "id": 5211,
+      "name": "David Mount ",
+      "score": 7431,
+      "photoUrl": "https://www.cs.umd.edu/sites/default/files/styles/medium/public/images/userpictures/2020-400x400.png?itok=pDcczXPN",
+      "affiliation": "university of maryland college park",
+      "position": "Professor"
+    },
+    {
+      "id": 11519,
+      "name": "Aho, Alfred V.",
+      "score": 7233,
+      "photoUrl": "https://lh3.googleusercontent.com/proxy/jbq8wvQLqIL5uyjCw0cD7uW6QnQAKvPtndzOTNrmsm7s9IwGOvTc5Av5nHma697jB2T_CbfWv_PB680ozv4w4A1L",
+      "affiliation": "columbia university",
+      "position": " Professor Emeritus, Lawrence Gussman Professor of Computer Science"
+    },
+    {
+      "id": 11620,
+      "name": "Hari Balakrishnan",
+      "score": 7144,
+      "photoUrl": "https://lh3.googleusercontent.com/proxy/3iahs0vjjUv6LMfW0GRIrxiz5X4i1MmZNZekHeqRyQtkq3pGZQVDnCvMQGQURzqklz2KVL0sE5aXDLWhY6Ni99JAaI6N5IjnnwfJ1GJ31jG4mw",
+      "affiliation": "massachusetts institute of technology",
+      "position": "Fujitsu Professor of EECS "
+    }
+  ],
+  "topPapers": [
+    {
+      "title": "The Sequence Alignment/Map format and SAMtools",
+      "venue": "Bioinformatics",
+      "year": 2009,
+      "numCitations": 30132,
+      "score": 12205
+    },
+    {
+      "title": "Introduction to Algorithms",
+      "venue": null,
+      "year": 1990,
+      "numCitations": 14432,
+      "score": 9094
+    },
+    {
+      "title": "Ultrafast and memory-efficient alignment of short DNA sequences to the human genome",
+      "venue": "Genome Biology",
+      "year": 2009,
+      "numCitations": 15687,
+      "score": 6354
+    },
+    {
+      "title": "Mining frequent patterns without candidate generation",
+      "venue": "Proceedings of the 2000 ACM SIGMOD international conference on Management of data",
+      "year": 2000,
+      "numCitations": 5532,
+      "score": 5532
+    },
+    {
+      "title": "Chord: A scalable peer-to-peer lookup service for internet applications",
+      "venue": "acm special interest group on data communication",
+      "year": 2001,
+      "numCitations": 9977,
+      "score": 5153
+    },
+    {
+      "title": "The Design and Analysis of Computer Algorithms",
+      "venue": null,
+      "year": 1974,
+      "numCitations": 7893,
+      "score": 4973
+    },
+    {
+      "title": "Network Flows: Theory, Algorithms, and Applications",
+      "venue": null,
+      "year": 1993,
+      "numCitations": 7256,
+      "score": 4572
+    },
+    {
+      "title": "WordNet : an electronic lexical database",
+      "venue": "Language",
+      "year": 2000,
+      "numCitations": 10384,
+      "score": 4206
+    },
+    {
+      "title": "An efficient k-means clustering algorithm: analysis and implementation",
+      "venue": "IEEE Transactions on Pattern Analysis and Machine Intelligence",
+      "year": 2002,
+      "numCitations": 4006,
+      "score": 4006
+    },
+    {
+      "title": "PointNet: Deep Learning on Point Sets for 3D Classification and Segmentation",
+      "venue": "2017 IEEE Conference on Computer Vision and Pattern Recognition (CVPR)",
+      "year": 2017,
+      "numCitations": 3414,
+      "score": 3414
+    },
+    {
+      "title": "Fibonacci heaps and their uses in improved network optimization algorithms",
+      "venue": "Journal of the ACM",
+      "year": 1987,
+      "numCitations": 2220,
+      "score": 2220
+    },
+    {
+      "title": "The NURBS Book",
+      "venue": null,
+      "year": 1995,
+      "numCitations": 3464,
+      "score": 2183
+    },
+    {
+      "title": "Color indexing",
+      "venue": "International Journal of Computer Vision",
+      "year": 1991,
+      "numCitations": 5207,
+      "score": 2109
+    },
+    {
+      "title": "Mining Frequent Patterns without Candidate Generation: A Frequent-Pattern Tree Approach",
+      "venue": "Data Mining and Knowledge Discovery",
+      "year": 2004,
+      "numCitations": 2069,
+      "score": 2069
+    },
+    {
+      "title": "An optimal algorithm for approximate nearest neighbor searching fixed dimensions",
+      "venue": "Journal of the ACM",
+      "year": 1998,
+      "numCitations": 2065,
+      "score": 2065
+    }
+  ]
+}

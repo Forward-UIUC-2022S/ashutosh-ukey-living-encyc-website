@@ -1,0 +1,41 @@
+(*) Applications
+
+The following computer problems can be solved using Data Structures and Algorithms. There are three common problems that applications face now-a-days: Data Search, Multiple Requests and Data Mining. What is a Data Structure? There can be many definitions for a data structure, but the easiest one to understand is the following:. A data structure is a collection of values.
+
+The values can have relationships among them and they can have functions applied to them. Each one is different in what it can do and what it is best used for. Arrays are the simplest data structures that store items of the same data type. Graphs are a data structure where data is stored in a series of interconnected vertices and edges.
+
+
+References:
+https://csveda.com/data-structure/applications-of-data-structures/
+https://www.geeksforgeeks.org/real-time-application-of-data-structures/
+https://medium.com/geekculture/applications-of-data-structures-6ab9920ea3e5
+https://dzone.com/articles/data-structures-and-their-applications
+https://www.quora.com/What-are-the-applications-of-data-structures
+https://www.tutorialspoint.com/data_structures_algorithms/index.htm
+
+(*) History
+
+Git is a distributed version control system that operates on a directory of files. It is a history tree that supports the features of the history log. Git uses the snapshot method for encoding states where the snapshots are "lazy", and only after a git gc does it change to using the delta method. Even with this delta compression applied at git gc, binary files are still problematic. This isn't because of some fundamental difference between text data and binary data, but mainly due to the way programs create binary blobs. At the same time, compression is often applied immediately to the binary file which happens to PDF, JPEG, MPEG, DOC, DOCX and more.
+
+References:
+https://en.wikipedia.org/wiki/Data_structure
+https://www.britannica.com/technology/data-structure
+https://gist.github.com/CMCDragonkai/d266a3055735545447439f0fa662a0e1
+https://ieeexplore.ieee.org/document/1408790
+https://www.sigcis.org/files/A%20brief%20history.pdf
+https://www.quora.com/Who-invented-data-structures-like-stack-queues-and-linked-lists
+
+(*) Types
+
+When we think of data structures, there are generally four forms:. A data structure is a collection of data type 'values' which are stored and organized in such a way that it allows for efficient access and modification. In some cases a data structure can become the underlying implementation for a particular data type. An abstract data type (ADT) describes the expected behaviour associated with a concrete data structure. In an array, elements in memory are arranged in continuous memory.
+
+The type of elements that can be stored in the form of arrays is determined by the programming language. Stack data structure works in the LIFO principle, which is, the last element stored in a stack will be removed first. Queue data structure, which works just like a queue of people in the ticket counter where first person on the queue will get the ticket first.
+
+References:
+https://emerginged.com/blogs/emerginged-blog/eight-data-structures-every-programmer-has-to-know
+https://www.integralist.co.uk/posts/data-types-and-data-structures/
+https://towardsdatascience.com/8-common-data-structures-every-programmer-must-know-171acf6a1a42
+https://www.programiz.com/dsa/data-structure-types
+https://en.wikipedia.org/wiki/List_of_data_structures
+https://www.geeksforgeeks.org/data-structures/
+

@@ -2,11 +2,11 @@
 const { spawn } = require("child_process");
 const { chunksToLinesAsync, chomp } = require("@rauschma/stringio");
 
-const SCRIPT_PATH = `${process.env["ROOT_DIR"]}/services/arxiv_sent_examples/start_gen_proc.sh`;
+const SCRIPT_PATH = `${process.env["MODULES_DIR"]}/naifu-zheng-example-sentence-extraction/start_gen_proc.sh`;
 
 const whooshProc = spawn(
   `stdbuf`,
-  ["-oL", "bash", SCRIPT_PATH, process.env["ROOT_DIR"]],
+  ["-oL", "bash", SCRIPT_PATH, process.env["MODULES_DIR"]],
   {
     stdio: ["pipe", "pipe", process.stderr],
   }
