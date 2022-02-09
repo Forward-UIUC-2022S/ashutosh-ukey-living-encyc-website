@@ -14,6 +14,8 @@ const router = express.Router();
 const TIMELINE_SCRIPT_PATH = `${process.env["MODULES_DIR"]}/angeline-prabakar-keyword-usage-within-domain/run.sh`;
 const REL_SENTENCES_SCRIPT_PATH = `${process.env["MODULES_DIR"]}/henrik-tseng-meaningful-relations-between-keywords/run.sh`;
 const COURSE_FINDER_SCRIPT_PATH = `${process.env["MODULES_DIR"]}/zicheng-ma-educational-website-and-courses-finder-for-keyword/run.sh`;
+const SURVEY_FINDER_SCRIPT_PATH = `${process.env["MODULES_DIR"]}/matthew-kurapatti-classify-tutorials-surveys/run.sh`;
+const QUESTIONS_FINDER_SCRIPT_PATH = `${process.env["MODULES_DIR"]}/matt-ho-keyword-related-questions/run.sh`;
 
 const NUM_WIKI_RESULTS = 15;
 const NUM_EX_SENTS = 9;
@@ -22,7 +24,7 @@ function checkAbort(hasAborted) {
   if (hasAborted) throw { type: "clientAbort" };
 }
 
-async function addExampleSents(keyword) {
+async function getExampleSents(keyword, addToObj=false) {
   if (!keyword) return;
 
   let program_cmd_inp = keyword.name.replace(/ /g, "+");
@@ -36,7 +38,9 @@ async function addExampleSents(keyword) {
   out_ln = out_ln.value;
 
   const sentences = JSON.parse(out_ln);
-  keyword.sentences = sentences;
+
+  if (addToObj) keyword.sentences = sentences;
+  else return sentences;
 }
 
 async function addWikiInfo(keyword) {
@@ -99,6 +103,8 @@ function runBash(scriptPath, pythonProgArgs, next) {
     pythonProgArgs
   );
 
+  console.log(scriptArgs);
+
   const proc = spawn("bash", scriptArgs);
 
   // Collect data from script
@@ -110,6 +116,7 @@ function runBash(scriptPath, pythonProgArgs, next) {
 
   // On 'close' event, we are sure that stream from child process is closed
   proc.on("close", (code) => {
+    console.log(code, returnData)
     next(returnData);
   });
 }
@@ -144,6 +151,29 @@ router.get("/:id/courses", async (req, res) => {
   });
 });
 
+router.get("/:id/surveys", async (req, res) => {
+  const keyword = await Keyword.get(req.params.id);
+
+  runBash(SURVEY_FINDER_SCRIPT_PATH, [keyword["name"]], (data) => {
+    res.send(data);
+  });
+});
+
+router.get("/:id/questions", async (req, res) => {
+  const keyword = await Keyword.get(req.params.id);
+
+  runBash(QUESTIONS_FINDER_SCRIPT_PATH, [keyword["name"]], (data) => {
+    res.send(data);
+  });
+});
+
+router.get("/:id/sentences", async (req, res) => {
+  const keyword = await Keyword.get(req.params.id);
+  const sentences = await getExampleSents(keyword);
+
+  res.send(sentences);
+});
+
 router.get("/:id", async (req, res) => {
   let hasAborted = false;
   req.on("close", function (err) {
@@ -154,10 +184,10 @@ router.get("/:id", async (req, res) => {
 
   if (req.query.displayInfo) {
     keyword = await Keyword.getDisplayInfo(req.params.id);
-    await Promise.all([addExampleSents(keyword)]);
+    // await Promise.all([addExampleSents(keyword)]);
   } else {
     keyword = await Keyword.get(req.params.id);
-    await Promise.all([addWikiInfo(keyword), addExampleSents(keyword)]);
+    await Promise.all([addWikiInfo(keyword), getExampleSents(keyword, true)]);
   }
 
   try {

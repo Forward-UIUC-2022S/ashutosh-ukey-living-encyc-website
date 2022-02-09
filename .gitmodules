@@ -10,3 +10,9 @@
 [submodule "python-modules/zicheng-ma-educational-website-and-courses-finder-for-keyword"]
 	path = python-modules/zicheng-ma-educational-website-and-courses-finder-for-keyword
 	url = https://github.com/Forward-UIUC-2021F/zicheng-ma-educational-website-and-courses-finder-for-keyword.git
+[submodule "python-modules/matt-ho-keyword-related-questions"]
+	path = python-modules/matt-ho-keyword-related-questions
+	url = https://github.com/Forward-UIUC-2021F/matt-ho-keyword-related-questions.git
+[submodule "python-modules/matthew-kurapatti-classify-tutorials-surveys"]
+	path = python-modules/matthew-kurapatti-classify-tutorials-surveys
+	url = https://github.com/Forward-UIUC-2021F/matthew-kurapatti-classify-tutorials-surveys.git

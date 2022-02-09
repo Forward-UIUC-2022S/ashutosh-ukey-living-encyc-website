@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const { getDbConnection } = require("./utils");
+// const { getDbConnection } = require("./utils");
 
 const cors = require("cors");
 const express = require("express");
@@ -60,9 +60,9 @@ app.use("/auth", authRouter);
 
 // Gracefully exit server
 async function cleanup() {
-  const con = await dbConnPool;
+  // const con = await dbConnPool;
 
-  con.end();
+  // con.end();
   server.close();
 
   whooshProc.kill("SIGINT");
