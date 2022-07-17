@@ -1,3 +1,5 @@
+const axios = require("axios");
+
 const express = require("express");
 const Keyword = require("../models/keyword");
 const wiki = require("wikijs").default();
@@ -10,6 +12,8 @@ const { spawn } = require("child_process");
 const whooshProcBuf = require("../boot/whoosh").outBuf();
 
 const router = express.Router();
+
+const RANK_API_ROOT = "http://education.today:8080";
 
 const TIMELINE_SCRIPT_PATH = `${process.env["MODULES_DIR"]}/angeline-prabakar-keyword-usage-within-domain/run.sh`;
 const REL_SENTENCES_SCRIPT_PATH = `${process.env["MODULES_DIR"]}/henrik-tseng-meaningful-relations-between-keywords/run.sh`;
@@ -24,7 +28,7 @@ function checkAbort(hasAborted) {
   if (hasAborted) throw { type: "clientAbort" };
 }
 
-async function getExampleSents(keyword, addToObj=false) {
+async function getExampleSents(keyword, addToObj = false) {
   if (!keyword) return;
 
   let program_cmd_inp = keyword.name.replace(/ /g, "+");
@@ -103,7 +107,7 @@ function runBash(scriptPath, pythonProgArgs, next) {
     pythonProgArgs
   );
 
-  console.log(scriptArgs);
+  // console.log(scriptArgs);
 
   const proc = spawn("bash", scriptArgs);
 
@@ -116,7 +120,7 @@ function runBash(scriptPath, pythonProgArgs, next) {
 
   // On 'close' event, we are sure that stream from child process is closed
   proc.on("close", (code) => {
-    console.log(code, returnData)
+    // console.log(code, returnData);
     next(returnData);
   });
 }
@@ -131,47 +135,165 @@ router.get("/:id/timeline", async (req, res) => {
 });
 
 router.get("/:id/rel-sentence", async (req, res) => {
+  // TODO: remove in prod
+  // res.send([]);
+  // return;
+
   const keyword = await Keyword.get(req.params.id);
   const queryKeyword = await Keyword.get(req.query.qKwId);
 
-  runBash(
-    REL_SENTENCES_SCRIPT_PATH,
-    [keyword["name"], queryKeyword["name"]],
-    (data) => {
-      res.send(data);
-    }
-  );
+  if (!keyword?.["name"] || !queryKeyword?.["name"]) {
+    res.send([]);
+  } else {
+    runBash(
+      REL_SENTENCES_SCRIPT_PATH,
+      [keyword["name"], queryKeyword["name"]],
+      (data) => {
+        res.send(data);
+      }
+    );
+  }
 });
 
-router.get("/:id/courses", async (req, res) => {
+// Returns ['url1', 'url2', ...]
+router.get("/:id/tutorials", async (req, res) => {
+  // const keyword = await Keyword.get(req.params.id);
+  // runBash(COURSE_FINDER_SCRIPT_PATH, [keyword["name"], 10], (data) => {
+  //   res.send(data);
+  // });
+
+  const tutorials = await Keyword.getTutorials(req.params.id);
+  res.send(tutorials);
+});
+
+// Returns ['url1', 'url2', ...]
+router.get("/:id/article", async (req, res) => {
+  // const keyword = await Keyword.get(req.params.id);
+  // runBash(COURSE_FINDER_SCRIPT_PATH, [keyword["name"], 10], (data) => {
+  //   res.send(data);
+  // });
+
+  const article = await Keyword.getArticle(req.params.id);
+  res.send(article);
+});
+
+/*
+  Returns 
+  [{
+      "id": 13650,
+      "name": "Jiawei Han",
+      "score": 13344,
+      "photoUrl": "https://ws.engr.illinois.edu/directory/viewphoto.aspx?id=4947&s=300&type=portrait",
+      "affiliation": "university of illinois at urbana champaign",
+      "position": "Michael Aiken Chair"
+    },
+    ...
+  ]
+ */
+router.get("/:id/top-faculty", async (req, res) => {
   const keyword = await Keyword.get(req.params.id);
+  const etKwId = await Keyword.getEduTodayId(keyword.name);
 
-  runBash(COURSE_FINDER_SCRIPT_PATH, [keyword["name"], 10], (data) => {
-    res.send(data);
-  });
+  const resp = await axios.get(
+    `${RANK_API_ROOT}/cs/rank/authors/rank*${etKwId.toString()}`
+  );
+
+  const authors = resp.data.map((e) => ({
+    ...e,
+    photoUrl: e["photo_url"],
+    affiliation: e["inst"]?.["name"],
+  }));
+
+  res.send(authors);
 });
 
+/*
+  Returns 
+  [{
+      "title": "The Sequence Alignment/Map format and SAMtools",
+      "venue": "Bioinformatics",
+      "year": 2009,
+      "numCitations": 30132,
+      "score": 12205
+    },
+    ...
+  ]
+ */
+router.get("/:id/top-papers", async (req, res) => {
+  const keyword = await Keyword.get(req.params.id);
+  const etKwId = await Keyword.getEduTodayId(keyword.name);
+
+  const resp = await axios.get(
+    `${RANK_API_ROOT}/cs/rank/papers/rank*${etKwId.toString()}`
+  );
+
+  const papers = resp.data.map((e) => ({
+    // id: e["id"],
+    ...e,
+    numCitations: e["num_citations"],
+  }));
+
+  res.send(papers);
+});
+
+/*
+  Returns [
+    {
+      url: 'url', 
+      authors: ['author1', 'author2', ...],
+      title: 'title',
+      year: year,
+    },
+    ...
+  ]
+*/
 router.get("/:id/surveys", async (req, res) => {
   const keyword = await Keyword.get(req.params.id);
 
   runBash(SURVEY_FINDER_SCRIPT_PATH, [keyword["name"]], (data) => {
-    res.send(data);
+    res.send(
+      data.map((e) => ({
+        url: e[0],
+        authors: e[1],
+        title: e[2],
+        year: e[3],
+      }))
+    );
   });
 });
 
+// Returns ['q1', 'q2', ...]
 router.get("/:id/questions", async (req, res) => {
-  const keyword = await Keyword.get(req.params.id);
+  // const keyword = await Keyword.get(req.params.id);
+  // runBash(QUESTIONS_FINDER_SCRIPT_PATH, [keyword["name"]], (data) => {
+  //   res.send(data);
+  // });
 
-  runBash(QUESTIONS_FINDER_SCRIPT_PATH, [keyword["name"]], (data) => {
-    res.send(data);
-  });
+  const questions = await Keyword.getTopQuestions(req.params.id);
+  res.send(questions);
 });
 
+/*
+  Returns [
+    {sentence: 's1'},
+    {sentence: 's2'},
+    ...
+  ]
+*/
 router.get("/:id/sentences", async (req, res) => {
-  const keyword = await Keyword.get(req.params.id);
-  const sentences = await getExampleSents(keyword);
+  // const keyword = await Keyword.get(req.params.id);
+  // const sentences = await getExampleSents(keyword);
 
+  const sentences = await Keyword.getExampleSents(req.params.id);
   res.send(sentences);
+});
+
+router.put("/:id/sentences/:sentId/flag", async (req, res) => {
+  // const keyword = await Keyword.get(req.params.id);
+  // const sentences = await getExampleSents(keyword);
+
+  Keyword.flagExampleSent(req.params.id, req.params.sentId);
+  // res.send(sentences);
 });
 
 router.get("/:id", async (req, res) => {

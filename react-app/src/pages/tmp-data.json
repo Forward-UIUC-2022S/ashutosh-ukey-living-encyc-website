@@ -54,7 +54,69 @@
     "https://en.wikipedia.org/wiki/List_of_data_structures",
     "https://www.geeksforgeeks.org/data-structures/"
   ],
-  "article": [
+  "article": {
+    "Applications": [
+      [
+        "I am learning about some of the common applications of Markov random fields (a.k.a. undirected graphical models) to data science. A common feature of many applications I have read about is that the number of variables in the model is relatively large (e.g. in applications to computer vision or NLP). For educational purposes, I am interested in the following question:",
+        {
+          "url": "https://stats.stackexchange.com/questions/396115/examples-of-applications-of-markov-random-fields-to-data-with-a-small-number-of"
+        }
+      ],
+      [
+        "A random field is the representation of the joint probability distribution for a set of random variables. Markov fields, in particular, have a long standing tradition as the theoretical foundation of many applications in statistical physics and probability. For strictly positive probability densities, a Markov random field is also a Gibbs field, i.e., a random field supplemented with a measure that implies the existence of a regular conditional distribution. Markov random fields have been used in statistical physics, dating back as far as the Ehrenfests. However, their measure theoretical foundations were developed much later by Dobruschin, Lanford and Ruelle, as well as by Hammersley and Clifford. Aside from its enormous theoretical relevance, due to its generality and simplicity, Markov random fields have been used in a broad range of applications in equilibrium and non-equilibrium statistical physics, in non-linear dynamics and ergodic theory. Also in computational molecular biology, ecology, structural biology, computer vision, control theory, complex networks and data science, to name but a few. Often these applications have been inspired by the original statistical physics approaches. Here, we will briefly present a modern introduction to the theory of random fields, later we will explore and discuss some of the recent applications of random fields in physics, biology and data science. Our aim is to highlight the relevance of this powerful theoretical aspect of statistical physics and its relation to the broad success of its many interdisciplinary applications.",
+        {
+          "url": "https://www.frontiersin.org/articles/10.3389/fphy.2021.641859/full"
+        }
+      ],
+      [
+        "Jain, A.K., Nadabar, S.G. (1992). Markov Random Field Applications in Image Analysis. In: Di Gesu, V., Scarsi, L., Buccheri, R., Crane, P., Maccarone, M.C., Zimmermann, H.U. (eds) Data Analysis in Astronomy IV. Ettore Majorana International Science Series, vol 59. Springer, Boston, MA. https://doi.org/10.1007/978-1-4615-3388-7_5",
+        {
+          "url": "https://link.springer.com/chapter/10.1007/978-1-4615-3388-7_5"
+        }
+      ]
+    ],
+    "Definition": [
+      [
+        "A Markov Random Fields is a set of random variables that is satisfy the Markov properties in undirected graph. To be simple, the Markov properties formulates the dependencies among random variables and this dependencies are",
+        {
+          "url": "https://medium.com/datatype/restricted-boltzmann-machine-a-complete-analysis-part-2-a-markov-random-field-model-1a38e4b73b6d"
+        }
+      ],
+      [
+        "A Markov Random Field is a graph whose nodes model random variables, and whose edges model desired local influences among pairs of them. Local influences propagate globally, leveraging the connectivity of the graph.",
+        {
+          "url": "https://towardsdatascience.com/markov-random-fields-and-image-processing-20fb4cf7e10d"
+        }
+      ],
+      [
+        "In the domain of physics and probability, a Markov random field (often abbreviated as MRF), Markov network or undirected graphical model is a set of random variables having a Markov property described by an undirected graph. In other words, a random field is said to be a Markov random field if it satisfies Markov properties. A Markov network or MRF is similar to a Bayesian network in its representation of dependencies; the differences being that Bayesian networks are directed and acyclic, whereas Markov networks are undirected and may be cyclic. Thus, a Markov network can represent certain dependencies that a Bayesian network cannot (such as cyclic dependencies); on the other hand, it can't represent certain dependencies that a Bayesian network can (such as induced dependencies). The underlying graph of a Markov random field may be finite or infinite. When the joint probability density of the random variables is strictly positive, it is also referred to as a Gibbs random field, because, according to the Hammersley-Clifford theorem, it can then be represented by a Gibbs measure for an appropriate (locally defined) energy function. The prototypical Markov random field is the Ising model; indeed, the Markov random field was introduced as the general setting for the Ising model. In the domain of artificial intelligence, a Markov random field is used to model various low- to mid-level tasks in image processing and computer vision.",
+        {
+          "url": "https://www.definitions.net/definition/markov+random+field"
+        }
+      ]
+    ],
+    "Properties": [
+      [
+        "A Markov Random Fields is a set of random variables that is satisfy the Markov properties in undirected graph. To be simple, the Markov properties formulates the dependencies among random variables and this dependencies are",
+        {
+          "url": "https://medium.com/datatype/restricted-boltzmann-machine-a-complete-analysis-part-2-a-markov-random-field-model-1a38e4b73b6d"
+        }
+      ],
+      [
+        "In essence, we can state that among the general class of random fields, Markov random fields are defined by obeying the Markov neighborhood law. Gibbs fields are usually understood as Markov fields with strictly positive probability measures (in particular, a strictly positive joint probability density). These Markov-Gibbs fields are thus defined by the Markov property and the positive definite probabilities and are the ones that follow the Hammersley-Clifford theorem. More general Gibbs fields can be defined by other neighborhood laws than the Markov property [",
+        {
+          "url": "https://www.frontiersin.org/articles/10.3389/fphy.2021.641859/full"
+        }
+      ],
+      [
+        "A Markov Random Field is a graph whose nodes model random variables, and whose edges model desired local influences among pairs of them. Local influences propagate globally, leveraging the connectivity of the graph.",
+        {
+          "url": "https://towardsdatascience.com/markov-random-fields-and-image-processing-20fb4cf7e10d"
+        }
+      ]
+    ]
+  },
+  "article_old": [
     {
       "content": "Data structure is a storage that is used to store and organize data. It is a way of arranging data on a computer so that it can be accessed efficiently. For example, we can store a list of items having the same data-type using the array data structure. Learn any programming language from scratch and understand all its fundamentals concepts for a strong programming foundation in the easiest possible manner with help of GeeksforGeeks Language Foundation Courses. Get interview-centric live online classes on Data Structure and Algorithms from any geographical location to enhance your problem-solving & programming skills."
     },

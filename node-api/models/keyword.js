@@ -2,6 +2,7 @@ const MAX_SEARCH_RESULTS = 20;
 
 const { findCommonSubstr, MIN_SAME_LABELS } = require("../utils");
 const dbConnPool = require("../boot/db.js");
+const etDbConnPool = require("../boot/et_db.js");
 
 const Keyword = {};
 
@@ -75,6 +76,126 @@ Keyword.get = async (keywordId) => {
   return rows[0];
 };
 
+Keyword.getExampleSents = async (keywordId) => {
+  const con = await dbConnPool;
+
+  // Get basic keyword info
+  const getExSentsSql = `
+    SELECT id, content
+
+    FROM ex_sentence
+    WHERE keyword_id=?
+  `;
+
+  const [rows, _] = await con.query(getExSentsSql, [keywordId]);
+  return rows.map((e) => ({
+    id: e["id"],
+    sentence: e["content"],
+  }));
+};
+
+Keyword.flagExampleSent = async (keywordId, sentId) => {
+  const con = await dbConnPool;
+
+  // Get basic keyword info
+  const getExSentsSql = `
+    INSERT INTO ex_sentence_label
+
+    (ex_sentence_id, )
+    WHERE keyword_id=?
+  `;
+};
+
+Keyword.getArticle = async (keywordId) => {
+  const con = await dbConnPool;
+  const res = {};
+
+  // Get basic keyword info
+  const getSectsSql = `
+    SELECT id, title
+
+    FROM article_section
+    WHERE keyword_id=?
+
+    ORDER BY seq
+  `;
+
+  let [rows, _] = await con.query(getSectsSql, [keywordId]);
+
+  for (let sect of rows) {
+    res[sect["title"]] = [];
+
+    const getParsSql = `
+      SELECT content, source_url 
+
+      FROM sect_paragraph
+      WHERE section_id=?
+
+      ORDER BY seq
+    `;
+    let [rows, _] = await con.query(getParsSql, [sect["id"]]);
+
+    for (let par of rows) {
+      const parObj = [
+        par["content"],
+        {
+          url: par["source_url"],
+        },
+      ];
+      res[sect["title"]].push(parObj);
+    }
+  }
+
+  return res;
+};
+
+Keyword.getTopQuestions = async (keywordId) => {
+  const con = await dbConnPool;
+
+  // Get basic keyword info
+  const getQsSql = `
+    SELECT content
+
+    FROM question
+    WHERE keyword_id=?
+  `;
+
+  const [rows, _] = await con.query(getQsSql, [keywordId]);
+  return rows.map((e) => e["content"]);
+};
+
+Keyword.getTutorials = async (keywordId) => {
+  const con = await dbConnPool;
+
+  // Get basic keyword info
+  const getTutorialsSql = `
+    SELECT url
+
+    FROM tutorial
+    WHERE keyword_id=?
+  `;
+
+  const [rows, _] = await con.query(getTutorialsSql, [keywordId]);
+  return rows.map((e) => e["url"]);
+};
+
+Keyword.getEduTodayId = async (keyword) => {
+  const con = await etDbConnPool;
+
+  const getEtKwId = `
+    SELECT id
+
+    FROM FoS
+    WHERE FoS_name=?
+    LIMIT 1
+  `;
+
+  const [rows, _] = await con.query(getEtKwId, [keyword.toLowerCase()]);
+  const kwId = rows[0]["id"];
+
+  return kwId;
+};
+
 /* 
   Verified and good quality info that
   we want to display to users (i.e. not manual labelers)
@@ -101,18 +222,18 @@ Keyword.getDisplayInfo = async (keywordId) => {
   const keywordInfo = rows[0];
 
   // Get surveys
-  const getSurveys = `
-    SELECT 
-      url, title, authors, 
-      year, num_citation 
+  // const getSurveys = `
+  //   SELECT
+  //     url, title, authors,
+  //     year, num_citation
 
-    FROM survey 
-    WHERE keyword_id = ?
+  //   FROM survey
+  //   WHERE keyword_id = ?
 
-    LIMIT 15
-  `;
-  [rows, _] = await con.query(getSurveys, [keywordId]);
-  keywordInfo["surveys"] = rows;
+  //   LIMIT 15
+  // `;
+  // [rows, _] = await con.query(getSurveys, [keywordId]);
+  // keywordInfo["surveys"] = rows;
 
   // Get functionally similar keywords
   const getFuncSimilar = `

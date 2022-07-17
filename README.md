@@ -55,7 +55,13 @@ In order to be able to support letting manual keyword labelers using their Googl
     pip install -r requirements.txt
     ```
 
-    Make sure to donwnload any data folders (if any) for each module and place them in the approporiate paths.
+    Make sure to donwnload any data folders (if any) for each module and place them in the approporiate paths. If you need to save any changes to code within a Python module that is also a Github submodule, make sure to run 
+
+    ```
+    git checkout kp-integrate
+    ```
+
+    within the submodule's root directory. Commit and push all changes to the `kp-integrate` branch within each submodule repo as you would a regular Github repo.
 
 
 4. Install node dependencies within the `node-api` and `react-app` folders by running
@@ -66,7 +72,7 @@ In order to be able to support letting manual keyword labelers using their Googl
 
     within the root directory of each.
 
-5. Within the `node-api` and `react-app` folders, rename `.env.template` to `.env` and change the fileds with the appropriate information.
+5. Within the root of `node-api`, `react-app`, and `python-modules` folders, rename `.env.template` to `.env` and change the fileds with the appropriate information.
 
 ## Running the website (development build)
 

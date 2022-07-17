@@ -1,5 +1,76 @@
 import { makeStyles } from "@material-ui/core/styles";
+import parse from "html-react-parser";
 
+function findAllOccurences(text, keyword) {
+  const allOccurences = [];
+  let curOccur = text.indexOf(keyword);
+
+  while (curOccur != -1) {
+    allOccurences.push(curOccur);
+    curOccur = text.indexOf(keyword, curOccur + keyword.length);
+  }
+
+  return allOccurences;
+}
+
+function strInsert(str, insertIdx, insertStr) {
+  return str.slice(0, insertIdx) + insertStr + str.slice(insertIdx);
+}
+
+export function highlightText(text, keywords) {
+  let fullText = text;
+
+  const highlightStarts = [];
+  const highlightEnds = [];
+
+  for (let k of keywords) {
+    const kOccurs = findAllOccurences(text, k);
+    for (let hStart of kOccurs) {
+      highlightStarts.push(hStart);
+      highlightEnds.push(hStart + k.length);
+    }
+  }
+
+  highlightStarts.sort();
+  highlightEnds.sort();
+
+  let startI = highlightStarts.length - 1;
+  let endI = highlightEnds.length - 1;
+
+  function nextEndI() {
+    const curValue = highlightEnds[endI];
+    while (endI >= 0 && highlightEnds[endI] == curValue) {
+      endI -= 1;
+    }
+  }
+
+  function nextStartI() {
+    const curValue = highlightEnds[startI];
+    while (startI >= 0 && highlightEnds[startI] == curValue) {
+      startI -= 1;
+    }
+  }
+
+  while (startI >= 0 || endI >= 0) {
+    if (startI < 0) {
+      fullText = strInsert(fullText, highlightEnds[endI], "</b>");
+      nextEndI();
+    } else if (endI < 0) {
+      fullText = strInsert(fullText, highlightStarts[startI], "<b>");
+      nextStartI();
+    } else {
+      if (highlightStarts[startI] > highlightEnds[endI]) {
+        fullText = strInsert(fullText, highlightStarts[startI], "<b>");
+        nextStartI();
+      } else {
+        fullText = strInsert(fullText, highlightEnds[endI], "</b>");
+        nextEndI();
+      }
+    }
+  }
+
+  return parse(fullText);
+}
 export function fetchApi(url, opts = {}) {
   const apiUrl = process.env.REACT_APP_API_BASE_URL + url;
   const apiOpts = { ...opts, credentials: "include" };
@@ -56,6 +127,8 @@ var small =
 var punct = "([!\"#$%&'()*+,./:;<=>?@[\\\\\\]^_`{|}~-]*)";
 
 export const titleCaps = function (title) {
+  if (!title) return;
+
   var parts = [],
     split = /[:.;?!] |(?: |^)["Ò]/g,
     index = 0;

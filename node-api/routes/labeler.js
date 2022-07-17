@@ -1,8 +1,14 @@
+/*
+  To access routes in this file, use an additional prefix '/labe
+*/
+
 const express = require("express");
 const User = require("../models/user");
 const { isLoggedIn, isLoggedInAdmin, logSqlError } = require("../utils");
 
 const router = express.Router();
+
+//
 
 // router.get("/keywords", async (req, res) => {
 router.get("/keywords", isLoggedIn, async (req, res) => {
