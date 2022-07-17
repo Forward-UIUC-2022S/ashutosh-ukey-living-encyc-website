@@ -117,7 +117,7 @@ For the domain relevance section, you can also use additional filtering tools to
 
 # Methodology
 
-Each module is responsible for some section(s) in every keyword's profile page. Most are straighforward
+Each module is responsible for some section(s) in every keyword's profile page:
 
 * `angeline-prabakar-keyword-usage-within-domain`: keyword timeline
 
