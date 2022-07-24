@@ -15,6 +15,17 @@ const router = express.Router();
 
 const RANK_API_ROOT = "http://education.today:8080";
 
+/* 
+  If true, fetches pre-computed / cached keyword profile content from database.
+  Otherwise, runs scripts in real time below to get content. 
+  
+  Note: this behavior is only controllable for certain sections. Some sections
+  default to always running the full script to fetch the content.
+
+  TODO: make all sections configurable
+*/
+const USE_CACHED_SECTIONS = true;
+
 const TIMELINE_SCRIPT_PATH = `${process.env["MODULES_DIR"]}/angeline-prabakar-keyword-usage-within-domain/run.sh`;
 const REL_SENTENCES_SCRIPT_PATH = `${process.env["MODULES_DIR"]}/henrik-tseng-meaningful-relations-between-keywords/run.sh`;
 const COURSE_FINDER_SCRIPT_PATH = `${process.env["MODULES_DIR"]}/zicheng-ma-educational-website-and-courses-finder-for-keyword/run.sh`;
@@ -129,8 +140,14 @@ router.get("/:id/timeline", async (req, res) => {
   const keyword = await Keyword.get(req.params.id);
 
   runBash(TIMELINE_SCRIPT_PATH, [keyword["name"]], (data) => {
-    const timelineData = [["x", keyword["name"]]].concat(Object.entries(data));
-    res.send(timelineData);
+    if (!data) {
+      res.send("Error fetching timeline data");
+    } else {
+      const timelineData = [["x", keyword["name"]]].concat(
+        Object.entries(data)
+      );
+      res.send(timelineData);
+    }
   });
 });
 
@@ -155,26 +172,30 @@ router.get("/:id/rel-sentence", async (req, res) => {
   }
 });
 
-// Returns ['url1', 'url2', ...]
 router.get("/:id/tutorials", async (req, res) => {
-  // const keyword = await Keyword.get(req.params.id);
-  // runBash(COURSE_FINDER_SCRIPT_PATH, [keyword["name"], 10], (data) => {
-  //   res.send(data);
-  // });
+  if (USE_CACHED_SECTIONS) {
+    const tutorials = await Keyword.getTutorials(req.params.id);
+    res.send(tutorials);
+  } else {
+    const keyword = await Keyword.get(req.params.id);
 
-  const tutorials = await Keyword.getTutorials(req.params.id);
-  res.send(tutorials);
+    runBash(COURSE_FINDER_SCRIPT_PATH, [keyword["name"], 10], (data) => {
+      res.send(data); // Data is of format ['url1', 'url2', ...]
+    });
+  }
 });
 
-// Returns ['url1', 'url2', ...]
 router.get("/:id/article", async (req, res) => {
-  // const keyword = await Keyword.get(req.params.id);
-  // runBash(COURSE_FINDER_SCRIPT_PATH, [keyword["name"], 10], (data) => {
-  //   res.send(data);
-  // });
+  if (USE_CACHED_SECTIONS) {
+    const article = await Keyword.getArticle(req.params.id);
+    res.send(article);
+  } else {
+    const keyword = await Keyword.get(req.params.id);
 
-  const article = await Keyword.getArticle(req.params.id);
-  res.send(article);
+    runBash(COURSE_FINDER_SCRIPT_PATH, [keyword["name"], 10], (data) => {
+      res.send(data); // Data is of format ['url1', 'url2', ...]
+    });
+  }
 });
 
 /*
@@ -262,15 +283,16 @@ router.get("/:id/surveys", async (req, res) => {
   });
 });
 
-// Returns ['q1', 'q2', ...]
 router.get("/:id/questions", async (req, res) => {
-  // const keyword = await Keyword.get(req.params.id);
-  // runBash(QUESTIONS_FINDER_SCRIPT_PATH, [keyword["name"]], (data) => {
-  //   res.send(data);
-  // });
-
-  const questions = await Keyword.getTopQuestions(req.params.id);
-  res.send(questions);
+  if (USE_CACHED_SECTIONS) {
+    const questions = await Keyword.getTopQuestions(req.params.id);
+    res.send(questions);
+  } else {
+    const keyword = await Keyword.get(req.params.id);
+    runBash(QUESTIONS_FINDER_SCRIPT_PATH, [keyword["name"]], (data) => {
+      res.send(data); // Data is of format ['q1', 'q2', ...]
+    });
+  }
 });
 
 /*
